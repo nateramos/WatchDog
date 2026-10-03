@@ -7,3 +7,9 @@ ultralytics==8.3.40
 opencv-python==4.10.0.84
 # needed by Ultralytics' ByteTrack tracker
 lap==0.5.12
+# Body pose (33 landmarks) and outline. 0.10.21 is the newest release pip finds for Intel Macs.
+mediapipe==0.10.21
+# MediaPipe needs the contrib build of OpenCV; same version as opencv-python above.
+opencv-contrib-python==4.10.0.84
+# Runs YOLO about twice as fast as PyTorch on Intel CPUs; the model is converted on first run.
+openvino==2024.6.0

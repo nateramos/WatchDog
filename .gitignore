@@ -10,6 +10,7 @@ __pycache__/
 tracking/.venv/
 tracking/output/
 *.pt
+tracking/*_openvino_model/
 *.mp4
 *.mov
 *.avi
