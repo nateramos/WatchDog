@@ -1,0 +1,9 @@
+# CPU-only. torch 2.2.2 / torchvision 0.17.2 are the last releases with Intel Mac wheels.
+torch==2.2.2
+torchvision==0.17.2
+numpy<2
+ultralytics==8.3.40
+# 4.10 still works with numpy 1.x (newer opencv-python requires numpy 2)
+opencv-python==4.10.0.84
+# needed by Ultralytics' ByteTrack tracker
+lap==0.5.12

@@ -1,0 +1,17 @@
+node_modules
+dist
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Tracking: virtual environment, model weights, videos
+tracking/.venv/
+tracking/output/
+*.pt
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.m4v
