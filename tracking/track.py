@@ -36,7 +36,7 @@ import numpy as np
 # demo can show its loading screen right away instead of a blank pause.
 
 # Shown at the bottom right of the video. Bump by 1 with every change to the tracker.
-VERSION = 21
+VERSION = 23
 
 HERE = Path(__file__).resolve().parent
 MODEL_PATH = HERE / "yolov8n-pose.pt"  # downloaded here on first run
@@ -55,6 +55,7 @@ WEAPON_NAMES = ["gun", "knife"]  # same order as train/prepare_weapon_data.py
 WEAPON_IMAGE_SIZE = 480  # full-frame weapon check; hand views below add close-up detail
 WEAPON_CONF = 0.4  # minimum confidence to flag a possible weapon
 WEAPON_COLOR = (0, 0, 255)  # BGR red
+WEAPON_TEXT_COLOR = (80, 80, 255)  # lighter red, readable on the dark counter panel
 # Held items are often small in the full frame, so both models also run on a
 # zoomed-in square around each hand. Hands come from MediaPipe's hand tracker
 # (works even when only a hand is in view) and from the body skeleton.
@@ -90,6 +91,9 @@ LOOKS_LIKE_HAND_CONF = 0.6
 HELD_MARGIN = 0.2  # a hand this close to an object (fraction of its size) is holding it
 HELD_COLOR = (255, 255, 0)  # BGR cyan
 MERGE_IOU = 0.5  # detections of the same kind this close are one item
+# The full-frame check and each hand view can all find the same weapon, with
+# boxes that overlap only partly or sit inside one another; they count as one.
+WEAPON_MERGE_IOU = 0.1
 INSIDE_FRACTION = 0.7  # a held-object box mostly inside another is part of the same object
 ITEM_HOLD = 3  # keep showing an item for this many detections after it's last seen
 RELEASE_AFTER = 3  # detections with hands visible but away from an object before it's let go
@@ -269,7 +273,8 @@ def parse_args():
         help="video files: run detection on every Nth frame (default 2; try 3 if it's slow)",
     )
     parser.add_argument(
-        "--debug", action="store_true", help="outline found hands and the zoomed-in views around them"
+        "--debug", action="store_true",
+        help="show body skeletons, found hands, and the zoomed-in views around them"
     )
     return parser.parse_args()
 
@@ -520,13 +525,27 @@ def dedupe(items):
     return [items[i] for i in np.array(keep).flatten()]
 
 
+def merge_weapons(items):
+    """One box per weapon: the most confident of any that overlap."""
+    kept = []
+    for w in sorted((i for i in items if i.weapon), key=lambda i: i.confidence, reverse=True):
+        if not any(
+            iou(w.box, k.box) > WEAPON_MERGE_IOU
+            or fraction_inside(w.box, k.box) > INSIDE_FRACTION
+            or fraction_inside(k.box, w.box) > INSIDE_FRACTION
+            for k in kept
+        ):
+            kept.append(w)
+    return kept
+
+
 def merge_items(items):
     """Combine full-frame and hand-view finds into one list without duplicates.
 
     When the weapon model and the everyday model see the same thing (e.g. a
     knife), the weapon flag wins.
     """
-    weapons = dedupe([i for i in items if i.weapon])
+    weapons = merge_weapons(items)
     # The type of an everyday object isn't shown, so overlapping guesses
     # (e.g. "phone" and "remote" on the same thing) count as one object.
     objects = [i for i in items if not i.weapon]
@@ -732,8 +751,13 @@ def skeleton_shapes(points):
     return bones, head, joints
 
 
-def draw_people(frame, people):
-    shapes = [skeleton_shapes(person.points) for person in people]
+def draw_people(frame, people, skeletons):
+    """Person boxes; the skeletons too when asked (--debug).
+
+    Skeletons are still found either way: they locate hands for the
+    zoomed-in held-object checks.
+    """
+    shapes = [skeleton_shapes(person.points) if skeletons else ([], None, []) for person in people]
 
     # Box shading and the skeleton's soft glow go on a copy that's blended
     # back in, so they're see-through.
@@ -787,19 +811,29 @@ def draw_items(frame, items):
         draw_tag(frame, x1, y1, label, color, text_color)
 
 
-def draw_counter(frame, text, right):
-    """A small dark panel with white text in the top-left or top-right corner."""
+def draw_counter(frame, text, right, row=0, color=(255, 255, 255)):
+    """A small dark panel with text in the top-left or top-right corner.
+
+    row stacks panels downward: 0 is the top one, 1 sits just below it, ...
+    """
     (w, h), _ = cv2.getTextSize(text, FONT, COUNTER_FONT_SCALE, 1)
+    (_, row_h), _ = cv2.getTextSize("A", FONT, COUNTER_FONT_SCALE, 1)  # same height every row
     x1 = frame.shape[1] - w - 26 if right else 10
-    x2, y1, y2 = x1 + w + 16, 10, 10 + h + 14
+    y1 = 10 + row * (row_h + 20)
+    x2, y2 = x1 + w + 16, y1 + row_h + 14
     panel = frame[y1:y2, x1:x2]
     panel[:] = (panel * 0.35).astype(np.uint8)  # darken behind the text
-    cv2.putText(frame, text, (x1 + 8, y1 + h + 7), FONT, COUNTER_FONT_SCALE, (255, 255, 255), 1, cv2.LINE_AA)
+    cv2.putText(frame, text, (x1 + 8, y1 + row_h + 7), FONT, COUNTER_FONT_SCALE, color, 1, cv2.LINE_AA)
 
 
 def draw_counts(frame, people, items):
     draw_counter(frame, f"PEOPLE: {len(people)}", right=False)
     draw_counter(frame, f"HELD OBJECTS: {sum(item.held for item in items)}", right=True)
+    weapon = any(item.weapon for item in items)
+    draw_counter(frame, f"WEAPON DETECTED: {str(weapon).upper()}", right=True, row=1,
+                 color=WEAPON_TEXT_COLOR if weapon else (255, 255, 255))
+    # Placeholder: the alert's overall confidence isn't calculated yet.
+    draw_counter(frame, "CONFIDENCE: --", right=True, row=2)
 
 
 def draw_version(frame):
@@ -818,7 +852,7 @@ def draw_hand_views(frame, hands):
 
 
 def draw_overlay(frame, people, items, hands, debug):
-    draw_people(frame, people)
+    draw_people(frame, people, skeletons=debug)
     if debug:
         draw_hand_views(frame, hands)
     draw_items(frame, items)
