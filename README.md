@@ -1,5 +1,7 @@
 # WatchDog
 
+**Live:** https://main.dbzst24ccqq7g.amplifyapp.com
+
 WatchDog is a campus safety tool that informs human responders and does not make decisions for them. For the contest MVP, it analyzes one recorded video with an object detection model that flags a possible weapon and displays a confidence score. Each alert goes to a human review screen where a person confirms or dismisses it, with an on-screen prompt to call 911 and a log of every override. A simple campus map plots the camera that raised the alert. The MVP uses no facial recognition. Multi-camera tracking, body tracking, and movement prediction are on the roadmap.
 
 Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
