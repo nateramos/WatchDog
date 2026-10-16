@@ -55,8 +55,7 @@ export default function About() {
             so clips you upload are never sent to a server.
           </li>
           <li>
-            <strong>No real people on campus.</strong> Testing uses licensed stock footage and
-            staged clips with obvious props, recorded off campus.
+            <strong>No real people on campus.</strong> Testing uses licensed stock footage only.
           </li>
         </ul>
 
