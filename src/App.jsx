@@ -1,15 +1,28 @@
-export default function App() {
+import { useEffect, useState } from 'react'
+import About from './About.jsx'
+import Demo from './Demo.jsx'
+import { Logo } from './Layout.jsx'
+
+// Hash routes (#/about, #/demo) so Amplify can serve every page from index.html.
+function useRoute() {
+  const [route, setRoute] = useState(window.location.hash)
+  useEffect(() => {
+    const onChange = () => {
+      setRoute(window.location.hash)
+      window.scrollTo(0, 0)
+    }
+    window.addEventListener('hashchange', onChange)
+    return () => window.removeEventListener('hashchange', onChange)
+  }, [])
+  return route
+}
+
+function Home() {
   return (
     <main className="page">
       <div className="glow" aria-hidden="true" />
 
-      <div className="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2.5 4 5.5v6c0 4.8 3.4 8.9 8 10 4.6-1.1 8-5.2 8-10v-6l-8-3Z" />
-          <path d="M7.5 12s1.7-3 4.5-3 4.5 3 4.5 3-1.7 3-4.5 3-4.5-3-4.5-3Z" />
-          <circle cx="12" cy="12" r="1.2" fill="currentColor" />
-        </svg>
-      </div>
+      <Logo />
 
       <h1>WatchDog</h1>
       <p className="description">
@@ -17,10 +30,20 @@ export default function App() {
         sends alerts to human responders for review.
       </p>
 
-      <div className="badge">
-        <span className="dot" />
-        Coming Soon
+      <div className="actions">
+        <a className="badge" href="#/about">Read More About WatchDog</a>
+        <a className="badge" href="#/demo">
+          <span className="dot" />
+          View Demo
+        </a>
       </div>
     </main>
   )
+}
+
+export default function App() {
+  const route = useRoute()
+  if (route === '#/about') return <About />
+  if (route === '#/demo') return <Demo />
+  return <Home />
 }
