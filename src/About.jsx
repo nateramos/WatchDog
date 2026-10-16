@@ -19,7 +19,7 @@ export default function About() {
 
         <h3>What the MVP does</h3>
         <ol>
-          <li>WatchDog analyzes a recorded video clip.</li>
+          <li>You upload a recorded video clip, or run the demo video.</li>
           <li>
             An object detection model checks frames from the clip for a possible weapon and
             gives each finding a confidence score. The model is trained on both guns and
@@ -52,7 +52,7 @@ export default function About() {
           </li>
           <li>
             <strong>Video stays on your device.</strong> The model runs inside your browser,
-            so video is never sent to a server.
+            so clips you upload are never sent to a server.
           </li>
           <li>
             <strong>No real people on campus.</strong> Testing uses licensed stock footage and

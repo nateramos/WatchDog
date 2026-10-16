@@ -12,7 +12,7 @@ Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
 ## Try the demo
 
-Open the live site and click **View Demo**. Enter a reviewer name, then click **Run demo video**.
+Open the live site and click **View Demo**. Enter a reviewer name, then upload a clip or click **Run demo video**.
 
 1. WatchDog checks about two frames per second for a possible gun or knife.
 2. Anything at 40% confidence or higher is shown as a flagged frame with a box and its confidence score.
@@ -25,7 +25,7 @@ Open the live site and click **View Demo**. Enter a reviewer name, then click **
 - **Human review:** the model never raises an alert by itself.
 - **Review log:** each flag, its confidence, the decision, and the reviewer are recorded.
 - **No facial recognition:** WatchDog detects objects only and identifies no one.
-- **Video stays on the device:** the model runs in the browser, so video is never sent to a server.
+- **Video stays on the device:** the model runs in the browser, so uploaded clips are never sent to a server.
 - **No real people on campus:** testing uses licensed stock footage and staged clips with obvious props, recorded off campus.
 
 ## Test video sources

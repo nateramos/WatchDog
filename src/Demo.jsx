@@ -26,7 +26,7 @@ function waitFor(video, event) {
     }
     const fail = () => {
       video.removeEventListener(event, done)
-      reject(new Error('The demo video could not be loaded. Try reloading the page.'))
+      reject(new Error('This video could not be read. Try an MP4 (H.264) file, or run the demo video.'))
     }
     video.addEventListener(event, done, { once: true })
     video.addEventListener('error', fail, { once: true })
@@ -149,6 +149,14 @@ export default function Demo() {
     }
   }
 
+  function onUpload(event) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+    if (clip && clip.url.startsWith('blob:')) URL.revokeObjectURL(clip.url)
+    scan(URL.createObjectURL(file), file.name)
+  }
+
   function decide(flag, decision) {
     const decidedAt = new Date().toISOString()
     const name = reviewer.trim()
@@ -169,10 +177,11 @@ export default function Demo() {
       <section className="panel">
         <h2>Review demo</h2>
         <p className="muted">
-          Enter your name as the reviewer, then run the demo video. WatchDog checks about two
-          frames per second for a possible gun or knife (confidence {Math.round(FLAG_CONF * 100)}%
-          or higher). Nothing becomes an alert until a reviewer confirms it. The video is
-          analyzed in this browser and is never uploaded.
+          Enter your name as the reviewer, then upload one clip or run the demo video. WatchDog
+          checks about two frames per second for a possible gun or knife (confidence{' '}
+          {Math.round(FLAG_CONF * 100)}% or higher). A human reviewer must confirm or dismiss
+          every flag before any alert goes out. Your clip is analyzed in this browser and is never
+          sent to a server.
         </p>
 
         <div className="controls">
@@ -187,8 +196,12 @@ export default function Demo() {
             />
           </label>
           <div className="actions actions-left">
-            <button className="button button-primary" onClick={() => scan(SAMPLE.url, SAMPLE.name)} disabled={busy}>
-              {status === 'done' ? 'Run demo video again' : 'Run demo video'}
+            <label className={`button button-primary ${busy ? 'disabled' : ''}`}>
+              Upload a clip
+              <input type="file" accept="video/*" onChange={onUpload} disabled={busy} hidden />
+            </label>
+            <button className="button" onClick={() => scan(SAMPLE.url, SAMPLE.name)} disabled={busy}>
+              Run demo video
             </button>
           </div>
         </div>
