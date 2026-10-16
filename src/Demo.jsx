@@ -1,0 +1,253 @@
+import { useEffect, useRef, useState } from 'react'
+import { Shell } from './Layout.jsx'
+import Player, { drawBoxes } from './Player.jsx'
+import Stages from './Stages.jsx'
+import FlagCard from './FlagCard.jsx'
+import ReviewLog from './ReviewLog.jsx'
+import { detect, loadModel, FLAG_CONF } from './detector.js'
+import { readStored, writeStored } from './storage.js'
+
+const SAMPLE = {
+  url: '/samples/sample-pexels-4006667.mp4',
+  name: 'Pexels stock clip #4006667',
+}
+const MAX_SAMPLES = 120 // frames checked per clip, so long clips stay quick
+const MIN_STEP = 0.5 // seconds between checked frames
+const MERGE_GAP = 1.5 // flags of the same kind closer than this are one event
+const LOG_KEY = 'watchdog-review-log'
+const REVIEWER_KEY = 'watchdog-reviewer'
+
+function waitFor(video, event) {
+  return new Promise((resolve, reject) => {
+    const done = () => {
+      video.removeEventListener(event, done)
+      video.removeEventListener('error', fail)
+      resolve()
+    }
+    const fail = () => {
+      video.removeEventListener(event, done)
+      reject(new Error('The demo video could not be loaded. Try reloading the page.'))
+    }
+    video.addEventListener(event, done, { once: true })
+    video.addEventListener('error', fail, { once: true })
+  })
+}
+
+// A still of the flagged frame with the detection box drawn on it.
+function snapshot(video, box) {
+  const scale = Math.min(1, 960 / video.videoWidth)
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.round(video.videoWidth * scale)
+  canvas.height = Math.round(video.videoHeight * scale)
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+  drawBoxes(ctx, [box], scale)
+  return canvas.toDataURL('image/jpeg', 0.85)
+}
+
+export default function Demo() {
+  const [reviewer, setReviewer] = useState(() => readStored(REVIEWER_KEY, ''))
+  const [log, setLog] = useState(() => readStored(LOG_KEY, []))
+  const [clip, setClip] = useState(null)
+  const [status, setStatus] = useState('idle') // idle | loading | scanning | done | error
+  const [progress, setProgress] = useState(0)
+  const [error, setError] = useState('')
+  const [flags, setFlags] = useState([])
+  const [timeline, setTimeline] = useState([]) // [{ t, boxes }] for every checked frame
+  const [step, setStep] = useState(MIN_STEP)
+  const playerRef = useRef(null)
+  const canvasRef = useRef(null)
+  const scanId = useRef(0)
+
+  useEffect(() => writeStored(LOG_KEY, log), [log])
+  useEffect(() => writeStored(REVIEWER_KEY, reviewer), [reviewer])
+
+  // Start downloading the model as soon as the demo opens.
+  useEffect(() => {
+    loadModel().catch(() => {})
+  }, [])
+
+  async function scan(url, name) {
+    const id = ++scanId.current
+    setClip({ url, name })
+    setFlags([])
+    setTimeline([])
+    setError('')
+    setProgress(0)
+    setStatus('loading')
+
+    try {
+      await loadModel()
+      const video = document.createElement('video')
+      video.muted = true
+      video.playsInline = true
+      video.preload = 'auto'
+      const loaded = waitFor(video, 'loadeddata')
+      video.src = url
+      await loaded
+
+      setStatus('scanning')
+      const duration = video.duration
+      const step = Math.max(MIN_STEP, duration / MAX_SAMPLES)
+      setStep(step)
+      const found = []
+      const checked = []
+
+      for (let t = 0; t < duration; t += step) {
+        if (scanId.current !== id) return // a newer clip was chosen
+        const seeked = waitFor(video, 'seeked')
+        video.currentTime = t
+        await seeked
+
+        const boxes = await detect(video, video.videoWidth, video.videoHeight, canvasRef.current)
+        checked.push({ t, boxes })
+        for (const box of boxes) {
+          const last = found.findLast((f) => f.label === box.label)
+          if (last && t - last.lastTime <= MERGE_GAP) {
+            last.lastTime = t
+            if (box.confidence > last.confidence) {
+              Object.assign(last, { time: t, confidence: box.confidence, image: snapshot(video, box) })
+            }
+          } else {
+            found.push({
+              id: `${Date.now()}-${found.length}`,
+              label: box.label,
+              confidence: box.confidence,
+              time: t,
+              lastTime: t,
+              image: snapshot(video, box),
+              decision: 'pending',
+            })
+          }
+        }
+        setFlags(found.map((f) => ({ ...f })))
+        setTimeline([...checked])
+        setProgress(Math.min(1, (t + step) / duration))
+      }
+
+      // Every flag goes into the log as pending until a reviewer decides.
+      const loggedAt = new Date().toISOString()
+      setLog((prev) => [
+        ...found.map((f) => ({
+          id: f.id,
+          loggedAt,
+          clip: name,
+          videoTime: f.time,
+          label: f.label,
+          confidence: f.confidence,
+          decision: 'pending',
+          reviewer: '',
+          decidedAt: '',
+        })),
+        ...prev,
+      ])
+      setStatus('done')
+    } catch (err) {
+      if (scanId.current !== id) return
+      setError(err.message || 'Something went wrong while checking the video.')
+      setStatus('error')
+    }
+  }
+
+  function decide(flag, decision) {
+    const decidedAt = new Date().toISOString()
+    const name = reviewer.trim()
+    setFlags((prev) => prev.map((f) => (f.id === flag.id ? { ...f, decision, reviewer: name } : f)))
+    setLog((prev) =>
+      prev.map((row) => (row.id === flag.id ? { ...row, decision, reviewer: name, decidedAt } : row)),
+    )
+  }
+
+  const busy = status === 'loading' || status === 'scanning'
+  const pending = flags.filter((f) => f.decision === 'pending').length
+  const hasReviewer = reviewer.trim().length > 0
+
+  return (
+    <Shell>
+      <Stages />
+
+      <section className="panel">
+        <h2>Review demo</h2>
+        <p className="muted">
+          Enter your name as the reviewer, then run the demo video. WatchDog checks about two
+          frames per second for a possible gun or knife (confidence {Math.round(FLAG_CONF * 100)}%
+          or higher). Nothing becomes an alert until a reviewer confirms it. The video is
+          analyzed in this browser and is never uploaded.
+        </p>
+
+        <div className="controls">
+          <label className="field">
+            <span>Reviewer name</span>
+            <input
+              type="text"
+              value={reviewer}
+              onChange={(e) => setReviewer(e.target.value)}
+              placeholder="Your name"
+              maxLength={60}
+            />
+          </label>
+          <div className="actions actions-left">
+            <button className="button button-primary" onClick={() => scan(SAMPLE.url, SAMPLE.name)} disabled={busy}>
+              {status === 'done' ? 'Run demo video again' : 'Run demo video'}
+            </button>
+          </div>
+        </div>
+
+        {clip && (
+          <div className="status">
+            <span className="muted">Clip:</span> {clip.name}
+            {status === 'loading' && <span className="muted"> · Loading detection model…</span>}
+            {status === 'scanning' && (
+              <>
+                <span className="muted"> · Checking frames… {Math.round(progress * 100)}%</span>
+                <div className="bar">
+                  <div style={{ width: `${progress * 100}%` }} />
+                </div>
+              </>
+            )}
+            {status === 'done' && (
+              <span className="muted">
+                {' '}
+                · Done. {flags.length === 0 ? 'No possible weapons found.' : `${flags.length} flag${flags.length > 1 ? 's' : ''}, ${pending} awaiting review.`}
+              </span>
+            )}
+            {status === 'error' && <p className="error">{error}</p>}
+          </div>
+        )}
+        <canvas ref={canvasRef} hidden />
+      </section>
+
+      {clip && (
+        <section className="panel">
+          <Player ref={playerRef} src={clip.url} timeline={timeline} step={step} />
+          <p className="muted small">
+            Boxes appear as frames are checked. Play the clip to see every flag in motion.
+          </p>
+        </section>
+      )}
+
+      {flags.length > 0 && (
+        <section className="flags">
+          {!hasReviewer && <p className="muted">Enter your name above to confirm or dismiss flags.</p>}
+          {flags.map((flag) => (
+            <FlagCard
+              key={flag.id}
+              flag={flag}
+              canDecide={status === 'done'}
+              hasReviewer={hasReviewer}
+              onDecide={(decision) => decide(flag, decision)}
+              onShow={() => playerRef.current?.seek(flag.time)}
+            />
+          ))}
+        </section>
+      )}
+
+      <ReviewLog log={log} onClear={() => setLog([])} />
+
+      <p className="muted small">
+        Sample clip: Pexels video #4006667, free to use under the{' '}
+        <a href="https://www.pexels.com/license/">Pexels License</a>.
+      </p>
+    </Shell>
+  )
+}
