@@ -39,7 +39,8 @@ export default function About() {
             reviewer confirms or dismisses every flag.
           </li>
           <li>
-            <strong>Prototype notice.</strong> Every page is marked as a student prototype.
+            <strong>Prototype notice.</strong> Every page says WatchDog is a prototype and does
+            not replace calling 911 or Campus Police.
           </li>
           <li>
             <strong>Review log.</strong> Each flag, its confidence score, and the reviewer's

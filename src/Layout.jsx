@@ -10,11 +10,12 @@ export function Logo({ small = false }) {
   )
 }
 
-// Shown at the top of every inner page.
+// Shown at the top of every inner page: this is a prototype, not an emergency service.
 export function PrototypeNotice() {
   return (
     <div className="notice" role="note">
-      <strong>Prototype for a student contest.</strong>
+      <strong>Prototype for a student contest.</strong> WatchDog does not replace calling{' '}
+      <strong>911</strong> or <strong>Campus Police</strong>.
     </div>
   )
 }

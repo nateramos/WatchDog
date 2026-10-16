@@ -21,7 +21,7 @@ Open the live site and click **View Demo**. Enter a reviewer name, then click **
 
 ## Safety and privacy
 
-- **Prototype notice:** every page is marked as a student prototype.
+- **Prototype notice:** every page says WatchDog is a prototype and does not replace calling 911 or Campus Police.
 - **Human review:** the model never raises an alert by itself.
 - **Review log:** each flag, its confidence, the decision, and the reviewer are recorded.
 - **No facial recognition:** WatchDog detects objects only and identifies no one.
