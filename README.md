@@ -37,6 +37,19 @@ Open the live site and click **View Demo**. Enter a reviewer name, then click **
 
 Staged clips will be recorded at home with an obvious toy or replica and no bystanders.
 
+## Rubric alignment
+
+| Category | Points | How WatchDog addresses it |
+| --- | --- | --- |
+| Problem Definition & Relevance | 10 | Campus safety: point a human at the moment a camera may show a weapon. Framed around the real failure modes of AI gun detection: false alarms and misses. |
+| AI Feature Innovation & Integration | 20 | YOLOv8n fine-tuned on Open Images guns and knives; runs in the browser with ONNX Runtime Web; second check on a rotated frame for upright guns; person, object and weapon steps in the desktop prototype; detection boxes interpolated over full-frame-rate video. |
+| Technical Execution & Code Quality | 20 | React + Vite in small single-purpose modules; 15 unit tests (box math, model output decoding, CSV export); CI runs tests and build on every push. |
+| User Experience & Design | 10 | One-click demo video, "What WatchDog sees" step-by-step pictures, live video overlay, confirm/dismiss review cards, works on phone and desktop. |
+| Business Impact & Scalability | 10 | No server and no per-camera cloud cost: detection runs on the viewer's device. About 4 frames per second for all three steps on a 2020 laptop CPU. Multi-camera tracking is on the roadmap. |
+| GitHub Transparency | 10 | Step-by-step commit history from skeleton to deployed demo; hand-placed illustrations and model limits are documented, not hidden. |
+| Documentation & Communication | 10 | This README, the public About page, test video sources and licenses, and measured speed per step. |
+| Deployment & Live Demo | 10 | Live on AWS Amplify, no login needed, rebuilt automatically on every push. |
+
 ## Run it locally
 
 ```
