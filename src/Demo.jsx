@@ -232,9 +232,16 @@ export default function Demo() {
 
       {clip && (
         <section className="panel">
-          <Player ref={playerRef} src={clip.url} timeline={timeline} step={step} />
+          <Player
+            ref={playerRef}
+            src={clip.url}
+            timeline={timeline}
+            step={step}
+            ready={status === 'done'}
+            progress={progress}
+          />
           <p className="muted small">
-            Boxes appear as frames are checked. Play the clip to see every flag in motion.
+            The video plays once every frame has been checked. Press play to watch it again.
           </p>
         </section>
       )}

@@ -25,8 +25,10 @@ export function drawBoxes(ctx, boxes, scale) {
   })
 }
 
-// The clip at full frame rate, with detection boxes drawn on top as it plays.
-const Player = forwardRef(function Player({ src, timeline, step }, ref) {
+// The clip at full frame rate, with detection boxes drawn on top as it plays. It stays
+// paused on the first frame until every frame has been checked (`ready`), then plays once,
+// so the boxes are there from the start.
+const Player = forwardRef(function Player({ src, timeline, step, ready, progress }, ref) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const data = useRef({ timeline, step })
@@ -40,6 +42,13 @@ const Player = forwardRef(function Player({ src, timeline, step }, ref) {
       video.scrollIntoView({ behavior: 'smooth', block: 'center' })
     },
   }))
+
+  useEffect(() => {
+    const video = videoRef.current
+    video.pause()
+    video.currentTime = 0
+    if (ready) video.play().catch(() => {}) // muted, so browsers allow it
+  }, [ready, src])
 
   useEffect(() => {
     const video = videoRef.current
@@ -69,8 +78,13 @@ const Player = forwardRef(function Player({ src, timeline, step }, ref) {
 
   return (
     <div className="player">
-      <video ref={videoRef} src={src} controls muted playsInline loop autoPlay />
+      <video ref={videoRef} src={src} controls={ready} muted playsInline />
       <canvas ref={canvasRef} aria-hidden="true" />
+      {!ready && (
+        <div className="player-wait" role="status">
+          Checking frames… {Math.round(progress * 100)}%
+        </div>
+      )}
     </div>
   )
 })
