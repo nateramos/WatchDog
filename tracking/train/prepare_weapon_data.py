@@ -167,7 +167,7 @@ def pick_images(boxes, lookalike_ratio, rng):
     for row in boxes.itertuples(index=False):
         by_image[row.ImageID].append(row)
 
-    weapons, lookalikes = {}, []
+    weapons, lookalikes = {}, defaultdict(list)  # look-alike label -> image ids
     for image_id, rows in by_image.items():
         labels = {row.LabelName for row in rows}
         if labels & SKIP_LABELS:
@@ -184,11 +184,23 @@ def pick_images(boxes, lookalike_ratio, rng):
                 for row in weapon_boxes(rows)
             ]
         else:
-            lookalikes.append(image_id)
+            for label in labels:
+                lookalikes[label].append(image_id)
 
-    rng.shuffle(lookalikes)
+    # Take one image of each kind in turn, so rare look-alikes (drills, hair
+    # dryers) aren't crowded out by thousands of books and bottles.
+    for ids in lookalikes.values():
+        rng.shuffle(ids)
     count = int(len(weapons) * lookalike_ratio)
-    return weapons | {image_id: [] for image_id in lookalikes[:count]}
+    chosen = {}
+    queues = [lookalikes[label] for label in sorted(lookalikes)]
+    while len(chosen) < count and any(queues):
+        for ids in queues:
+            while ids and ids[-1] in chosen:
+                ids.pop()
+            if ids and len(chosen) < count:
+                chosen[ids.pop()] = []
+    return weapons | chosen
 
 
 def save_image(split, image_id, path):
