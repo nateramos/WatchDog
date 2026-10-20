@@ -1,13 +1,14 @@
 """Run the web demo's weapon check on a set of test clips and report what it flagged.
 
 This copies src/detector.js and the scan loop in src/Demo.jsx: the same ONNX model,
-40% threshold, one checked frame every half second, the extra turned-frame check, and
-flags of the same kind within 1.5 seconds merged into one event. Results can differ
+40% threshold, one checked frame every quarter second, the extra turned-frame check, only
+boxes seen in two checked frames in a row, and flags of the same kind within 1.5 seconds
+merged into one event. Results can differ
 slightly from the browser because frames are resized by OpenCV instead of a canvas.
 
 Usage:
     python eval_clips.py CLIP_DIR             # clips listed in eval/clips.csv
-    python eval_clips.py CLIP_DIR --confirm   # only flag weapons seen in 2 frames in a row
+    python eval_clips.py CLIP_DIR --single-frame --step 0.5   # the demo before Oct 20
     python eval_clips.py CLIP_DIR --model new.onnx   # test another model before swapping it in
 Writes eval/results.csv and, for each flag event, a snapshot in eval/output/.
 """
@@ -36,7 +37,7 @@ SAME_OBJECT = 0.5
 NMS_IOU = 0.45
 SIZE = 640
 MAX_SAMPLES = 120
-MIN_STEP = 0.5
+MIN_STEP = 0.25
 MERGE_GAP = 1.5
 
 
@@ -129,7 +130,7 @@ def confirmed(checked):
     return kept
 
 
-def scan(session, path, confirm=False, min_step=MIN_STEP):
+def scan(session, path, confirm=True, min_step=MIN_STEP):
     checked = []
     for t, frame in checked_frames(path, min_step):
         boxes = detect(session, frame)
@@ -166,8 +167,8 @@ def save_snapshot(event, name):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("clip_dir", type=Path)
-    parser.add_argument("--confirm", action="store_true",
-                        help="only flag weapons seen in two checked frames in a row")
+    parser.add_argument("--single-frame", action="store_true",
+                        help="flag weapons seen in one checked frame (default: two in a row)")
     parser.add_argument("--model", type=Path, default=MODEL, help="weapon model to test (ONNX)")
     parser.add_argument("--step", type=float, default=MIN_STEP,
                         help=f"seconds between checked frames (demo: {MIN_STEP})")
@@ -182,7 +183,7 @@ def main():
             if not path.exists():
                 print(f"missing {path}", file=sys.stderr)
                 continue
-            frames, flagged, events = scan(session, path, args.confirm, args.step)
+            frames, flagged, events = scan(session, path, not args.single_frame, args.step)
             for i, e in enumerate(events):
                 save_snapshot(e, f'{path.stem}_{i + 1}_{e["label"]}.jpg')
             flags = "; ".join(f'{e["label"]} {e["confidence"]:.0%} at {e["time"]:.1f}s' for e in events)
