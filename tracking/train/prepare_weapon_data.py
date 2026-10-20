@@ -86,8 +86,8 @@ def parse_args():
     parser.add_argument(
         "--lookalike-ratio",
         type=float,
-        default=0.3,
-        help="look-alike images to add, as a fraction of weapon images (default 0.3)",
+        default=0.5,
+        help="look-alike images to add, as a fraction of weapon images (default 0.5)",
     )
     parser.add_argument("--workers", type=int, default=32, help="parallel image downloads")
     parser.add_argument(
