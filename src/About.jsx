@@ -119,12 +119,14 @@ export default function About() {
             filmed in portrait.
           </li>
           <li>
-            <strong>False alarms in 7 of 11 no-weapon clips</strong>, on 5.4% of checked frames.
-            Drills, tripods, a hair dryer and a saxophone look like guns to the model.
+            <strong>False alarms in 4 of 11 no-weapon clips</strong>, on 2.7% of checked frames.
+            A drill, a tripod and a saxophone held steady still look like guns to the model.
           </li>
           <li>
-            <strong>The threshold is a trade-off.</strong> Raising it from 40% to 60% would
-            remove 10 of the 13 false flags but also miss two real weapons.
+            <strong>Two in a row halves the false alarms.</strong> WatchDog only flags a gun it
+            finds in two checked frames in a row. Checking one frame every half second and
+            flagging single frames caught the same weapons but raised false alarms in 7 of 11
+            clips, including a student with a hand in a jacket pocket.
           </li>
         </ul>
         <ResultsTable title="No weapon in the clip" rows={NO_WEAPON} right="Correct" wrong="False alarm" />
