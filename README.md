@@ -14,7 +14,7 @@ Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
 Open the live site and click **View Demo**. Enter a reviewer name, then upload a clip or click **Run demo video**.
 
-1. WatchDog checks about two frames per second for a possible gun or knife.
+1. WatchDog checks about two frames per second for a possible gun. The model also knows knives, but the MVP flags firearms only.
 2. Anything at 40% confidence or higher is shown as a flagged frame with a box and its confidence score.
 3. A reviewer must **Confirm** or **Dismiss** each flag. Nothing counts as an alert until a person confirms it.
 4. Every flag and decision goes into the review log, which can be exported as CSV.
@@ -38,7 +38,7 @@ Open the live site and click **View Demo**. Enter a reviewer name, then upload a
 
 ## Hard cases: misses and false alarms
 
-The demo clip is an easy case. To see where WatchDog goes wrong, 19 licensed stock clips were run through the same model and settings as the web demo (40% threshold, one frame every half second): 11 with no weapon but something that could fool it, and 8 with a weapon, mostly indoors or in the dark. Every flag snapshot was checked by hand to see if the box was on the weapon. Run it yourself with `python tracking/eval_clips.py CLIP_DIR` (clip list and sources in `tracking/eval/clips.csv`).
+The demo clip is an easy case. To see where WatchDog goes wrong, 19 licensed stock clips were run through the same model and settings as the web demo (firearms only, 40% threshold, one frame every half second): 11 with no weapon but something that could fool it, and 8 with a weapon, mostly indoors or in the dark. Every flag snapshot was checked by hand to see if the box was on the weapon. Run it yourself with `python tracking/eval_clips.py CLIP_DIR` (clip list and sources in `tracking/eval/clips.csv`).
 
 **No weapon in the clip:**
 
@@ -46,12 +46,12 @@ The demo clip is an easy case. To see where WatchDog goes wrong, 19 licensed sto
 | --- | --- | --- |
 | Students walking down a school hallway with books | gun 48% on a student's jacket, hand in pocket | False alarm |
 | Phone in one hand, dim room | gun 45% on a houseplant | False alarm |
-| Two people under an open umbrella | knife 71% on a person's leg | False alarm |
+| Two people under an open umbrella | nothing | Correct |
 | Woman holding a black umbrella by its handle | nothing | Correct |
 | Cordless drill at a workbench | gun 46%, gun 41% on the drill | False alarm |
 | Close-up of a power drill | nothing | Correct |
-| Hair dryer pointed at the camera | 2 gun, 2 knife flags (49 to 62%) on the dryer and the woman | False alarm |
-| Black saxophone case carried through a dim room | gun 73% on the saxophone, gun 65% on a suspender strap, knife 40% | False alarm |
+| Hair dryer pointed at the camera | gun 49%, gun 52% on the dryer and the woman | False alarm |
+| Black saxophone case carried through a dim room | gun 73% on the saxophone, gun 65% on a suspender strap | False alarm |
 | Flashlight held in a dark room | nothing | Correct |
 | Photographer carrying a tripod in snow | gun 45 to 61% on the tripod, 3 times | False alarm |
 | Worker pushing a metal cart down a hospital hallway | gun 48%, gun 42% on the worker and cart | False alarm |
@@ -63,7 +63,7 @@ The demo clip is an easy case. To see where WatchDog goes wrong, 19 licensed sto
 | Rifle in full view outdoors, daylight (demo clip) | gun 86%, every checked frame | Caught |
 | Handgun at an indoor range, green light | gun 89%, 12 of 14 frames | Caught |
 | Handgun raised beside a face for a few seconds | gun 55%, 1 of 37 frames | Caught, barely |
-| Reenactor with a musket and ramrod | gun up to 79% on the musket; ramrod called a knife | Caught |
+| Reenactor with a musket and ramrod | gun up to 79% on the musket | Caught |
 | Hunter with a rifle slung on his back | gun 53% on the barrel; also gun 85% on bare trees | Caught, plus a false box |
 | Handgun with a flashlight, very dark apartment | gun 72% on the gun; one box on a door frame | Caught |
 | Handgun drawn in a dark hallway (vertical video) | nothing | **Missed** |
@@ -72,8 +72,8 @@ The demo clip is an easy case. To see where WatchDog goes wrong, 19 licensed sto
 **What this shows:**
 
 - **Caught 6 of 8** weapon clips. Both misses were dark, backlit and filmed in portrait.
-- **False alarms in 8 of 11** no-weapon clips: 17 false flags in about 2.5 minutes of video, and 22 of 297 checked frames (7.4%). Drills, tripods, hair dryers and an instrument case look like guns to the model.
-- **The threshold is a trade-off.** Most false flags scored under 60%. Raising the threshold to 60% would remove 12 of the 17, but would also lose the hunter's rifle (53%) and the brief handgun (55%).
+- **False alarms in 7 of 11** no-weapon clips: 13 false flags in about 2.5 minutes of video, and 16 of 297 checked frames (5.4%). Drills, tripods, a hair dryer and a saxophone look like guns to the model.
+- **The threshold is a trade-off.** Most false flags scored under 60%. Raising the threshold to 60% would remove 10 of the 13, but would also lose the hunter's rifle (53%) and the brief handgun (55%).
 - This is why a person reviews every flag. Next steps: a person-first crop so small weapons fill more of the frame, more dark and CCTV-style training images, and drills, tripods and umbrellas added as "not a weapon" examples.
 
 These numbers are from a desktop rerun of the browser code (`tracking/eval_clips.py`), so a score can differ by a point or two from the live site. 19 clips is a small test, not a benchmark.
