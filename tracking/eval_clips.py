@@ -8,6 +8,7 @@ slightly from the browser because frames are resized by OpenCV instead of a canv
 Usage:
     python eval_clips.py CLIP_DIR             # clips listed in eval/clips.csv
     python eval_clips.py CLIP_DIR --people    # only flag weapons near a person
+    python eval_clips.py CLIP_DIR --confirm   # only flag weapons seen in 2 frames in a row
 Writes eval/results.csv and, for each flag event, a snapshot in eval/output/.
 """
 
@@ -139,13 +140,28 @@ def checked_frames(path):
     video.release()
 
 
-def scan(session, path, people_session=None):
-    events, frames, flagged = [], 0, 0
+def confirmed(checked):
+    """Keep only boxes that a same-kind box overlaps in the checked frame just before or after."""
+    kept = []
+    for i, (t, boxes, frame) in enumerate(checked):
+        neighbours = [b for j in (i - 1, i + 1) if 0 <= j < len(checked) for b in checked[j][1]]
+        kept.append((t, [b for b in boxes
+                         if any(n["label"] == b["label"] and overlap(n, b) > 0 for n in neighbours)], frame))
+    return kept
+
+
+def scan(session, path, people_session=None, confirm=False):
+    checked = []
     for t, frame in checked_frames(path):
-        frames += 1
         boxes = detect(session, frame)
         if people_session:
             boxes = keep_near_people(people_session, frame, boxes)
+        checked.append((t, boxes, frame if boxes else None))  # keep frames only for snapshots
+    if confirm:
+        checked = confirmed(checked)
+
+    events, flagged = [], 0
+    for t, boxes, frame in checked:
         flagged += bool(boxes)
         for box in boxes:
             last = next((e for e in reversed(events) if e["label"] == box["label"]), None)
@@ -156,7 +172,7 @@ def scan(session, path, people_session=None):
             else:
                 events.append({"label": box["label"], "confidence": box["confidence"],
                                "time": t, "last": t, "box": box, "frame": frame})
-    return frames, flagged, events
+    return len(checked), flagged, events
 
 
 def save_snapshot(event, name):
@@ -174,6 +190,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("clip_dir", type=Path)
     parser.add_argument("--people", action="store_true", help="only flag weapons near a person")
+    parser.add_argument("--confirm", action="store_true",
+                        help="only flag weapons seen in two checked frames in a row")
     args = parser.parse_args()
 
     session = ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
@@ -187,7 +205,7 @@ def main():
             if not path.exists():
                 print(f"missing {path}", file=sys.stderr)
                 continue
-            frames, flagged, events = scan(session, path, people_session)
+            frames, flagged, events = scan(session, path, people_session, args.confirm)
             for i, e in enumerate(events):
                 save_snapshot(e, f'{path.stem}_{i + 1}_{e["label"]}.jpg')
             flags = "; ".join(f'{e["label"]} {e["confidence"]:.0%} at {e["time"]:.1f}s' for e in events)
