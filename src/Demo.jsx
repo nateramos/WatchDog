@@ -190,8 +190,9 @@ export default function Demo() {
         <h2>Review demo</h2>
         <p className="muted">
           Enter your name as the reviewer, then upload one clip or run the demo video. WatchDog
-          checks about two frames per second for a possible gun (confidence{' '}
-          {Math.round(FLAG_CONF * 100)}% or higher). A human reviewer must confirm or dismiss
+          checks about four frames per second for a possible gun (confidence{' '}
+          {Math.round(FLAG_CONF * 100)}% or higher) and only flags one it finds in two checked
+          frames in a row, which filters out one-frame false alarms. A human reviewer must confirm or dismiss
           every flag before any alert goes out. Your clip is analyzed in this browser and is never
           sent to a server.
         </p>
