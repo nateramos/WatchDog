@@ -112,6 +112,15 @@ npm test        # unit tests for box math and the review log
 
 `tracking/train/` builds a gun/knife dataset from Google's Open Images and fine-tunes YOLOv8n. The trained weights are exported to ONNX (`public/models/weapons.onnx`) for the browser. `tracking/track.py` is the desktop prototype: it tracks people (pose) and the objects they hold on a webcam or video file. Its weapon step is switched off (`WEAPONS_ENABLED = False`) while held-object detection is tuned; the web demo is where weapon detection runs.
 
+### Balancing "gun" and "not a gun" training images
+
+The model learns from two kinds of photos: weapon photos with a box drawn around each gun or knife, and look-alike photos with no weapon and no box, which teach it what *isn't* a gun. Getting the mix right is a trade-off:
+
+- **Too few look-alikes:** the model flags anything gun-shaped. In the hard-case test, drills, a tripod, a hair dryer and a saxophone were all flagged as guns.
+- **Too many look-alikes:** the model gets cautious and starts missing real guns, which is worse for a safety tool.
+
+The training set adds **30 look-alike photos for every 100 weapon photos** (`--lookalike-ratio 0.3` in `prepare_weapon_data.py`), so about a quarter of the photos have no weapon. They are picked **evenly across about 40 kinds of object** (drills, tripods, instruments, cases, and things students carry, such as backpacks, laptops, books and bottles) so rare look-alikes aren't crowded out by common ones. We briefly tried 50 per 100 and went back to 30, because Ultralytics' [training tips](https://docs.ultralytics.com/yolov5/tutorials/tips_for_best_training_results/) suggest only 0 to 10% background images. We stay above that because false alarms are WatchDog's biggest problem, and the hard-case test checks whether real guns start getting missed.
+
 ## Speed
 
 Measured on a 2020 MacBook Air (Intel Core i5-1030NG7, CPU only), model time per frame:
