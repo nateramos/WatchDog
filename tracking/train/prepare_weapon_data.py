@@ -5,7 +5,7 @@ Labels:
     1 knife  (Open Images: Knife, Kitchen knife, Dagger)
 
 Also adds look-alike photos with no weapon in them (umbrellas, phones, tools,
-cameras...) as background images, so the model learns what *isn't* a weapon.
+drills, hair dryers, instruments, cases...) as background images, so the model learns what *isn't* a weapon.
 
 Open Images annotations are CC BY 4.0; images are listed as CC BY 2.0.
 https://storage.googleapis.com/openimages/web/index.html
@@ -58,6 +58,20 @@ LOOKALIKE_LABELS = {
     "/m/0qjjc",  # Remote control
     "/m/073bxn",  # Tripod
     "/m/0dv5r",  # Camera
+    # Added after the hard-case test (tracking/eval): these were flagged as guns.
+    "/m/01d380",  # Drill (Tool)
+    "/m/03wvsk",  # Hair dryer
+    "/m/06ncr",  # Saxophone
+    "/m/0342h",  # Guitar
+    "/m/07y_7",  # Violin
+    "/m/01xqw",  # Cello
+    "/m/07gql",  # Trumpet
+    "/m/07c6l",  # Trombone
+    "/m/0l14j_",  # Flute
+    "/m/0584n8",  # Briefcase
+    "/m/01s55n",  # Suitcase
+    "/m/0lt4_",  # Binoculars
+    "/m/0hg7b",  # Microphone
 }
 
 DUPLICATE_IOU = 0.8  # same-class boxes overlapping this much are one object
