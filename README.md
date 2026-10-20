@@ -4,7 +4,7 @@
 
 **Live:** https://main.dbzst24ccqq7g.amplifyapp.com
 
-WatchDog is a campus safety tool that informs human responders and does not make decisions for them. For the contest MVP, it analyzes one recorded video with an object detection model that flags a possible weapon and displays a confidence score. Each alert goes to a human review screen where a person confirms or dismisses it, with an on-screen prompt to call 911 and a log of every override. A simple campus map plots the camera that raised the alert. The MVP uses no facial recognition. Multi-camera tracking, body tracking, and movement prediction are on the roadmap.
+WatchDog is a campus safety tool that informs human responders and does not make decisions for them. For the contest MVP, it analyzes one recorded video with an object detection model that flags a possible weapon and displays a confidence score. Each alert goes to a human review screen where a person confirms or dismisses it, with an on-screen prompt to call 911 and a log of every override. The MVP uses no facial recognition. See the [roadmap](#roadmap) for what is not built yet.
 
 Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
@@ -48,6 +48,14 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 | UX & design | 10% | One-click demo video, "What WatchDog sees" step-by-step pictures, confirm/dismiss review cards, works on phone and desktop. |
 | Business impact & presentation | 10% | No server or per-camera cloud cost: detection runs on the viewer's device, about 4 frames per second for all three steps on a 2020 laptop CPU. |
 | Bonus: ethical AI | up to 5 | Human review of every flag, no facial recognition, video never uploaded, licensed footage only, no real people on campus. |
+
+## Roadmap
+
+Not in the demo yet:
+
+- A simple campus map that shows which camera raised a flag
+- Tracking across multiple cameras
+- Body tracking and movement prediction for responders
 
 ## Run it locally
 
