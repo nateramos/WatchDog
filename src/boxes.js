@@ -2,6 +2,7 @@
 // confidence } in video pixels. Nothing here touches the browser, so it is easy to test.
 
 const NMS_IOU = 0.45
+const PERSON_MARGIN = 0.2 // a weapon this close to a person (fraction of their size) is near them
 
 // Overlap of two boxes as a share of their combined area (0 = apart, 1 = identical).
 export function iou(a, b) {
@@ -15,6 +16,17 @@ export function containment(a, b) {
   const x = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x))
   const y = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y))
   return (x * y) / Math.min(a.w * a.h, b.w * b.h)
+}
+
+// Whether `box` touches any person box, grown by PERSON_MARGIN on every side so a gun held
+// at arm's length or a barrel sticking out past the body still counts.
+export function nearPerson(box, people) {
+  return people.some((p) => {
+    const mx = p.w * PERSON_MARGIN
+    const my = p.h * PERSON_MARGIN
+    return box.x < p.x + p.w + mx && box.x + box.w > p.x - mx &&
+      box.y < p.y + p.h + my && box.y + box.h > p.y - my
+  })
 }
 
 // Keep the most confident box among overlapping boxes of the same kind.

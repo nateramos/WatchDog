@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boxesAt, containment, decode, iou, nms } from './boxes.js'
+import { boxesAt, containment, decode, iou, nearPerson, nms } from './boxes.js'
 
 const box = (x, y, w, h, extra = {}) => ({ x, y, w, h, label: 'gun', confidence: 0.5, ...extra })
 
@@ -18,6 +18,21 @@ describe('iou', () => {
 describe('containment', () => {
   it('is 1 when the smaller box is fully inside the bigger one', () => {
     expect(containment(box(0, 0, 100, 100), box(10, 10, 20, 20))).toBe(1)
+  })
+})
+
+describe('nearPerson', () => {
+  const person = box(100, 100, 50, 100, { label: 'person' })
+
+  it('is true for a box inside or just outside a person', () => {
+    expect(nearPerson(box(110, 150, 10, 10), [person])).toBe(true)
+    // 5px past the right edge; the margin is 20% of 50px = 10px.
+    expect(nearPerson(box(155, 150, 10, 10), [person])).toBe(true)
+  })
+
+  it('is false far from every person, or when there are no people', () => {
+    expect(nearPerson(box(300, 150, 10, 10), [person])).toBe(false)
+    expect(nearPerson(box(110, 150, 10, 10), [])).toBe(false)
   })
 })
 
