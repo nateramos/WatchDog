@@ -78,6 +78,22 @@ The demo clip is an easy case. To see where WatchDog goes wrong, 19 licensed sto
 
 These numbers are from a desktop rerun of the browser code (`tracking/eval_clips.py`), so a score can differ by a point or two from the live site. 19 clips is a small test, not a benchmark.
 
+### Retraining attempt (Oct 20)
+
+After this test, the model was retrained with drills, hair dryers, instruments, cases and common school items added as "not a gun" photos (see [Balancing "gun" and "not a gun" training images](#balancing-gun-and-not-a-gun-training-images)), plus more brightness variation for dark scenes. Every snapshot was checked by hand again. "Two in a row" means a gun only counts if it is also found in the frame checked just before or after.
+
+| Model and setting | Weapons caught | No-weapon clips with a false alarm | False flags | Falsely flagged frames |
+| --- | --- | --- | --- | --- |
+| Old model, one frame every 0.5 s | 6 of 8 | 7 of 11 | 13 | 5.4% |
+| Old model, two in a row, every 0.25 s | 6 of 8 | 4 of 11 | 7 | 2.7% |
+| New model, one frame every 0.5 s | 6 of 8 | 7 of 11 | 9 | 7.1% |
+| New model, two in a row, every 0.25 s | 4 of 8 | 2 of 11 | 3 | 3.0% |
+
+- **Better:** the hair dryer is no longer flagged, and the saxophone, workbench drill and cart each dropped to one false flag. It caught the handgun drawn in a dark hallway that the old model missed, and all its boxes in the dark apartment clip are on the gun.
+- **Worse:** a student walking with a hand in a jacket pocket went from one flag at 48% to seven flagged frames at up to 75%. The tripod was flagged more often, a close-up drill was newly flagged, and it lost the hunter's slung rifle.
+
+The live demo keeps the old model: it catches as many weapons, and the student false alarm is the kind a campus can least afford. The new model's per-clip results are in `tracking/eval/results_model_v2.csv`. Next: test on staged clips filmed for WatchDog, then retrain with labeled frames from them.
+
 ## Rubric alignment
 
 Fall 2026 judging rubric (100 points, plus up to 5 bonus):
