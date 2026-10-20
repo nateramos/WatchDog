@@ -8,6 +8,7 @@ slightly from the browser because frames are resized by OpenCV instead of a canv
 Usage:
     python eval_clips.py CLIP_DIR             # clips listed in eval/clips.csv
     python eval_clips.py CLIP_DIR --confirm   # only flag weapons seen in 2 frames in a row
+    python eval_clips.py CLIP_DIR --model new.onnx   # test another model before swapping it in
 Writes eval/results.csv and, for each flag event, a snapshot in eval/output/.
 """
 
@@ -167,11 +168,12 @@ def main():
     parser.add_argument("clip_dir", type=Path)
     parser.add_argument("--confirm", action="store_true",
                         help="only flag weapons seen in two checked frames in a row")
+    parser.add_argument("--model", type=Path, default=MODEL, help="weapon model to test (ONNX)")
     parser.add_argument("--step", type=float, default=MIN_STEP,
                         help=f"seconds between checked frames (demo: {MIN_STEP})")
     args = parser.parse_args()
 
-    session = ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
+    session = ort.InferenceSession(str(args.model), providers=["CPUExecutionProvider"])
     OUTPUT.mkdir(parents=True, exist_ok=True)
     rows = []
     with open(CLIPS, newline="") as f:
