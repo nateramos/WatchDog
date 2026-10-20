@@ -1,4 +1,31 @@
 import { Shell } from './Layout.jsx'
+import { NO_WEAPON, WEAPON } from './hardCases.js'
+
+function ResultsTable({ title, rows, right, wrong }) {
+  return (
+    <div className="table-wrap results">
+      <table>
+        <caption>{title}</caption>
+        <thead>
+          <tr>
+            <th>Clip</th>
+            <th>What WatchDog flagged</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.clip}>
+              <td>{r.clip}</td>
+              <td>{r.flagged}</td>
+              <td className={r.correct ? 'result-right' : 'result-wrong'}>{r.correct ? right : wrong}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 
 export default function About() {
   return (
@@ -77,6 +104,35 @@ export default function About() {
           Detectors make mistakes. A false alarm could send responders toward someone holding
           an umbrella; a miss could give false confidence. That is why a person reviews every
           flag, and why the confidence score is always shown.
+        </p>
+
+        <h3>Where it gets it wrong</h3>
+        <p>
+          The demo clip is an easy case. To find the mistakes, we ran 19 licensed stock clips
+          through the same model and settings as this demo: 11 with no weapon but something that
+          could fool it, and 8 with a weapon, mostly indoors or in the dark. We checked every
+          flag by hand.
+        </p>
+        <ul>
+          <li>
+            <strong>Caught 6 of 8 weapons.</strong> Both misses were dark, backlit handguns
+            filmed in portrait.
+          </li>
+          <li>
+            <strong>False alarms in 8 of 11 no-weapon clips</strong>, on 7.4% of checked frames.
+            Drills, tripods, a hair dryer and an instrument case look like guns to the model.
+          </li>
+          <li>
+            <strong>The threshold is a trade-off.</strong> Raising it from 40% to 60% would
+            remove 12 of the 17 false flags but also miss two real weapons.
+          </li>
+        </ul>
+        <ResultsTable title="No weapon in the clip" rows={NO_WEAPON} right="Correct" wrong="False alarm" />
+        <ResultsTable title="Weapon in the clip" rows={WEAPON} right="Caught" wrong="Missed" />
+        <p className="muted">
+          19 clips is a small test, not a benchmark. Scores come from a desktop rerun of this
+          demo's code (<code>tracking/eval_clips.py</code> on GitHub) and can differ by a point
+          or two here.
         </p>
 
         <h3>Roadmap</h3>
