@@ -19,3 +19,6 @@ tracking/*_openvino_model/
 
 # Sample clip shown in the demo (Pexels License)
 !public/samples/*.mp4
+
+# Weapon check test run: flag snapshots contain frames from stock clips
+tracking/eval/output/
