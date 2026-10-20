@@ -27,6 +27,7 @@ OUTPUT = HERE / "eval" / "output"
 
 # Same values as src/detector.js, src/boxes.js and src/Demo.jsx.
 CLASS_NAMES = ["gun", "knife"]
+FLAGGED = ["gun"]  # the model also knows knives, but WatchDog flags firearms only
 FLAG_CONF = 0.4
 SURE_CONF = 0.7
 SAME_OBJECT = 0.5
@@ -76,6 +77,8 @@ def run(session, frame, rotated):
     best = scores.max(0)
     boxes = []
     for i in np.flatnonzero(best >= FLAG_CONF):
+        if CLASS_NAMES[cls[i]] not in FLAGGED:
+            continue
         bw, bh = out[2, i] / scale, out[3, i] / scale
         boxes.append({
             "x": out[0, i] / scale - bw / 2, "y": out[1, i] / scale - bh / 2, "w": bw, "h": bh,
