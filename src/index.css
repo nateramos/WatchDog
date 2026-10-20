@@ -637,6 +637,36 @@ td.decision-pending {
   font-weight: 600;
 }
 
+/* Hard-case results on the About page: long clip names, so let cells wrap. */
+.results {
+  margin: 1.25rem 0;
+}
+
+.results caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 0.4rem;
+}
+
+.results td {
+  white-space: normal;
+  line-height: 1.45;
+}
+
+.results .result-right,
+.results .result-wrong {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.result-right {
+  color: #86efac;
+}
+
+.result-wrong {
+  color: #fda4af;
+}
+
 @media (max-width: 860px) {
   .stages {
     grid-template-columns: 1fr;
