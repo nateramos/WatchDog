@@ -3,6 +3,8 @@ import { containment, decode, nms } from './boxes.js'
 
 // Same classes and threshold as tracking/track.py (WEAPON_NAMES, WEAPON_CONF).
 export const CLASS_NAMES = ['gun', 'knife']
+// The model also knows knives, but for now WatchDog flags firearms only.
+const FLAGGED = ['gun']
 export const FLAG_CONF = 0.4
 
 const SIZE = 640 // the model was trained and exported at 640x640
@@ -53,7 +55,8 @@ async function run(session, source, width, height, canvas, rotated, minConf) {
   const { input, scale } = letterbox(source, width, height, canvas, rotated)
   const tensor = new ort.Tensor('float32', input, [1, 3, SIZE, SIZE])
   const results = await session.run({ [session.inputNames[0]]: tensor })
-  return decode(results[session.outputNames[0]], scale, minConf, CLASS_NAMES)
+  const boxes = decode(results[session.outputNames[0]], scale, minConf, CLASS_NAMES)
+  return boxes.filter((b) => FLAGGED.includes(b.label))
 }
 
 // Run the detector on whatever is currently drawn in `source` (a video at a given time).
