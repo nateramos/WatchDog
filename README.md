@@ -103,7 +103,7 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 | Functionality & technical execution | 25% | Live demo on AWS Amplify: a weapon-detection model running in the browser with ONNX Runtime Web, a full-frame-rate video overlay, human confirm/dismiss review, and an exportable review log. |
 | Problem identification & relevance | 20% | Campus safety: point a human at the moment a camera may show a weapon. Framed around the real failure modes of AI gun detection: false alarms and misses, measured on 19 hard-case clips (see Hard cases). |
 | AI integration & innovation | 20% | YOLOv8n fine-tuned on Open Images guns and knives; a second check on a rotated frame for upright guns; person and held-object tracking in the desktop prototype; detection boxes interpolated between checked frames. |
-| Code quality & GitHub transparency | 15% | Small single-purpose modules, 15 unit tests, CI on every push, and a step-by-step public commit history. Hand-placed illustrations and model limits are documented, not hidden. |
+| Code quality & GitHub transparency | 15% | Small single-purpose modules, 17 unit tests, CI on every push, and a step-by-step public commit history. Hand-placed illustrations and model limits are documented, not hidden. |
 | UX & design | 10% | One-click demo video, "What WatchDog sees" step-by-step pictures, confirm/dismiss review cards, works on phone and desktop. |
 | Business impact & presentation | 10% | No server or per-camera cloud cost: detection runs on the viewer's device, about 4 frames per second for all three steps on a 2020 laptop CPU. |
 | Bonus: ethical AI | up to 5 | Human review of every flag, no facial recognition, video never uploaded, licensed footage only, no real people on campus. |
