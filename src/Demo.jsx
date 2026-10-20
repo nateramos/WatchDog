@@ -13,7 +13,7 @@ const SAMPLE = {
   name: 'Pexels stock clip #4006667',
 }
 const MAX_SAMPLES = 120 // frames checked per clip, so long clips stay quick
-const MIN_STEP = 0.5 // seconds between checked frames
+const MIN_STEP = 0.25 // seconds between checked frames: often enough to see a gun twice in a row
 const MERGE_GAP = 1.5 // flags of the same kind closer than this are one event
 const LOG_KEY = 'watchdog-review-log'
 const REVIEWER_KEY = 'watchdog-reviewer'
