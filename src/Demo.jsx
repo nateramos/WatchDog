@@ -5,6 +5,7 @@ import Stages from './Stages.jsx'
 import FlagCard from './FlagCard.jsx'
 import ReviewLog from './ReviewLog.jsx'
 import { detect, loadModel, FLAG_CONF } from './detector.js'
+import { confirmBoxes } from './boxes.js'
 import { readStored, writeStored } from './storage.js'
 
 const SAMPLE = {
@@ -91,22 +92,20 @@ export default function Demo() {
       const step = Math.max(MIN_STEP, duration / MAX_SAMPLES)
       setStep(step)
       const found = []
-      const checked = []
+      const checked = [] // every checked frame, with the boxes the model found
+      const timeline = [] // the same frames, keeping only boxes seen two frames in a row
 
-      for (let t = 0; t < duration; t += step) {
-        if (scanId.current !== id) return // a newer clip was chosen
-        const seeked = waitFor(video, 'seeked')
-        video.currentTime = t
-        await seeked
-
-        const boxes = await detect(video, video.videoWidth, video.videoHeight, canvasRef.current)
-        checked.push({ t, boxes })
-        for (const box of boxes) {
+      // A frame is final once the frames on both sides of it have been checked.
+      const finish = (i) => {
+        const { t, boxes } = checked[i]
+        const kept = confirmBoxes(boxes, [checked[i - 1], checked[i + 1]])
+        timeline.push({ t, boxes: kept })
+        for (const box of kept) {
           const last = found.findLast((f) => f.label === box.label)
           if (last && t - last.lastTime <= MERGE_GAP) {
             last.lastTime = t
             if (box.confidence > last.confidence) {
-              Object.assign(last, { time: t, confidence: box.confidence, image: snapshot(video, box) })
+              Object.assign(last, { time: t, confidence: box.confidence, image: box.image })
             }
           } else {
             found.push({
@@ -115,15 +114,28 @@ export default function Demo() {
               confidence: box.confidence,
               time: t,
               lastTime: t,
-              image: snapshot(video, box),
+              image: box.image,
               decision: 'pending',
             })
           }
         }
         setFlags(found.map((f) => ({ ...f })))
-        setTimeline([...checked])
+        setTimeline([...timeline])
+      }
+
+      for (let t = 0; t < duration; t += step) {
+        if (scanId.current !== id) return // a newer clip was chosen
+        const seeked = waitFor(video, 'seeked')
+        video.currentTime = t
+        await seeked
+
+        const boxes = await detect(video, video.videoWidth, video.videoHeight, canvasRef.current)
+        // Snapshot now, while this frame is on screen; the box may only be confirmed later.
+        checked.push({ t, boxes: boxes.map((box) => ({ ...box, image: snapshot(video, box) })) })
+        if (checked.length > 1) finish(checked.length - 2)
         setProgress(Math.min(1, (t + step) / duration))
       }
+      if (checked.length > 0) finish(checked.length - 1)
 
       // Every flag goes into the log as pending until a reviewer decides.
       const loggedAt = new Date().toISOString()
