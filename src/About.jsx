@@ -50,7 +50,7 @@ export default function About() {
           <li>
             An object detection model checks frames from the clip for a possible weapon and
             gives each finding a confidence score. The model is trained on both guns and
-            knives, but for now the MVP focuses on guns.
+            knives, but for now the MVP flags firearms only.
           </li>
           <li>
             Each flagged frame goes to a review screen. A person must confirm or dismiss it
@@ -119,12 +119,12 @@ export default function About() {
             filmed in portrait.
           </li>
           <li>
-            <strong>False alarms in 8 of 11 no-weapon clips</strong>, on 7.4% of checked frames.
-            Drills, tripods, a hair dryer and an instrument case look like guns to the model.
+            <strong>False alarms in 7 of 11 no-weapon clips</strong>, on 5.4% of checked frames.
+            Drills, tripods, a hair dryer and a saxophone look like guns to the model.
           </li>
           <li>
             <strong>The threshold is a trade-off.</strong> Raising it from 40% to 60% would
-            remove 12 of the 17 false flags but also miss two real weapons.
+            remove 10 of the 13 false flags but also miss two real weapons.
           </li>
         </ul>
         <ResultsTable title="No weapon in the clip" rows={NO_WEAPON} right="Correct" wrong="False alarm" />
