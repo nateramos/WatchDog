@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boxesAt, containment, decode, iou, nms } from './boxes.js'
+import { boxesAt, confirmBoxes, containment, decode, iou, nms } from './boxes.js'
 
 const box = (x, y, w, h, extra = {}) => ({ x, y, w, h, label: 'gun', confidence: 0.5, ...extra })
 
@@ -18,6 +18,18 @@ describe('iou', () => {
 describe('containment', () => {
   it('is 1 when the smaller box is fully inside the bigger one', () => {
     expect(containment(box(0, 0, 100, 100), box(10, 10, 20, 20))).toBe(1)
+  })
+})
+
+describe('confirmBoxes', () => {
+  it('keeps a box seen again, overlapping, in the frame before or after', () => {
+    const gun = box(0, 0, 10, 10)
+    expect(confirmBoxes([gun], [undefined, { boxes: [box(5, 5, 10, 10)] }])).toEqual([gun])
+  })
+
+  it('drops one-frame blips and boxes that only match elsewhere in the frame', () => {
+    expect(confirmBoxes([box(0, 0, 10, 10)], [{ boxes: [] }, undefined])).toHaveLength(0)
+    expect(confirmBoxes([box(0, 0, 10, 10)], [{ boxes: [box(50, 50, 10, 10)] }])).toHaveLength(0)
   })
 })
 

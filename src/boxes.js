@@ -17,6 +17,14 @@ export function containment(a, b) {
   return (x * y) / Math.min(a.w * a.h, b.w * b.h)
 }
 
+// Boxes that a box of the same kind overlaps in a neighbouring checked frame (the one before
+// or after). One-frame blips are dropped: in the hard-case test most false alarms were blips,
+// while real guns stay in view.
+export function confirmBoxes(boxes, neighbours) {
+  const others = neighbours.flatMap((frame) => frame?.boxes ?? [])
+  return boxes.filter((b) => others.some((o) => o.label === b.label && iou(o, b) > 0))
+}
+
 // Keep the most confident box among overlapping boxes of the same kind.
 export function nms(boxes, overlaps = (a, b) => iou(a, b) >= NMS_IOU) {
   const sorted = [...boxes].sort((a, b) => b.confidence - a.confidence)
@@ -61,7 +69,7 @@ export function decode(output, scale, minConf, names) {
 const lerp = (a, b, f) => a + (b - a) * f
 
 // Boxes to show at `time`, sliding each box between the two checked frames around it
-// so the overlay moves smoothly even though only ~2 frames per second were checked.
+// so the overlay moves smoothly even though only a few frames per second were checked.
 export function boxesAt(timeline, time, step) {
   const i = timeline.findLastIndex((s) => s.t <= time)
   if (i < 0) return []
