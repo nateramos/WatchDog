@@ -122,12 +122,12 @@ def keep_near_people(people_session, frame, boxes):
     return [b for b in boxes if near_person(b, people)]
 
 
-def checked_frames(path):
+def checked_frames(path, min_step=MIN_STEP):
     """Yield (time, frame) for the frames the web demo would check."""
     video = cv2.VideoCapture(str(path))
     fps = video.get(cv2.CAP_PROP_FPS)
     duration = video.get(cv2.CAP_PROP_FRAME_COUNT) / fps
-    step = max(MIN_STEP, duration / MAX_SAMPLES)
+    step = max(min_step, duration / MAX_SAMPLES)
     t, index = 0.0, 0
     while t < duration:
         ok, frame = video.read()
@@ -150,9 +150,9 @@ def confirmed(checked):
     return kept
 
 
-def scan(session, path, people_session=None, confirm=False):
+def scan(session, path, people_session=None, confirm=False, min_step=MIN_STEP):
     checked = []
-    for t, frame in checked_frames(path):
+    for t, frame in checked_frames(path, min_step):
         boxes = detect(session, frame)
         if people_session:
             boxes = keep_near_people(people_session, frame, boxes)
@@ -192,6 +192,8 @@ def main():
     parser.add_argument("--people", action="store_true", help="only flag weapons near a person")
     parser.add_argument("--confirm", action="store_true",
                         help="only flag weapons seen in two checked frames in a row")
+    parser.add_argument("--step", type=float, default=MIN_STEP,
+                        help=f"seconds between checked frames (demo: {MIN_STEP})")
     args = parser.parse_args()
 
     session = ort.InferenceSession(str(MODEL), providers=["CPUExecutionProvider"])
@@ -205,7 +207,7 @@ def main():
             if not path.exists():
                 print(f"missing {path}", file=sys.stderr)
                 continue
-            frames, flagged, events = scan(session, path, people_session, args.confirm)
+            frames, flagged, events = scan(session, path, people_session, args.confirm, args.step)
             for i, e in enumerate(events):
                 save_snapshot(e, f'{path.stem}_{i + 1}_{e["label"]}.jpg')
             flags = "; ".join(f'{e["label"]} {e["confidence"]:.0%} at {e["time"]:.1f}s' for e in events)
