@@ -116,7 +116,18 @@ export default function About() {
 
         <h3>How well it works</h3>
         <p>
-          We test WatchDog on clips staged at home with an orange-tipped prop gun. Unlike stock
+          <strong>Lab test.</strong> On 11,694 test images it had never seen, Model Dublin scored
+          0.874 out of 1 for guns on mAP50, the standard accuracy score for detectors (1.0 would
+          be perfect). It also correctly ignored 99.8% of 5,495 look-alike photos, such as phones,
+          umbrellas and remotes.
+        </p>
+        <p className="muted">
+          Scores like this can't be compared directly with other gun detectors. Each study tests
+          on its own set of images, some easy (clear photos) and some very hard (blurry CCTV), so
+          a higher score elsewhere doesn't mean a better detector, or a lower one a worse detector.
+        </p>
+        <p>
+          <strong>Home clip test.</strong> We test WatchDog on clips staged at home with an orange-tipped prop gun. Unlike stock
           footage, home filming lets us control lighting, image quality, camera height and angle
           to imitate campus CCTV. The test set has 6 clips with the prop gun and 36 with
           everyday objects that could fool a detector, such as a phone, backpack, laptop,

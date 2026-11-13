@@ -109,6 +109,8 @@ How it was trained:
 | Gun detection score (mAP50) | **0.874** |
 | False alarms on 5,495 look-alike photos | **11 (0.2%)** |
 
+mAP50 is the standard accuracy score for object detectors, from 0 to 1 (1.0 would be perfect): it combines finding every gun with being right when it says "gun." Scores like this can't be compared directly with other gun detectors, because each study tests on its own set of images, some easy (clear photos) and some very hard (blurry CCTV).
+
 ### Training data
 
 | Source | What it adds | License |
