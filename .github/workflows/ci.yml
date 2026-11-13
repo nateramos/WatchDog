@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      # npm ci rejects the packages Amplify bundles inside @aws-amplify/data-construct.
+      - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run build
