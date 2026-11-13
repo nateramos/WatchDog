@@ -91,6 +91,8 @@ LOOKALIKE_LABELS = {
     "/m/0h8my_4",  # Tennis racket
     "/m/06_fw",  # Skateboard
     "/m/05441v",  # Crutch
+    # Added after the browser demo flagged a hospital cart and upright poles.
+    "/m/012w5l",  # Ladder
 }
 
 DUPLICATE_IOU = 0.8  # same-class boxes overlapping this much are one object
@@ -105,8 +107,8 @@ def parse_args():
     parser.add_argument(
         "--lookalike-ratio",
         type=float,
-        default=0.3,
-        help="look-alike images to add, as a fraction of weapon images (default 0.3)",
+        default=0.5,
+        help="look-alike images to add, as a fraction of weapon images (default 0.5)",
     )
     parser.add_argument("--workers", type=int, default=32, help="parallel image downloads")
     parser.add_argument(
