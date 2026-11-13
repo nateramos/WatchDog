@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import About from './About.jsx'
 import Demo from './Demo.jsx'
 import Login from './Login.jsx'
-import { Logo } from './Layout.jsx'
+import { Logo, SignOutButton } from './Layout.jsx'
 import { useAuthStatus } from './auth.js'
 
 // Hash routes (#/about, #/demo) so Amplify can serve every page from index.html.
@@ -39,6 +39,7 @@ function Home() {
           View Demo
         </a>
       </div>
+      <SignOutButton />
     </main>
   )
 }

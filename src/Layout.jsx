@@ -1,3 +1,5 @@
+import { signOut } from './auth.js'
+
 export function Logo({ small = false }) {
   return (
     <div className={small ? 'logo logo-small' : 'logo'} aria-hidden="true">
@@ -20,6 +22,14 @@ export function PrototypeNotice() {
   )
 }
 
+export function SignOutButton() {
+  return (
+    <button className="link-button" onClick={() => signOut()}>
+      Sign out
+    </button>
+  )
+}
+
 export function Shell({ children }) {
   return (
     <div className="shell">
@@ -32,6 +42,7 @@ export function Shell({ children }) {
         <nav className="nav">
           <a href="#/about">About</a>
           <a href="#/demo">Demo</a>
+          <SignOutButton />
         </nav>
       </header>
       <main className="content">{children}</main>
