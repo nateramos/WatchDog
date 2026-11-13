@@ -5,13 +5,11 @@ import FlagCard from './FlagCard.jsx'
 import ReviewLog from './ReviewLog.jsx'
 import { detect, loadModel, FLAG_CONF } from './detector.js'
 import { confirmBoxes } from './boxes.js'
-import { readStored, writeStored } from './storage.js'
+import { LOG_KEY, REVIEWER_KEY, readStored, writeStored } from './storage.js'
 
 const MAX_SAMPLES = 120 // frames checked per clip, so long clips stay quick
 const MIN_STEP = 0.25 // seconds between checked frames: often enough to see a gun twice in a row
 const MERGE_GAP = 1.5 // flags of the same kind closer than this are one event
-const LOG_KEY = 'watchdog-review-log'
-const REVIEWER_KEY = 'watchdog-reviewer'
 
 function waitFor(video, event) {
   return new Promise((resolve, reject) => {
