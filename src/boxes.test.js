@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { boxesAt, confirmBoxes, containment, decode, iou, nms } from './boxes.js'
+import { boxesAt, cctvSized, confirmBoxes, containment, decode, iou, nms } from './boxes.js'
 
 const box = (x, y, w, h, extra = {}) => ({ x, y, w, h, label: 'gun', confidence: 0.5, ...extra })
 
@@ -18,6 +18,18 @@ describe('iou', () => {
 describe('containment', () => {
   it('is 1 when the smaller box is fully inside the bigger one', () => {
     expect(containment(box(0, 0, 100, 100), box(10, 10, 20, 20))).toBe(1)
+  })
+})
+
+describe('cctvSized', () => {
+  it('keeps gun-sized boxes and drops ones taller than a quarter of the frame', () => {
+    const gun = box(400, 500, 120, 80)
+    const doorway = box(100, 200, 300, 700)
+    expect(cctvSized([gun, doorway], 1280)).toEqual([gun])
+  })
+
+  it('keeps a box exactly at the limit', () => {
+    expect(cctvSized([box(0, 0, 50, 320)], 1280)).toHaveLength(1)
   })
 })
 

@@ -25,6 +25,15 @@ export function confirmBoxes(boxes, neighbours) {
   return boxes.filter((b) => others.some((o) => o.label === b.label && iou(o, b) > 0))
 }
 
+// WatchDog is tuned for CCTV: a ceiling camera sees a whole person in a small part of the
+// frame, so a real gun is always small. Any box taller than this share of the frame is
+// something big and dark, like a doorway, and is dropped.
+export const MAX_BOX_HEIGHT = 0.25
+
+export function cctvSized(boxes, frameHeight, maxShare = MAX_BOX_HEIGHT) {
+  return boxes.filter((b) => b.h <= maxShare * frameHeight)
+}
+
 // Keep the most confident box among overlapping boxes of the same kind.
 export function nms(boxes, overlaps = (a, b) => iou(a, b) >= NMS_IOU) {
   const sorted = [...boxes].sort((a, b) => b.confidence - a.confidence)
