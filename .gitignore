@@ -32,3 +32,9 @@ tracking/train/*.png
 
 # Weapon check test run: flag snapshots contain frames from stock clips
 tracking/eval/output/
+
+# Amplify backend: generated settings and local build files
+.amplify/
+amplify_outputs.json
+public/amplify_outputs.json
+.npm/
