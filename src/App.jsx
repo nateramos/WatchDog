@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import About from './About.jsx'
 import Demo from './Demo.jsx'
+import Login from './Login.jsx'
 import { Logo } from './Layout.jsx'
+import { useAuthStatus } from './auth.js'
 
 // Hash routes (#/about, #/demo) so Amplify can serve every page from index.html.
 function useRoute() {
@@ -41,8 +43,19 @@ function Home() {
   )
 }
 
+// The whole site is behind the login (contest rule: a working login, not a placeholder).
 export default function App() {
   const route = useRoute()
+  const auth = useAuthStatus()
+  if (auth === 'loading') return null
+  if (auth === 'unconfigured') {
+    return (
+      <main className="page">
+        <p className="muted">Sign-in is not set up in this copy of WatchDog. It works on the live site.</p>
+      </main>
+    )
+  }
+  if (auth === 'signedOut') return <Login />
   if (route === '#/about') return <About />
   if (route === '#/demo') return <Demo />
   return <Home />
