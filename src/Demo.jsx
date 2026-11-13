@@ -8,10 +8,6 @@ import { detect, loadModel, FLAG_CONF } from './detector.js'
 import { confirmBoxes } from './boxes.js'
 import { readStored, writeStored } from './storage.js'
 
-const SAMPLE = {
-  url: '/samples/sample-pexels-4006667.mp4',
-  name: 'Pexels stock clip #4006667',
-}
 const MAX_SAMPLES = 120 // frames checked per clip, so long clips stay quick
 const MIN_STEP = 0.25 // seconds between checked frames: often enough to see a gun twice in a row
 const MERGE_GAP = 1.5 // flags of the same kind closer than this are one event
@@ -27,7 +23,7 @@ function waitFor(video, event) {
     }
     const fail = () => {
       video.removeEventListener(event, done)
-      reject(new Error('This video could not be read. Try an MP4 (H.264) file, or run the demo video.'))
+      reject(new Error('This video could not be read. Try an MP4 (H.264) file.'))
     }
     video.addEventListener(event, done, { once: true })
     video.addEventListener('error', fail, { once: true })
@@ -189,7 +185,7 @@ export default function Demo() {
       <section className="panel">
         <h2>Review demo</h2>
         <p className="muted">
-          Enter your name as the reviewer, then upload one clip or run the demo video. WatchDog
+          Enter your name as the reviewer, then upload a clip. WatchDog
           checks about four frames per second for a possible gun (confidence{' '}
           {Math.round(FLAG_CONF * 100)}% or higher) and only flags one it finds in two checked
           frames in a row, which filters out one-frame false alarms. A human reviewer must confirm or dismiss
@@ -213,10 +209,10 @@ export default function Demo() {
               Upload a clip
               <input type="file" accept="video/*" onChange={onUpload} disabled={busy} hidden />
             </label>
-            <button className="button" onClick={() => scan(SAMPLE.url, SAMPLE.name)} disabled={busy}>
-              Run demo video
-            </button>
           </div>
+          <p className="muted small">
+            The demo video is being updated.
+          </p>
         </div>
 
         {clip && (
@@ -276,11 +272,6 @@ export default function Demo() {
       )}
 
       <ReviewLog log={log} onClear={() => setLog([])} />
-
-      <p className="muted small">
-        Sample clip: Pexels video #4006667, free to use under the{' '}
-        <a href="https://www.pexels.com/license/">Pexels License</a>.
-      </p>
     </Shell>
   )
 }
