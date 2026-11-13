@@ -8,7 +8,7 @@ WatchDog is a campus safety tool that informs human responders and does not make
 
 Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
-**Tech stack:** React + Vite, YOLOv8n (Ultralytics) fine-tuned for guns and knives, ONNX Runtime Web, AWS Amplify Hosting.
+**Tech stack:** React + Vite, Model Dublin (a YOLO11m model from Ultralytics, trained for guns and knives), ONNX Runtime Web, AWS Amplify Hosting.
 
 ## Try the demo
 
@@ -124,18 +124,36 @@ npm run dev     # local site at http://localhost:5173
 npm test        # unit tests for box math and the review log
 ```
 
-## Model
+## Model Dublin
 
-`tracking/train/` builds a gun/knife dataset from Google's Open Images and fine-tunes YOLOv8n. The trained weights are exported to ONNX (`public/models/weapons.onnx`) for the browser. `tracking/track.py` is the desktop prototype: it tracks people (pose) and the objects they hold on a webcam or video file. Its weapon step is switched off (`WEAPONS_ENABLED = False`) while held-object detection is tuned; the web demo is where weapon detection runs.
+WatchDog's detector is **Model Dublin**, a YOLO11m model (Ultralytics) trained to find guns and knives. It runs at 640 x 640 pixels and is exported to ONNX (`public/models/weapons.onnx`, 80 MB) so it runs in the browser. The model knows both classes, but WatchDog flags firearms only.
 
-### Balancing "gun" and "not a gun" training images
+How it was trained:
 
-The model learns from two kinds of photos: weapon photos with a box drawn around each gun or knife, and look-alike photos with no weapon and no box, which teach it what *isn't* a gun. Getting the mix right is a trade-off:
+1. **Weapon photos:** about 146,000 public images with a box drawn around each gun or knife, merged from the datasets below. Several of them are real CCTV or surveillance footage.
+2. **Look-alike photos:** about 49,000 photos with no weapon (phones, umbrellas, remotes, cameras, ceiling fans and similar), which teach the model what *isn't* a gun.
+3. **Training:** on a rented cloud GPU, checked against 11,694 held-out images the model never trained on.
 
-- **Too few look-alikes:** the model flags anything gun-shaped. In the hard-case test, drills, a tripod, a hair dryer and a saxophone were all flagged as guns.
-- **Too many look-alikes:** the model gets cautious and starts missing real guns, which is worse for a safety tool.
+| Result on the held-out images | |
+| --- | --- |
+| Gun detection score (mAP50) | **0.874** |
+| False alarms on 5,495 look-alike photos | **11 (0.2%)** |
 
-The training set adds **30 look-alike photos for every 100 weapon photos** (`--lookalike-ratio 0.3` in `prepare_weapon_data.py`), so about a quarter of the photos have no weapon. They are picked **evenly across about 40 kinds of object** (drills, tripods, instruments, cases, and things students carry, such as backpacks, laptops, books and bottles) so rare look-alikes aren't crowded out by common ones. We briefly tried 50 per 100 and went back to 30, because Ultralytics' [training tips](https://docs.ultralytics.com/yolov5/tutorials/tips_for_best_training_results/) suggest only 0 to 10% background images. We stay above that because false alarms are WatchDog's biggest problem, and the hard-case test checks whether real guns start getting missed.
+### Training data
+
+| Source | What it adds | License |
+| --- | --- | --- |
+| [Weapons 130k](https://www.kaggle.com/datasets/haiderkhan6410/weapons-130k) (Kaggle) | Guns, knives and background images | CC BY 4.0 |
+| Roboflow Universe: FYP Weapon Detection in CCTV, CCTV Gun Detector, Monash Guns Dataset, Detectando Armas, MGD | Guns, several from CCTV | CC BY 4.0 |
+| Roboflow Universe: WeaponDataset, NoGun | CCTV guns and gun-free CCTV frames | Research use only |
+| [University of Seville, Real-time gun detection in CCTV](https://huggingface.co/datasets/jsalazar/US-Real-time-gun-detection-in-CCTV-An-open-problem-dataset) | Real CCTV of a staged attack, plus synthetic images | CC BY-NC 4.0 |
+| [University of Granada, OD-WeaponDetection](https://github.com/ari-dasci/OD-WeaponDetection) | Pistols, knives and similar handheld objects | CC BY 4.0 |
+| [Google Open Images V7](https://storage.googleapis.com/openimages/web/index.html) | Guns, knives and look-alike photos | CC BY 4.0 (labels), CC BY 2.0 (images) |
+| [COCO 2017](https://cocodataset.org/) | Look-alike photos (phones, umbrellas, remotes...) | CC BY 4.0 |
+
+Some sets allow research or non-commercial use only, which fits a student prototype. A commercial version would need to retrain without them.
+
+`tracking/track.py` is the desktop prototype: it tracks people (pose) and the objects they hold on a webcam or video file. The web demo is where weapon detection runs.
 
 ## Speed
 
