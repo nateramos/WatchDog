@@ -414,76 +414,6 @@ h3 {
   color: #fda4af;
 }
 
-.stages {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.stage {
-  margin: 0;
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--stage-color);
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.stage img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-
-.stage figcaption {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.85rem 1rem 1rem;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--muted);
-}
-
-.stage figcaption strong {
-  color: var(--stage-color);
-  font-size: 1rem;
-}
-
-.stage figcaption .speed {
-  align-self: flex-start;
-  padding: 0.1rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  color: var(--text);
-  font-size: 0.8rem;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.speed-note {
-  margin: 1rem 0 0;
-  line-height: 1.6;
-}
-
-.speed-note strong {
-  color: var(--text);
-}
-
-.stage-yellow {
-  --stage-color: #facc15;
-}
-
-.stage-blue {
-  --stage-color: #60a5fa;
-}
-
-.stage-red {
-  --stage-color: #f87171;
-}
-
 .player {
   position: relative;
   width: 100%;
@@ -665,12 +595,6 @@ td.decision-pending {
 
 .result-wrong {
   color: #fda4af;
-}
-
-@media (max-width: 860px) {
-  .stages {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 640px) {

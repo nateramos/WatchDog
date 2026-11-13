@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import Player, { drawBoxes } from './Player.jsx'
-import Stages from './Stages.jsx'
 import FlagCard from './FlagCard.jsx'
 import ReviewLog from './ReviewLog.jsx'
 import { detect, loadModel, FLAG_CONF } from './detector.js'
@@ -180,8 +179,6 @@ export default function Demo() {
 
   return (
     <Shell>
-      <Stages />
-
       <section className="panel">
         <h2>Review demo</h2>
         <p className="muted">
