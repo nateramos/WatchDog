@@ -567,7 +567,7 @@ td.decision-pending {
   font-weight: 600;
 }
 
-/* Hard-case results on the About page: long clip names, so let cells wrap. */
+/* Test results on the About page: let cells wrap on narrow screens. */
 .results {
   margin: 1.25rem 0;
 }

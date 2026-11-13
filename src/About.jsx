@@ -1,24 +1,30 @@
 import { Shell } from './Layout.jsx'
-import { NO_WEAPON, WEAPON } from './hardCases.js'
+// Results of tracking/eval_clips.py on the 42 staged home clips (tracking/eval/results.csv).
+const RESULTS = [
+  { label: 'Gun clips caught', bright: '3 of 3', dim: '3 of 3', total: '6 of 6 (100%)' },
+  { label: 'No-gun clips with no false alarm', bright: '18 of 18', dim: '17 of 18', total: '35 of 36 (97.2%)' },
+]
 
-function ResultsTable({ title, rows, right, wrong }) {
+function ResultsTable() {
   return (
     <div className="table-wrap results">
       <table>
-        <caption>{title}</caption>
+        <caption>Model Dublin on 42 staged home clips</caption>
         <thead>
           <tr>
-            <th>Clip</th>
-            <th>What WatchDog flagged</th>
-            <th>Result</th>
+            <th />
+            <th>Normal light</th>
+            <th>Dim light</th>
+            <th>Total</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r) => (
-            <tr key={r.clip}>
-              <td>{r.clip}</td>
-              <td>{r.flagged}</td>
-              <td className={r.correct ? 'result-right' : 'result-wrong'}>{r.correct ? right : wrong}</td>
+          {RESULTS.map((r) => (
+            <tr key={r.label}>
+              <td>{r.label}</td>
+              <td>{r.bright}</td>
+              <td>{r.dim}</td>
+              <td className="result-right">{r.total}</td>
             </tr>
           ))}
         </tbody>
@@ -46,7 +52,7 @@ export default function About() {
 
         <h3>What the MVP does</h3>
         <ol>
-          <li>You upload a recorded video clip, or run the demo video.</li>
+          <li>You upload a recorded video clip. (The built-in demo video is being updated.)</li>
           <li>
             An object detection model checks frames from the clip for a possible weapon and
             gives each finding a confidence score. The model is trained on both guns and
@@ -82,23 +88,25 @@ export default function About() {
             so clips you upload are never sent to a server.
           </li>
           <li>
-            <strong>No real people on campus.</strong> Testing uses licensed stock footage only.
+            <strong>No real people on campus.</strong> Test clips are staged at home with an
+            orange-tipped prop gun.
           </li>
         </ul>
 
         <h3>How it works</h3>
         <p>
-          The detector is YOLOv8n from Ultralytics, fine-tuned to find guns and knives using
-          labeled images from Google's Open Images dataset. It is exported to ONNX and runs in
-          the browser with ONNX Runtime Web. The site is built with React and Vite and hosted
-          on AWS Amplify.
+          The detector is <strong>Model Dublin</strong>, a YOLO11m model from Ultralytics trained
+          to find guns and knives. It learned from about 146,000 public weapon images, several
+          from real CCTV, plus about 49,000 look-alike photos (phones, umbrellas, remotes) that
+          teach it what is not a gun. On 11,694 images it never trained on, it scored 0.874 for
+          guns (mAP50) and raised false alarms on only 0.2% of look-alike photos. It is exported
+          to ONNX and runs in the browser with ONNX Runtime Web. The site is built with React and
+          Vite and hosted on AWS Amplify.
         </p>
         <p>
-          <strong>Speed.</strong> On a 2020 MacBook Air (Intel Core i5, no graphics card), the
-          desktop prototype takes about a quarter of a second to run all three steps on one
-          frame (person, object, weapon), or about 4 frames per second. The weapon check alone
-          takes about 0.1 seconds. The web demo runs only the weapon check, inside the browser
-          on one processor core, so it is slower: about 1 to 1.5 seconds per frame.
+          <strong>Speed.</strong> On a cloud graphics card, Model Dublin checks a frame in about
+          0.3 seconds. The web demo runs it inside your browser, so speed depends on your
+          computer.
         </p>
         <p>
           Detectors make mistakes. A false alarm could send responders toward someone holding
@@ -106,39 +114,30 @@ export default function About() {
           flag, and why the confidence score is always shown.
         </p>
 
-        <h3>Where it gets it wrong</h3>
+        <h3>How well it works</h3>
         <p>
-          The demo clip is an easy case. To find the mistakes, we ran 19 licensed stock clips
-          through the same model and settings as this demo: 11 with no weapon but something that
-          could fool it, and 8 with a weapon, mostly indoors or in the dark. We checked every
-          flag by hand.
+          We test WatchDog on clips staged at home with an orange-tipped prop gun. Unlike stock
+          footage, home filming lets us control lighting, image quality, camera height and angle
+          to imitate campus CCTV. The test set has 6 clips with the prop gun and 36 with
+          everyday objects that could fool a detector, such as a phone, backpack, laptop,
+          scissors and keys, each filmed in normal and dim light.
         </p>
-        <ul>
-          <li>
-            <strong>Caught 6 of 8 weapons.</strong> Both misses were dark, backlit handguns
-            filmed in portrait.
-          </li>
-          <li>
-            <strong>False alarms in 4 of 11 no-weapon clips</strong>, on 2.7% of checked frames.
-            A drill, a tripod and a saxophone held steady still look like guns to the model.
-          </li>
-          <li>
-            <strong>Two in a row halves the false alarms.</strong> WatchDog only flags a gun it
-            finds in two checked frames in a row. Checking one frame every half second and
-            flagging single frames caught the same weapons but raised false alarms in 7 of 11
-            clips, including a student with a hand in a jacket pocket.
-          </li>
-        </ul>
-        <ResultsTable title="No weapon in the clip" rows={NO_WEAPON} right="Correct" wrong="False alarm" />
-        <ResultsTable title="Weapon in the clip" rows={WEAPON} right="Caught" wrong="Missed" />
-        <p className="muted">
-          19 clips is a small test, not a benchmark. Scores come from a desktop rerun of this
-          demo's code (<code>tracking/eval_clips.py</code> on GitHub) and can differ by a point
-          or two here.
+        <ResultsTable />
+        <p>
+          Every gun clip was flagged at 76 to 86% confidence, and 99.9% of checked frames in the
+          no-gun clips raised no false alarm.
+        </p>
+        <p>
+          <strong>Optimized for CCTV.</strong> Model Dublin is trained to detect guns in any
+          footage. WatchDog adds limits to optimize it for CCTV: on a ceiling camera a whole
+          person fills a small part of the frame, so a real gun is always small, and anything
+          taller than a quarter of the frame is ignored. In early testing, dark doorways in dim
+          light caused most false alarms. This limit fixed it.
         </p>
 
         <h3>Roadmap</h3>
         <ul>
+          <li>A new demo video filmed in CCTV style</li>
           <li>A simple campus map that shows which camera raised a flag</li>
           <li>Tracking across multiple cameras</li>
           <li>Movement prediction for responders</li>
