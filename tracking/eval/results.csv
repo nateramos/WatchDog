@@ -1,0 +1,43 @@
+file,case,weapon_in_clip,light,source,frames_checked,frames_flagged,flag_events,flags
+01-1_nogun_walking-empty-handed_bright.mp4,walking empty handed,no,bright,Staged at home,32,0,0,none
+01-2_nogun_walking-empty-handed_dim.mp4,walking empty handed,no,dim,Staged at home,36,0,0,none
+02-1_nogun_walking-with-backpack_bright.mp4,walking with backpack,no,bright,Staged at home,37,0,0,none
+02-2_nogun_walking-with-backpack_dim.mp4,walking with backpack,no,dim,Staged at home,33,0,0,none
+03-1_nogun_bottle-from-backpack_bright.mp4,bottle from backpack,no,bright,Staged at home,65,0,0,none
+03-2_nogun_bottle-from-backpack_dim.mp4,bottle from backpack,no,dim,Staged at home,66,0,0,none
+04-1_nogun_controller_bright.mp4,controller,no,bright,Staged at home,31,0,0,none
+04-2_nogun_controller_dim.mp4,controller,no,dim,Staged at home,38,0,0,none
+05-1_nogun_sweeping_bright.mp4,sweeping,no,bright,Staged at home,35,0,0,none
+05-2_nogun_sweeping_dim.mp4,sweeping,no,dim,Staged at home,28,0,0,none
+06-1_nogun_owala-bottle_bright.mp4,owala bottle,no,bright,Staged at home,37,0,0,none
+06-2_nogun_owala-bottle_dim.mp4,owala bottle,no,dim,Staged at home,39,0,0,none
+07-1_nogun_notebook_bright.mp4,notebook,no,bright,Staged at home,45,0,0,none
+07-2_nogun_notebook_dim.mp4,notebook,no,dim,Staged at home,52,0,0,none
+08-1_nogun_ipad_bright.mp4,ipad,no,bright,Staged at home,63,0,0,none
+08-2_nogun_ipad_dim.mp4,ipad,no,dim,Staged at home,64,2,1,gun 84% at 8.0s
+09-1_nogun_hat-on_bright.mp4,hat on,no,bright,Staged at home,44,0,0,none
+09-2_nogun_hat-off_bright.mp4,hat off,no,bright,Staged at home,23,0,0,none
+09-3_nogun_hat-on_dim.mp4,hat on,no,dim,Staged at home,43,0,0,none
+09-4_nogun_hat-off_dim.mp4,hat off,no,dim,Staged at home,30,0,0,none
+10-1_nogun_tv-remote_bright.mp4,tv remote,no,bright,Staged at home,37,0,0,none
+10-2_nogun_tv-remote_dim.mp4,tv remote,no,dim,Staged at home,36,0,0,none
+11-1_nogun_comb-brushing-hair_bright.mp4,comb brushing hair,no,bright,Staged at home,32,0,0,none
+11-2_nogun_comb-brushing-hair_dim.mp4,comb brushing hair,no,dim,Staged at home,39,0,0,none
+12-1_nogun_shoes_bright.mp4,shoes,no,bright,Staged at home,28,0,0,none
+12-2_nogun_shoes_dim.mp4,shoes,no,dim,Staged at home,28,0,0,none
+13-1_nogun_laptop_bright.mp4,laptop,no,bright,Staged at home,29,0,0,none
+13-2_nogun_laptop_dim.mp4,laptop,no,dim,Staged at home,38,0,0,none
+14-1_nogun_scissors_bright.mp4,scissors,no,bright,Staged at home,38,0,0,none
+14-2_nogun_scissors_dim.mp4,scissors,no,dim,Staged at home,35,0,0,none
+15-1_nogun_black-bottle_bright.mp4,black bottle,no,bright,Staged at home,33,0,0,none
+15-2_nogun_black-bottle_dim.mp4,black bottle,no,dim,Staged at home,35,0,0,none
+16-1_nogun_keys-lanyard_bright.mp4,keys lanyard,no,bright,Staged at home,34,0,0,none
+16-2_nogun_keys-lanyard_dim.mp4,keys lanyard,no,dim,Staged at home,33,0,0,none
+17-1_nogun_shopping-bag_bright.mp4,shopping bag,no,bright,Staged at home,34,0,0,none
+17-2_nogun_shopping-bag_dim.mp4,shopping bag,no,dim,Staged at home,33,0,0,none
+18-1_gun_walking-holding-gun_bright.mp4,walking holding gun,yes,bright,"Staged at home, orange-tipped prop gun",61,13,2,gun 84% at 7.0s; gun 84% at 11.2s
+18-2_gun_walking-holding-gun_dim.mp4,walking holding gun,yes,dim,"Staged at home, orange-tipped prop gun",58,21,1,gun 85% at 10.8s
+19-1_gun_from-backpack_bright.mp4,from backpack,yes,bright,"Staged at home, orange-tipped prop gun",55,17,2,gun 85% at 5.8s; gun 86% at 11.2s
+19-2_gun_from-backpack_dim.mp4,from backpack,yes,dim,"Staged at home, orange-tipped prop gun",107,23,2,gun 84% at 11.5s; gun 83% at 22.2s
+20-1_gun_behind-back-then-drawn_bright.mp4,behind back then drawn,yes,bright,"Staged at home, orange-tipped prop gun",35,13,2,gun 76% at 1.5s; gun 82% at 6.0s
+20-2_gun_behind-back-then-drawn_dim.mp4,behind back then drawn,yes,dim,"Staged at home, orange-tipped prop gun",33,5,1,gun 86% at 5.2s

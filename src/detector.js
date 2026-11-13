@@ -1,5 +1,5 @@
 import * as ort from 'onnxruntime-web'
-import { containment, decode, nms } from './boxes.js'
+import { cctvSized, containment, decode, nms } from './boxes.js'
 
 // Same classes and threshold as tracking/track.py (WEAPON_NAMES, WEAPON_CONF).
 export const CLASS_NAMES = ['gun', 'knife']
@@ -62,13 +62,14 @@ async function run(session, source, width, height, canvas, rotated, minConf) {
 // Run the detector on whatever is currently drawn in `source` (a video at a given time).
 // The model was trained mostly on guns held sideways and is less sure of upright ones, so
 // frames it is unsure about are also checked turned 90 degrees, keeping the more confident box.
+// Boxes too big to be a gun on a CCTV camera are dropped (see cctvSized in boxes.js).
 export async function detect(source, width, height, canvas, minConf = FLAG_CONF) {
   const session = await loadModel()
-  const upright = await run(session, source, width, height, canvas, false, minConf)
+  const upright = cctvSized(await run(session, source, width, height, canvas, false, minConf), height)
   if (upright.some((b) => b.confidence >= SURE_CONF)) return upright
 
   const turned = await run(session, source, width, height, canvas, true, minConf)
   // A box found in the turned frame, mapped back to the original frame.
   const back = turned.map((b) => ({ ...b, x: b.y, y: height - (b.x + b.w), w: b.h, h: b.w }))
-  return nms([...upright, ...back], (a, b) => containment(a, b) >= SAME_OBJECT)
+  return cctvSized(nms([...upright, ...back], (a, b) => containment(a, b) >= SAME_OBJECT), height)
 }

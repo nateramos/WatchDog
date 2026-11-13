@@ -1,9 +1,9 @@
 """Run the web demo's weapon check on a set of test clips and report what it flagged.
 
 This copies src/detector.js and the scan loop in src/Demo.jsx: the same ONNX model,
-40% threshold, one checked frame every quarter second, the extra turned-frame check, only
-boxes seen in two checked frames in a row, and flags of the same kind within 1.5 seconds
-merged into one event. Results can differ
+40% threshold, one checked frame every quarter second, the extra turned-frame check, the
+CCTV size limit, only boxes seen in two checked frames in a row, and flags of the same kind
+within 1.5 seconds merged into one event. Results can differ
 slightly from the browser because frames are resized by OpenCV instead of a canvas.
 
 Usage:
@@ -35,6 +35,7 @@ FLAG_CONF = 0.4
 SURE_CONF = 0.7
 SAME_OBJECT = 0.5
 NMS_IOU = 0.45
+MAX_BOX_HEIGHT = 0.25  # CCTV size limit: a real gun is never taller than this share of the frame
 SIZE = 640
 MAX_SAMPLES = 120
 MIN_STEP = 0.25
@@ -90,16 +91,20 @@ def run(session, frame, rotated):
     return nms(boxes)
 
 
+def cctv_sized(boxes, height):
+    return [b for b in boxes if b["h"] <= MAX_BOX_HEIGHT * height]
+
+
 def detect(session, frame):
-    upright = run(session, frame, False)
+    height = frame.shape[0]
+    upright = cctv_sized(run(session, frame, False), height)
     if any(b["confidence"] >= SURE_CONF for b in upright):
         return upright
-    height = frame.shape[0]
     back = [
         {**b, "x": b["y"], "y": height - (b["x"] + b["w"]), "w": b["h"], "h": b["w"]}
         for b in run(session, frame, True)
     ]
-    return nms(upright + back, lambda a, b: containment(a, b) >= SAME_OBJECT)
+    return cctv_sized(nms(upright + back, lambda a, b: containment(a, b) >= SAME_OBJECT), height)
 
 
 def checked_frames(path, min_step=MIN_STEP):
