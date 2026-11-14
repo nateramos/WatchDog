@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import Player, { drawBoxes } from './Player.jsx'
-import { AlertBanner, OfflineTile, place } from './Cameras.jsx'
+import { AlertBanner, CameraFilters, NoMatch, OfflineTile, place } from './Cameras.jsx'
 import { useStore } from './store.jsx'
 import { sightings } from './flags.js'
+import { NO_FILTERS, passes } from './search.js'
 import { SITE_CAMERAS } from './site.js'
 
 // The camera wall, replaying a saved WatchDog run instead of checking frames live (which
@@ -38,7 +39,7 @@ function snapshot(video, box) {
   return canvas.toDataURL('image/jpeg', 0.85)
 }
 
-function DemoTile({ feed, run, started }) {
+function DemoTile({ feed, run, started, hidden = false }) {
   const { alerts, raiseAlert, updateAlert } = useStore()
   const [results, setResults] = useState(null)
   const [error, setError] = useState('')
@@ -103,7 +104,7 @@ function DemoTile({ feed, run, started }) {
 
   const pending = alerts.filter((a) => a.cameraId === feed.id && a.decision === 'pending').length
   return (
-    <article className={`camera ${pending > 0 ? 'camera-alert' : ''}`}>
+    <article className={`camera ${pending > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
       <header className="camera-head">
         <span className="camera-name">{feed.name}</span>
         <span className="pill pill-done">Replay</span>
@@ -142,6 +143,10 @@ export default function Demo() {
   const { clearPending } = useStore()
   const [started, setStarted] = useState(false)
   const [run, setRun] = useState(0)
+  const [query, setQuery] = useState('')
+  const [filters, setFilters] = useState(NO_FILTERS)
+  const wall = [...FEEDS, ...OFFLINE]
+  const shown = wall.filter((c) => passes(c, query, filters)).length
 
   // Start (or start over): clear the demo alerts nobody has reviewed and play every feed
   // from the beginning, so each alert fires again at its moment. Each run gets its own id
@@ -179,15 +184,23 @@ export default function Demo() {
             </button>
           )}
         </div>
+        <CameraFilters cameras={wall} query={query} onQuery={setQuery} filters={filters} onFilters={setFilters} />
         <p className="muted small">Camera names and locations are a sample building layout, not the real school's.</p>
       </section>
 
+      {shown === 0 && <NoMatch />}
       <section className="camera-grid">
         {FEEDS.map((feed) => (
-          <DemoTile key={feed.id} feed={feed} run={run} started={started} />
+          <DemoTile
+            key={feed.id}
+            feed={feed}
+            run={run}
+            started={started}
+            hidden={!passes(feed, query, filters)}
+          />
         ))}
         {OFFLINE.map((camera) => (
-          <OfflineTile key={camera.id} camera={camera} />
+          <OfflineTile key={camera.id} camera={camera} hidden={!passes(camera, query, filters)} />
         ))}
       </section>
     </Shell>
