@@ -18,10 +18,16 @@ export function CameraTile({ camera, alertCount, pendingCount, onRemove, hidden 
     <article className={`camera ${pendingCount > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
       <header className="camera-head">
         <span className="camera-name">{camera.name}</span>
-        <span className={`pill pill-${camera.status}`}>
-          {STATUS_TEXT[camera.status]}
-          {checking && ` ${Math.round(camera.progress * 100)}%`}
-        </span>
+        {pendingCount > 0 ? (
+          <a href="#/alerts" className="pill pill-threat">
+            Possible gun · Review
+          </a>
+        ) : (
+          <span className={`pill pill-${camera.status}`}>
+            {STATUS_TEXT[camera.status]}
+            {checking && ` ${Math.round(camera.progress * 100)}%`}
+          </span>
+        )}
       </header>
       {camera.status === 'error' ? (
         <p className="error camera-error">{camera.error}</p>

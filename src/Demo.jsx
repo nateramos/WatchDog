@@ -107,7 +107,13 @@ function DemoTile({ feed, run, started, hidden = false }) {
     <article className={`camera ${pending > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
       <header className="camera-head">
         <span className="camera-name">{feed.name}</span>
-        <span className="pill pill-done">Replay</span>
+        {pending > 0 ? (
+          <a href="#/alerts" className="pill pill-threat">
+            Possible gun · Review
+          </a>
+        ) : (
+          <span className="pill pill-done">Replay</span>
+        )}
       </header>
       {error ? (
         <p className="error camera-error">{error}</p>
