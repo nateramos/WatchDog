@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import Player, { drawBoxes } from './Player.jsx'
-import { AlertBanner, OfflineTile } from './Cameras.jsx'
+import { AlertBanner, OfflineTile, place } from './Cameras.jsx'
 import { useStore } from './store.jsx'
 import { sightings } from './flags.js'
+import { SITE_CAMERAS } from './site.js'
 
 // The camera wall, replaying a saved WatchDog run instead of checking frames live (which
 // takes minutes on a laptop). Each feed's results file holds what WatchDog found in every
@@ -14,11 +15,12 @@ import { sightings } from './flags.js'
 // (public read of demo/ only, loadable from this site and localhost), so they can be taken
 // down at any time without touching the code or its history.
 const MEDIA = 'https://watchdog-demo-media-2026.s3.us-east-2.amazonaws.com/demo'
+// The two feeds play in the first two camera slots of the sample building (src/site.js).
 const FEEDS = [
-  { id: 'demo-hallway', name: 'Camera 1 · Hallway', video: `${MEDIA}/demo_cam1_hallway.mp4`, results: `${MEDIA}/demo_cam1_hallway.json` },
-  { id: 'demo-lobby', name: 'Camera 2 · Lobby', video: `${MEDIA}/demo_cam2_lobby.mp4`, results: `${MEDIA}/demo_cam2_lobby.json` },
+  { ...SITE_CAMERAS[0], id: 'demo-hallway', status: 'live', video: `${MEDIA}/demo_cam1_hallway.mp4`, results: `${MEDIA}/demo_cam1_hallway.json` },
+  { ...SITE_CAMERAS[1], id: 'demo-lobby', status: 'live', video: `${MEDIA}/demo_cam2_lobby.mp4`, results: `${MEDIA}/demo_cam2_lobby.json` },
 ]
-const SLOTS = 4
+const OFFLINE = SITE_CAMERAS.slice(FEEDS.length).map((c) => ({ ...c, status: 'offline' }))
 // Each alert gets a short clip around the first flag: this long before it, and this long
 // after it (recorded as the feed keeps playing, so the clip arrives a few seconds later).
 export const CLIP_BEFORE = 1
@@ -128,7 +130,8 @@ function DemoTile({ feed, run, started }) {
             </a>
           ) : (
             'No alerts waiting'
-          )}
+          )}{' '}
+          · {place(feed)}
         </span>
       </footer>
     </article>
@@ -176,14 +179,15 @@ export default function Demo() {
             </button>
           )}
         </div>
+        <p className="muted small">Camera names and locations are a sample building layout, not the real school's.</p>
       </section>
 
       <section className="camera-grid">
         {FEEDS.map((feed) => (
           <DemoTile key={feed.id} feed={feed} run={run} started={started} />
         ))}
-        {Array.from({ length: SLOTS - FEEDS.length }, (_, i) => (
-          <OfflineTile key={`slot-${i}`} name={`Camera ${FEEDS.length + i + 1}`} />
+        {OFFLINE.map((camera) => (
+          <OfflineTile key={camera.id} camera={camera} />
         ))}
       </section>
     </Shell>

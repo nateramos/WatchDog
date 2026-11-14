@@ -1,6 +1,7 @@
 import { Shell } from './Layout.jsx'
 import Player from './Player.jsx'
 import { useStore } from './store.jsx'
+import { SITE_CAMERAS } from './site.js'
 
 const STATUS_TEXT = {
   queued: 'Waiting',
@@ -51,10 +52,14 @@ export function CameraTile({ camera, alertCount, pendingCount, onRemove }) {
   )
 }
 
-const SLOTS = 4 // camera slots shown on the wall
+// Where a camera hangs, as shown under its picture: "Floor 1 · West wing".
+export function place(camera) {
+  return [camera.floor, camera.wing].filter(Boolean).join(' · ')
+}
 
 // An empty slot: no feed is connected to it yet.
-export function OfflineTile({ name }) {
+export function OfflineTile({ camera }) {
+  const { name } = camera
   return (
     <article className="camera camera-offline">
       <header className="camera-head">
@@ -70,7 +75,7 @@ export function OfflineTile({ name }) {
         <span>Camera offline</span>
       </div>
       <footer className="camera-foot">
-        <span className="muted small">No feed connected</span>
+        <span className="muted small">{place(camera) || 'No feed connected'}</span>
       </footer>
     </article>
   )
@@ -93,6 +98,10 @@ export function AlertBanner() {
 
 export default function Cameras() {
   const { cameras, alerts, removeCamera } = useStore()
+  // Connected cameras fill the first slots of the building's layout; the rest are offline.
+  const live = cameras.map((c, i) => ({ ...SITE_CAMERAS[i], ...c, status: 'live' }))
+  const offline = SITE_CAMERAS.slice(cameras.length).map((c) => ({ ...c, status: 'offline' }))
+
   return (
     <Shell>
       <AlertBanner />
@@ -108,7 +117,7 @@ export default function Cameras() {
       </section>
 
       <section className="camera-grid">
-        {cameras.map((camera) => (
+        {live.map((camera) => (
           <CameraTile
             key={camera.id}
             camera={camera}
@@ -117,8 +126,8 @@ export default function Cameras() {
             onRemove={() => removeCamera(camera.id)}
           />
         ))}
-        {Array.from({ length: Math.max(0, SLOTS - cameras.length) }, (_, i) => (
-          <OfflineTile key={`slot-${i}`} name={`Camera ${cameras.length + i + 1}`} />
+        {offline.map((camera) => (
+          <OfflineTile key={camera.id} camera={camera} />
         ))}
       </section>
     </Shell>
