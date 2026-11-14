@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import FlagCard from './FlagCard.jsx'
 import ReviewLog from './ReviewLog.jsx'
@@ -10,6 +10,19 @@ export default function Alerts() {
   const pending = alerts.filter((a) => a.decision === 'pending')
   const shown = show === 'pending' ? pending : alerts
   const hasReviewer = reviewer.trim().length > 0
+  const [needName, setNeedName] = useState(false)
+  const nameRef = useRef(null)
+
+  // Every decision is signed: without a name, send the reviewer to the name box first.
+  function onDecide(id, decision) {
+    if (!hasReviewer) {
+      setNeedName(true)
+      nameRef.current.focus()
+      nameRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return
+    }
+    decide(id, decision)
+  }
 
   return (
     <Shell>
@@ -24,12 +37,24 @@ export default function Alerts() {
           <label className="field">
             <span>Reviewer name</span>
             <input
+              ref={nameRef}
               type="text"
               value={reviewer}
-              onChange={(e) => setReviewer(e.target.value)}
+              onChange={(e) => {
+                setReviewer(e.target.value)
+                setNeedName(false)
+              }}
               placeholder="Your name"
               maxLength={60}
+              aria-invalid={needName}
+              aria-describedby={needName ? 'need-name' : undefined}
+              className={needName ? 'invalid' : ''}
             />
+            {needName && (
+              <span id="need-name" className="error small">
+                Type your name first: every decision is signed.
+              </span>
+            )}
           </label>
           <div className="tabs" role="tablist">
             <button
@@ -66,13 +91,12 @@ export default function Alerts() {
         </section>
       ) : (
         <section className="flags">
-          {!hasReviewer && <p className="muted">Enter your name above to confirm or dismiss alerts.</p>}
+          {!hasReviewer && <p className="muted">Enter your reviewer name above to confirm or dismiss alerts.</p>}
           {shown.map((alert) => (
             <FlagCard
               key={alert.id}
               flag={alert}
-              hasReviewer={hasReviewer}
-              onDecide={(decision) => decide(alert.id, decision)}
+              onDecide={(decision) => onDecide(alert.id, decision)}
             />
           ))}
         </section>

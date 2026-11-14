@@ -1,7 +1,7 @@
 import { formatTime } from './reviewLog.js'
 
 // One alert: the flagged frame, where it came from, and the reviewer's decision.
-export default function FlagCard({ flag, hasReviewer, onDecide }) {
+export default function FlagCard({ flag, onDecide }) {
   return (
     <article className={`flag flag-${flag.decision}`}>
       <img
@@ -19,10 +19,10 @@ export default function FlagCard({ flag, hasReviewer, onDecide }) {
         </div>
         {flag.decision === 'pending' ? (
           <div className="actions actions-left">
-            <button className="button button-danger" disabled={!hasReviewer} onClick={() => onDecide('confirmed')}>
+            <button className="button button-danger" onClick={() => onDecide('confirmed')}>
               Confirm threat
             </button>
-            <button className="button" disabled={!hasReviewer} onClick={() => onDecide('dismissed')}>
+            <button className="button" onClick={() => onDecide('dismissed')}>
               Dismiss
             </button>
           </div>

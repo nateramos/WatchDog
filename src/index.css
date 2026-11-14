@@ -381,6 +381,10 @@ h3 {
   color: var(--muted);
 }
 
+.field input.invalid {
+  border-color: #f43f5e;
+}
+
 .field input {
   min-height: 44px;
   min-width: 220px;
