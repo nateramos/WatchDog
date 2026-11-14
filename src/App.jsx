@@ -4,6 +4,7 @@ import Demo from './Demo.jsx'
 import Login from './Login.jsx'
 import { Logo, SignOutButton } from './Layout.jsx'
 import { useAuthStatus } from './auth.js'
+import { StoreProvider } from './store.jsx'
 
 // Hash routes (#/about, #/demo) so Amplify can serve every page from index.html.
 function useRoute() {
@@ -57,6 +58,16 @@ export default function App() {
     )
   }
   if (auth === 'signedOut') return <Login />
+  return (
+    <StoreProvider>
+      <Page route={route} />
+    </StoreProvider>
+  )
+}
+
+// Cameras and alerts live in StoreProvider, above the pages, so they survive moving
+// between pages.
+function Page({ route }) {
   if (route === '#/about') return <About />
   if (route === '#/demo') return <Demo />
   return <Home />
