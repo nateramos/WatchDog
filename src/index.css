@@ -1,4 +1,7 @@
 :root {
+  /* How wide pages get on big screens, and the space at the sides. */
+  --page-width: 1600px;
+  --gutter: clamp(16px, 2.5vw, 40px);
   --bg: #07090f;
   --text: #e8ecf4;
   --muted: #9aa3b5;
@@ -240,9 +243,9 @@ input:focus-visible {
 
 .topbar {
   width: 100%;
-  max-width: 960px;
+  max-width: var(--page-width);
   margin: 0 auto;
-  padding: 1rem 16px;
+  padding: 1rem var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -293,9 +296,9 @@ input:focus-visible {
 .content {
   flex: 1;
   width: 100%;
-  max-width: 960px;
+  max-width: var(--page-width);
   margin: 0 auto;
-  padding: 0.5rem 16px 2rem;
+  padding: 0.5rem var(--gutter) 2rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -332,7 +335,9 @@ h3 {
 }
 
 .prose {
+  width: 100%;
   max-width: 44rem;
+  margin: 0 auto;
   line-height: 1.7;
 }
 
@@ -362,6 +367,7 @@ h3 {
 }
 
 .panel > p {
+  max-width: 75ch;
   line-height: 1.6;
 }
 
@@ -464,9 +470,16 @@ h3 {
 }
 
 .flags {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 640px), 1fr));
+  align-items: start;
   gap: 1rem;
+}
+
+/* The hint above the alert cards spans the whole row. */
+.flags > p {
+  grid-column: 1 / -1;
+  margin: 0;
 }
 
 .flag {
@@ -745,7 +758,7 @@ td.decision-pending {
 
 .camera-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
   gap: 1rem;
 }
 
