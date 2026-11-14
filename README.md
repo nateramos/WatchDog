@@ -33,11 +33,13 @@ How WatchDog decides what to flag:
 ## Safety and privacy
 
 - **Prototype notice:** every page says WatchDog is a prototype and does not replace calling 911 or Campus Police.
-- **Human review:** the model never raises an alert by itself.
-- **Review log:** each flag, its confidence, the decision, and the reviewer are recorded.
+- **A person decides:** WatchDog never treats a detection as a threat on its own. A reviewer confirms or dismisses every alert, and each decision is signed with their name.
+- **Review log:** every alert, its confidence score, the decision, the reviewer and the time are recorded and can be exported.
+- **Careful wording:** the app always says "possible gun", and alerts from the Demo page are tagged "Demo replay" so they are never mistaken for live ones.
 - **No facial recognition:** WatchDog detects objects only and identifies no one.
-- **Video stays on the device:** the model runs in the browser, so uploaded clips are never sent to a server.
-- **No real people on campus:** test clips are staged at home with an orange-tipped prop gun.
+- **Video is checked on the device:** the model runs in the viewer's browser, so no video is sent to a server to be analyzed.
+- **Real footage, handled with care:** the real CCTV comes only from footage that police and news outlets released publicly. Sources are credited, the footage is kept out of this repo, the Demo page warns before showing it, and its camera names are labeled as a sample layout rather than the real school's.
+- **Staged clips, never on campus:** home test clips use an orange-tipped prop gun and were filmed at home, not on campus.
 
 ## Results
 
@@ -99,30 +101,33 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 
 | Category | Weight | How WatchDog addresses it |
 | --- | --- | --- |
-| Functionality & technical execution | 25% | Live demo on AWS Amplify: Model Dublin running in the browser with ONNX Runtime Web, a full-frame-rate video overlay, human confirm/dismiss review, and an exportable review log. |
-| Problem identification & relevance | 20% | Campus safety: point a human at the moment a camera may show a weapon. Tested on 42 staged clips that imitate campus CCTV, including dim light and everyday look-alike objects (see Results). |
-| AI integration & innovation | 20% | Model Dublin (YOLO11m) trained on about 146,000 weapon images and 49,000 look-alike photos; a second check on a rotated frame for upright guns; a two-in-a-row rule; a CCTV size limit; detection boxes interpolated between checked frames. |
-| Code quality & GitHub transparency | 15% | Small single-purpose modules, 19 unit tests, CI on every push, and a step-by-step public commit history. Training data sources and licenses are listed, and test results are in the repo. |
-| UX & design | 10% | Clear upload-and-review flow, confirm/dismiss review cards, works on phone and desktop. |
+| Functionality & technical execution | 25% | Live on AWS Amplify behind a working Cognito sign-in with a one-click judge account. A camera wall with search and filters, a Demo page replaying real CCTV, an Alerts inbox with a snapshot, a scrubbable clip and signed confirm/dismiss, and an exportable review log. Model Dublin runs in the browser with ONNX Runtime Web. |
+| Problem identification & relevance | 20% | Campus safety: point a person at the moment a camera may show a gun. Tested on security footage from three real school shootings (an alert on all five clips, all on the real gun) and on 42 staged clips with dim light and everyday look-alike objects. |
+| AI integration & innovation | 20% | Model Dublin (YOLO11m) trained for 50 epochs on about 146,000 weapon images and 49,000 look-alike photos; a second check on a rotated frame for upright guns; a two-in-a-row rule; a CCTV size limit; alerts raised at the first sighting and upgraded as clearer frames arrive; detection boxes interpolated between checked frames. |
+| Code quality & GitHub transparency | 15% | Small single-purpose modules, 33 unit tests, CI on every push, and a step-by-step public commit history. Training data sources, licenses, the training chart and test results are in the repo; real footage is kept out of it. |
+| UX & design | 10% | A security-console layout: camera wall with search and a Filters menu, a red alert banner and an Alerts badge, alert clips with pause and frame-by-frame scrubbing, a reviewer-name prompt, and a layout that uses wide screens and works on phones. |
 | Business impact & presentation | 10% | No server or per-camera cloud cost: detection runs on the viewer's device. |
-| Bonus: ethical AI | up to 5 | Human review of every flag, no facial recognition, video never uploaded, staged footage with a prop gun only, no real people on campus. |
+| Bonus: ethical AI | up to 5 | A person confirms every alert and signs each decision, everything is logged, "possible gun" wording and "Demo replay" tags, no facial recognition, video never sent to a server, real footage only from public police and news releases, credited and kept out of the repo. |
 
 ## Roadmap
 
-Not in the demo yet:
+Not built yet:
 
-- A new demo video filmed in CCTV style
-- A simple campus map that shows which camera raised a flag
-- Tracking across multiple cameras
-- Body tracking and movement prediction for responders
+- Connecting live cameras (the camera wall and the frame-by-frame check are ready; the prototype plays recorded clips)
+- Running the model off the page's main thread, so checking a live feed never freezes the page
+- A campus map that shows which camera raised an alert
+- Following a person or gun across cameras, and predicting where they are heading, for responders
+- A one-click incident report (snapshots, clips and decisions) for police and administrators
 
 ## Run it locally
 
 ```
 npm install
 npm run dev     # local site at http://localhost:5173
-npm test        # unit tests for box math and the review log
+npm test        # unit tests
 ```
+
+Sign-in needs the `amplify_outputs.json` file an Amplify deploy writes; without it the local site shows a notice instead of the login. The Demo page's footage only loads on the live site and at `http://localhost:5199` (`npm run build && npx vite preview --port 5199`).
 
 ## Model Dublin
 
