@@ -33,6 +33,9 @@ export default function Alerts() {
           </a>
         )}
         <h2>Alerts</h2>
+        <p className="review-notice" role="note">
+          <strong>Action is not taken until a CCTV operator reviews the alert.</strong>
+        </p>
         <p className="muted">
           Every possible gun a camera flags lands here. Nothing is sent to police until a
           reviewer looks at the frame and confirms it. Dismissing a flag records it as a false
@@ -86,10 +89,7 @@ export default function Alerts() {
         <section className="panel empty">
           <p className="muted">
             {alerts.length === 0 ? (
-              <>
-                No alerts yet. Press Start on the <a href="#/demo">Demo</a> page and every
-                possible gun the cameras flag will show up here.
-              </>
+              'No alerts to be reviewed.'
             ) : (
               'All caught up. Every alert has been reviewed.'
             )}

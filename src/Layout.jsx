@@ -17,8 +17,8 @@ export function Logo({ small = false }) {
 export function PrototypeNotice() {
   return (
     <div className="notice" role="note">
-      <strong>Prototype for a student contest.</strong> WatchDog does not replace calling{' '}
-      <strong>911</strong> or <strong>Campus Police</strong>.
+      <strong>Prototype for the Busch School of Business Vibe Code Contest Fall 2026.</strong> WatchDog does not replace calling{' '}
+      <strong>911</strong>.
     </div>
   )
 }

@@ -121,7 +121,7 @@ export default function About() {
           </li>
           <li>
             <strong>Prototype notice.</strong> Every page says WatchDog is a prototype and does
-            not replace calling 911 or Campus Police.
+            not replace calling 911.
           </li>
           <li>
             <strong>Review log.</strong> Each flag, its confidence score, and the reviewer's

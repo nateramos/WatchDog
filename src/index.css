@@ -241,6 +241,18 @@ input:focus-visible {
   text-align: center;
 }
 
+/* Alerts page: a person reviews every alert before anything happens. */
+.review-notice {
+  margin: 0.5rem 0 1rem;
+  padding: 0.65rem 0.9rem;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 10px;
+  color: #fde68a;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
 .topbar {
   width: 100%;
   max-width: var(--page-width);

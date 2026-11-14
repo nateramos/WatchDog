@@ -32,7 +32,7 @@ How WatchDog decides what to flag:
 
 ## Safety and privacy
 
-- **Prototype notice:** every page says WatchDog is a prototype and does not replace calling 911 or Campus Police.
+- **Prototype notice:** every page says WatchDog is a prototype and does not replace calling 911.
 - **A person decides:** WatchDog never treats a detection as a threat on its own. A reviewer confirms or dismisses every alert, and each decision is signed with their name.
 - **Review log:** every alert, its confidence score, the decision, the reviewer and the time are recorded and can be exported.
 - **Careful wording:** the app always says "possible gun", and alerts from the Demo page are tagged "Demo replay" so they are never mistaken for live ones.
