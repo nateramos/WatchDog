@@ -1,28 +1,37 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { boxesAt } from './boxes.js'
 
-// Red boxes around each detection, plus a "POSSIBLE GUN 84%" readout per box stacked in
-// the top-left corner, drawn in a canvas `scale` times the video size.
+// Red boxes around each detection, each with a "POSSIBLE GUN 84%" tag sitting on top of
+// the box (or under it when the box touches the top edge), drawn in a canvas `scale` times
+// the video size. The tags stay next to their box so they never cover the timestamp that
+// CCTV cameras burn into a corner of the picture.
 export function drawBoxes(ctx, boxes, scale) {
-  const width = ctx.canvas.width
+  const { width, height } = ctx.canvas
   const line = Math.max(2, width / 240)
-  ctx.strokeStyle = '#f43f5e'
-  ctx.lineWidth = line
-  for (const box of boxes) ctx.strokeRect(box.x * scale, box.y * scale, box.w * scale, box.h * scale)
-
   const textHeight = Math.round(Math.max(11, width / 70))
-  const pad = Math.round(textHeight * 0.45)
-  const margin = Math.round(textHeight * 0.8)
+  const pad = Math.round(textHeight * 0.4)
+  const tagHeight = textHeight + pad * 2
   ctx.font = `700 ${textHeight}px system-ui, sans-serif`
   ctx.textBaseline = 'top'
-  boxes.forEach((box, i) => {
-    const text = `POSSIBLE ${box.label.toUpperCase()} ${Math.round(box.confidence * 100)}%`
-    const y = margin + i * (textHeight + pad * 3)
+  for (const box of boxes) {
+    const x = box.x * scale
+    const y = box.y * scale
+    const w = box.w * scale
+    const h = box.h * scale
+    ctx.strokeStyle = '#f43f5e'
+    ctx.lineWidth = line
+    ctx.strokeRect(x, y, w, h)
+
+    const label = `POSSIBLE ${box.label.toUpperCase()} ${Math.round(box.confidence * 100)}%`
+    const tagWidth = ctx.measureText(label).width + pad * 2
+    const tagX = Math.min(Math.max(0, x - line / 2), width - tagWidth)
+    const above = y - line / 2 - tagHeight
+    const tagY = above >= 0 ? above : Math.min(y + h + line / 2, height - tagHeight)
     ctx.fillStyle = '#f43f5e'
-    ctx.fillRect(margin, y, ctx.measureText(text).width + pad * 2, textHeight + pad * 2)
+    ctx.fillRect(tagX, tagY, tagWidth, tagHeight)
     ctx.fillStyle = '#fff'
-    ctx.fillText(text, margin + pad, y + pad)
-  })
+    ctx.fillText(label, tagX + pad, tagY + pad)
+  }
 }
 
 // The clip at full frame rate, with detection boxes drawn on top as it plays. It stays
