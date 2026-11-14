@@ -5,6 +5,46 @@ const RESULTS = [
   { label: 'No-gun clips with no false alarm', bright: '18 of 18', dim: '17 of 18', total: '35 of 36 (97.2%)' },
 ]
 
+// Results of tracking/eval_clips.py on five clips of released security footage from three
+// real school shootings. The footage itself is not in the repo.
+const REAL = [
+  { clip: 'Uvalde, 15 s', camera: 'Fisheye ceiling camera', alerts: 2, top: '66%', frames: '5 of 60' },
+  { clip: 'Parkland, 27 s', camera: 'Stairwell, smoky hallway', alerts: 2, top: '82%', frames: '12 of 109' },
+  { clip: 'Nashville 1, 19 s', camera: 'Ceiling camera, hallway', alerts: 2, top: '77%', frames: '27 of 77' },
+  { clip: 'Nashville 2, 10 s', camera: 'Ceiling camera, hallway', alerts: 1, top: '84%', frames: '20 of 40' },
+  { clip: 'Nashville 3, 7 s', camera: 'Ceiling camera, lobby', alerts: 1, top: '76%', frames: '22 of 28' },
+]
+
+function RealResultsTable() {
+  return (
+    <div className="table-wrap results">
+      <table>
+        <caption>Model Dublin on real CCTV from three school shootings</caption>
+        <thead>
+          <tr>
+            <th>Clip</th>
+            <th>Camera</th>
+            <th>Alerts</th>
+            <th>Highest confidence</th>
+            <th>Checked frames flagged</th>
+          </tr>
+        </thead>
+        <tbody>
+          {REAL.map((r) => (
+            <tr key={r.clip}>
+              <td>{r.clip}</td>
+              <td>{r.camera}</td>
+              <td className="result-right">{r.alerts}</td>
+              <td>{r.top}</td>
+              <td>{r.frames}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 function ResultsTable() {
   return (
     <div className="table-wrap results">
@@ -50,20 +90,28 @@ export default function About() {
           person at the moment that needs a second look, so a human can decide quickly.
         </p>
 
-        <h3>What the MVP does</h3>
+        <h3>What WatchDog does</h3>
         <ol>
-          <li>You upload a recorded video clip. (The built-in demo video is being updated.)</li>
           <li>
-            An object detection model checks frames from the clip for a possible weapon and
-            gives each finding a confidence score. The model is trained on both guns and
-            knives, but for now the MVP flags firearms only.
+            It watches a building's cameras. An object detection model checks about four
+            frames per second for a possible gun and gives each finding a confidence score.
+            The model is trained on both guns and knives, but WatchDog flags firearms only.
           </li>
           <li>
-            Each flagged frame goes to a review screen. A person must confirm or dismiss it
-            before anything counts as an alert.
+            The first time a gun is seen, it sends an alert to the Alerts page: a snapshot
+            right away, then a clip from one second before to four seconds after, which the
+            reviewer can pause and scrub through.
           </li>
-          <li>Every flag and every reviewer decision is written to a log.</li>
+          <li>
+            A person must confirm the threat or dismiss it as a false alarm, and signs each
+            decision with their name.
+          </li>
+          <li>Every alert and every reviewer decision is written to a log.</li>
         </ol>
+        <p>
+          This prototype has no live camera connected yet. The <a href="#/demo">Demo</a> page
+          replays WatchDog's real results on released security footage instead.
+        </p>
 
         <h3>Safety guardrails</h3>
         <ul>
@@ -84,12 +132,17 @@ export default function About() {
             does not identify anyone.
           </li>
           <li>
-            <strong>Video stays on your device.</strong> The model runs inside your browser,
-            so clips you upload are never sent to a server.
+            <strong>Video is checked on your device.</strong> The model runs inside your
+            browser, so no video is sent to a server to be analyzed.
           </li>
           <li>
-            <strong>No real people on campus.</strong> Test clips are staged at home with an
-            orange-tipped prop gun.
+            <strong>Real footage, handled with care.</strong> The real CCTV comes only from
+            footage that police and news outlets released publicly. It is credited, kept out of
+            the code repository, and the Demo page warns before showing it.
+          </li>
+          <li>
+            <strong>Staged clips, never on campus.</strong> Home test clips use an
+            orange-tipped prop gun and were filmed at home, not on campus.
           </li>
         </ul>
 
@@ -98,8 +151,8 @@ export default function About() {
           The detector is <strong>Model Dublin</strong>, a YOLO11m model from Ultralytics trained
           to find guns and knives. It learned from about 146,000 public weapon images, several
           from real CCTV, plus about 49,000 look-alike photos (phones, umbrellas, remotes) that
-          teach it what is not a gun. On 11,694 images it never trained on, it scored 0.874 for
-          guns (mAP50) and raised false alarms on only 0.2% of look-alike photos. It is exported
+          teach it what is not a gun, over 50 passes through the training images. On 11,694
+          images it never trained on, it scored 0.874 for guns (mAP50) and raised false alarms on only 0.2% of look-alike photos. It is exported
           to ONNX and runs in the browser with ONNX Runtime Web. The site is built with React and
           Vite and hosted on AWS Amplify.
         </p>
@@ -127,11 +180,25 @@ export default function About() {
           a higher score elsewhere doesn't mean a better detector, or a lower one a worse detector.
         </p>
         <p>
-          <strong>Home clip test.</strong> We test WatchDog on clips staged at home with an orange-tipped prop gun. Unlike stock
-          footage, home filming lets us control lighting, image quality, camera height and angle
-          to imitate campus CCTV. The test set has 6 clips with the prop gun and 36 with
-          everyday objects that could fool a detector, such as a phone, backpack, laptop,
-          scissors and keys, each filmed in normal and dim light.
+          <strong>Real CCTV.</strong> We ran WatchDog on five clips of security camera footage
+          from three real school shootings, released publicly by police and news outlets:
+          Uvalde (2022), Parkland (2018) and Nashville (2023). They cover very different
+          cameras: a fisheye ceiling camera, a stairwell and a smoke-filled hallway, and
+          ordinary ceiling CCTV.
+        </p>
+        <RealResultsTable />
+        <p>
+          WatchDog raised an alert on all five clips, and all 8 alerts were on the real gun (we
+          checked every alert snapshot by hand). It did best on ordinary ceiling cameras and
+          struggled most with Uvalde's fisheye lens and distant figure, where it caught the
+          rifle in moments rather than the whole time. That is enough to point a reviewer at
+          the camera, which is WatchDog's job.
+        </p>
+        <p>
+          <strong>Staged home clips.</strong> We also filmed 42 clips at home with an
+          orange-tipped prop gun: 6 with the prop gun and 36 with everyday objects that could
+          fool a detector, such as a phone, backpack, laptop, scissors and keys, each in normal
+          and dim light.
         </p>
         <ResultsTable />
         <p>
@@ -148,10 +215,11 @@ export default function About() {
 
         <h3>Roadmap</h3>
         <ul>
-          <li>A new demo video filmed in CCTV style</li>
-          <li>A simple campus map that shows which camera raised a flag</li>
-          <li>Tracking across multiple cameras</li>
-          <li>Movement prediction for responders</li>
+          <li>Connecting live cameras</li>
+          <li>Checking feeds without ever slowing the page down</li>
+          <li>A campus map that shows which camera raised an alert</li>
+          <li>Following a person or gun across cameras, and predicting where they are heading</li>
+          <li>A one-click incident report for police and administrators</li>
         </ul>
 
         <div className="actions actions-left">
