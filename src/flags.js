@@ -73,3 +73,21 @@ export function upsertRows(log, rows) {
   return [...rows.filter((r) => !known.has(r.id)), ...kept]
 }
 
+// Group a clip's checked frames into sightings: runs of frames with a box, where a gap of more
+// than MERGE_GAP seconds starts a new sighting (the same rule that splits alerts). Each one
+// gives when it started and the most confident box in its first frame, which is when and
+// how an alert is first raised.
+export function sightings(timeline, gap = MERGE_GAP) {
+  const found = []
+  for (const { t, boxes } of timeline) {
+    if (!boxes.length) continue
+    const last = found.at(-1)
+    if (last && t - last.end <= gap) {
+      last.end = t
+      continue
+    }
+    const box = boxes.reduce((a, b) => (b.confidence > a.confidence ? b : a))
+    found.push({ start: t, end: t, box })
+  }
+  return found
+}

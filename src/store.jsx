@@ -120,6 +120,13 @@ export function StoreProvider({ children }) {
     )
   }
 
+  // Change some fields of one alert (an object, or a function of the alert that returns one).
+  function updateAlert(id, changes) {
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, ...(typeof changes === 'function' ? changes(a) : changes) } : a)),
+    )
+  }
+
   // Remove the alerts nobody has reviewed yet from these cameras, and their review-log rows:
   // they can no longer be reviewed, so they would sit in the log as "pending" forever.
   // Confirmed and dismissed alerts stay, in both places.
@@ -145,6 +152,7 @@ export function StoreProvider({ children }) {
     addCamera,
     removeCamera,
     raiseAlert,
+    updateAlert,
     clearPending,
     decide,
     setReviewer,

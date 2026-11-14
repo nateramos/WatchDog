@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addToFlags, logRow, mergeAlerts, upsertRows } from './flags.js'
+import { addToFlags, logRow, mergeAlerts, sightings, upsertRows } from './flags.js'
 
 const gun = (confidence, image = 'img') => ({ label: 'gun', confidence, image })
 const ids = () => {
@@ -63,5 +63,16 @@ describe('logRow', () => {
     const row = logRow(alert)
     expect(row).not.toHaveProperty('image')
     expect(row).toMatchObject({ camera: 'Gym', clip: 'gym.mp4', videoTime: 3, decision: 'pending' })
+  })
+})
+
+describe('sightings', () => {
+  const frame = (t, ...confidences) => ({ t, boxes: confidences.map((confidence) => ({ label: 'gun', confidence })) })
+
+  it('starts a sighting at the first frame with a gun and splits on gaps over 1.5 s', () => {
+    const timeline = [frame(0), frame(0.5, 0.4, 0.6), frame(1, 0.9), frame(1.5), frame(2, 0.5), frame(4, 0.7)]
+    const found = sightings(timeline)
+    expect(found.map((s) => [s.start, s.end])).toEqual([[0.5, 2], [4, 4]])
+    expect(found[0].box.confidence).toBe(0.6) // the most confident box in the first frame
   })
 })

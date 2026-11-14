@@ -3,6 +3,7 @@ import { Shell } from './Layout.jsx'
 import Player, { drawBoxes } from './Player.jsx'
 import { AlertBanner, OfflineTile } from './Cameras.jsx'
 import { useStore } from './store.jsx'
+import { sightings } from './flags.js'
 
 // The camera wall, replaying a saved WatchDog run instead of checking frames live (which
 // takes minutes on a laptop). Each feed's results file holds what WatchDog found in every
@@ -27,7 +28,7 @@ function snapshot(video, box) {
 }
 
 function DemoTile({ feed, run, started }) {
-  const { alerts, raiseAlert } = useStore()
+  const { alerts, raiseAlert, updateAlert } = useStore()
   const [results, setResults] = useState(null)
   const [error, setError] = useState('')
   const raised = useRef(new Set())
@@ -46,22 +47,32 @@ function DemoTile({ feed, run, started }) {
     if (run > 0) player.current?.restart()
   }, [run])
 
-  // Raise each saved alert when the clip reaches the moment WatchDog raised it.
+  // Raise each alert the moment the gun is first seen, as the live check does, then swap in
+  // the clearest frame once the clip reaches it (the saved alert's most confident frame).
   function onTimeUpdate(video) {
     if (!results) return
-    results.alerts.forEach((alert, i) => {
-      if (video.currentTime < alert.time || raised.current.has(i)) return
-      raised.current.add(i)
-      raiseAlert({
-        id: `${feed.id}-${run}-${i}`,
-        cameraId: feed.id,
-        camera: feed.name,
-        clip: feed.video.split('/').pop(),
-        label: alert.label,
-        confidence: alert.confidence,
-        time: alert.time,
-        image: snapshot(video, alert.box),
-      })
+    const now = video.currentTime
+    sightings(results.timeline).forEach((seen, i) => {
+      const id = `${feed.id}-${run}-${i}`
+      const best = results.alerts[i]
+      if (now >= seen.start && !raised.current.has(id)) {
+        raised.current.add(id)
+        raiseAlert({
+          id,
+          cameraId: feed.id,
+          camera: feed.name,
+          clip: feed.video.split('/').pop(),
+          label: seen.box.label,
+          confidence: seen.box.confidence,
+          time: seen.start,
+          image: snapshot(video, seen.box),
+        })
+      }
+      const better = `${id}-best`
+      if (best && now >= best.time && best.confidence > seen.box.confidence && !raised.current.has(better)) {
+        raised.current.add(better)
+        updateAlert(id, { confidence: best.confidence, image: snapshot(video, best.box) })
+      }
     })
   }
 
