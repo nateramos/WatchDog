@@ -4,7 +4,7 @@
 
 **Live:** https://main.dbzst24ccqq7g.amplifyapp.com (click **Try the demo** to sign in, no password)
 
-WatchDog is a campus safety tool that informs human responders and does not make decisions for them. It watches a building's security cameras for a possible gun, and when it finds one it sends an alert with a snapshot and a short clip to a reviewer, who confirms the threat or dismisses it as a false alarm. Every decision is signed and logged. It uses no facial recognition.
+WatchDog is a campus safety tool that informs human responders and does not make decisions for them. It watches a building's security cameras for a possible gun, and when it finds one it sends an alert with a snapshot and a short clip to a reviewer, who confirms the threat or dismisses it as a false alarm. Every decision is signed and logged. It uses no facial recognition. It has been tested on security camera footage from three real school shootings (see [Results](#results)).
 
 Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
@@ -39,35 +39,55 @@ How WatchDog decides what to flag:
 - **Video stays on the device:** the model runs in the browser, so uploaded clips are never sent to a server.
 - **No real people on campus:** test clips are staged at home with an orange-tipped prop gun.
 
-## Test footage
-
-WatchDog is tested on staged clips filmed at home with an orange-tipped prop gun. Unlike stock footage, home filming lets us control lighting, image quality, camera height and angle to imitate campus CCTV.
-
-The current test set is **42 clips** (listed in `tracking/eval/clips.csv`; the videos are not in the repo):
-
-- **6 with the prop gun:** walking while holding it, pulling it out of a backpack, and holding it behind the back then drawing it.
-- **36 without a gun:** everyday objects that could fool a detector, such as a phone, backpack, water bottles, a game controller, a broom, a notebook, a laptop, a hat, a TV remote, a comb, shoes, scissors, keys and a shopping bag.
-- Every clip was filmed twice: in **normal light** and in **dim light**.
-
 ## Results
 
-Model Dublin with the demo's settings (40% confidence, one check every quarter second, two checks in a row, CCTV size limit):
+WatchDog was tested three ways: on 11,694 labeled images the model never trained on, on security footage from three real school shootings, and on staged clips filmed at home.
+
+### Lab test: 11,694 images it never saw
+
+After training, Model Dublin was scored on 11,694 held-out images, kept aside so the model never learned from them, and checked for false alarms on 5,495 look-alike photos with no weapon (phones, umbrellas, remotes and similar).
+
+| Result on the held-out images | |
+| --- | --- |
+| Gun detection score (mAP50) | **0.874** |
+| Look-alike photos correctly ignored | **5,484 of 5,495 (99.8%)** |
+
+mAP50 is the standard accuracy score for object detectors, from 0 to 1 (1.0 would be perfect): it combines finding every gun with being right when it says "gun." Scores like this can't be compared directly with other gun detectors, because each study tests on its own set of images, some easy (clear photos) and some very hard (blurry CCTV).
+
+### Real CCTV from three school shootings
+
+We ran WatchDog on five clips of security camera footage from three real school shootings, released publicly by police and news outlets: Uvalde (Robb Elementary, 2022), Parkland (Marjory Stoneman Douglas High School, 2018) and Nashville (Covenant School, 2023). They cover three very different cameras: a fisheye ceiling camera, a stairwell and a smoke-filled hallway, and ordinary ceiling CCTV. Same settings as the app (Model Dublin, 40% confidence, four checks per second, two in a row, CCTV size limit), run with `tracking/eval_clips.py`.
+
+| Clip | Camera | Alerts | Highest confidence | Checked frames flagged |
+| --- | --- | --- | --- | --- |
+| Uvalde, 15 s | Fisheye ceiling camera, hallway | 2 | 66% | 5 of 60 |
+| Parkland, 27 s | Stairwell, then a smoke-filled hallway | 2 | 82% | 12 of 109 |
+| Nashville 1, 19 s | Ceiling camera, hallway | 2 | 77% | 27 of 77 |
+| Nashville 2, 10 s | Ceiling camera, hallway | 1 | 84% | 20 of 40 |
+| Nashville 3, 7 s | Ceiling camera, lobby | 1 | 76% | 22 of 28 |
+
+**WatchDog raised an alert on all five clips, and all 8 alerts were on the real gun** (we checked every alert snapshot by hand). It did best on ordinary ceiling cameras like Nashville's, where it saw the gun in most checked frames; it struggled most with Uvalde's fisheye lens and a distant figure, where it caught the rifle in moments rather than the whole time. That is enough to point a reviewer at the camera, which is WatchDog's job; following the gun continuously is on the [roadmap](#roadmap).
+
+The footage is not in this repo. The clips were cut from [KVUE's Uvalde hallway video](https://www.youtube.com/watch?v=I3poHE3nOb8), [a Parkland video on YouTube](https://www.youtube.com/watch?v=YM-vc6JqzhM) and [The Washington Post's Nashville video](https://www.washingtonpost.com/video/national/police-release-video-of-nashville-shooter-inside-school/2023/03/28/134b2cd2-de2d-43a1-a312-73ea108c3e7f_video.html), and the Demo page's two Nashville feeds are served from a separate storage bucket that can be taken down at any time.
+
+### Staged home clips
+
+We also filmed 42 clips at home with an orange-tipped prop gun, which let us control lighting and camera angle to imitate campus CCTV: 6 with the prop gun, and 36 with everyday objects that could fool a detector (a phone, backpack, laptop, game controller, scissors, keys and more), each in normal and dim light. The clips are listed in `tracking/eval/clips.csv`; the videos are not in the repo.
 
 | | Normal light | Dim light | Total |
 | --- | --- | --- | --- |
 | **Gun clips caught** | 3 of 3 | 3 of 3 | **6 of 6 (100%)** |
 | **No-gun clips with no false alarm** | 18 of 18 | 17 of 18 | **35 of 36 (97.2%)** |
-| **No-gun frames with no false alarm** | | | **1,381 of 1,383 (99.9%)** |
 
-Every gun clip was flagged at 76 to 86% confidence. Per-clip results are in `tracking/eval/results.csv`; rerun them with `python tracking/eval_clips.py CLIP_DIR`.
+Every gun clip was flagged at 76 to 86% confidence, and 1,381 of 1,383 checked frames in the no-gun clips (99.9%) raised no false alarm. Per-clip results are in `tracking/eval/results.csv`; rerun them with `python tracking/eval_clips.py CLIP_DIR`.
 
-### CCTV size limit
+## CCTV size limit
 
 Model Dublin is trained to detect guns in any footage. WatchDog adds limits to optimize it for CCTV: on a ceiling camera a whole person fills a small part of the frame, so a real gun is always small. Any detection taller than a quarter of the frame is ignored (`MAX_BOX_HEIGHT` in `src/boxes.js`).
 
 In early testing, dark doorways in dim light caused most false alarms. The CCTV size limit fixed this.
 
-### Speed
+## Speed
 
 On a cloud GPU (NVIDIA T4), Model Dublin checks a frame in about 0.3 seconds. In the web demo it runs on the viewer's own computer, so speed depends on that device.
 
@@ -114,12 +134,7 @@ How it was trained:
 2. **Look-alike photos:** about 49,000 photos with no weapon (phones, umbrellas, remotes, cameras, ceiling fans and similar), which teach the model what *isn't* a gun.
 3. **Training:** on a rented cloud GPU, checked against 11,694 held-out images the model never trained on.
 
-| Result on the held-out images | |
-| --- | --- |
-| Gun detection score (mAP50) | **0.874** |
-| False alarms on 5,495 look-alike photos | **11 (0.2%)** |
-
-mAP50 is the standard accuracy score for object detectors, from 0 to 1 (1.0 would be perfect): it combines finding every gun with being right when it says "gun." Scores like this can't be compared directly with other gun detectors, because each study tests on its own set of images, some easy (clear photos) and some very hard (blurry CCTV).
+Its score on the held-out images is in [Results](#lab-test-11694-images-it-never-saw): 0.874 mAP50 for guns, with 99.8% of look-alike photos correctly ignored.
 
 ### Training data
 
