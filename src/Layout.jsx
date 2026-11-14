@@ -1,4 +1,5 @@
 import { signOut } from './auth.js'
+import { useStore } from './store.jsx'
 
 export function Logo({ small = false }) {
   return (
@@ -31,6 +32,8 @@ export function SignOutButton() {
 }
 
 export function Shell({ children }) {
+  const store = useStore()
+  const pending = store ? store.alerts.filter((a) => a.decision === 'pending').length : 0
   return (
     <div className="shell">
       <PrototypeNotice />
@@ -41,6 +44,10 @@ export function Shell({ children }) {
         </a>
         <nav className="nav">
           <a href="#/cameras">Cameras</a>
+          <a href="#/alerts">
+            Alerts
+            {pending > 0 && <span className="count" aria-label={`${pending} need review`}>{pending}</span>}
+          </a>
           <a href="#/about">About</a>
           <SignOutButton />
         </nav>

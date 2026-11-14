@@ -1,0 +1,84 @@
+import { useState } from 'react'
+import { Shell } from './Layout.jsx'
+import FlagCard from './FlagCard.jsx'
+import ReviewLog from './ReviewLog.jsx'
+import { useStore } from './store.jsx'
+
+export default function Alerts() {
+  const { alerts, log, reviewer, setReviewer, decide, clearLog } = useStore()
+  const [show, setShow] = useState('pending') // pending | all
+  const pending = alerts.filter((a) => a.decision === 'pending')
+  const shown = show === 'pending' ? pending : alerts
+  const hasReviewer = reviewer.trim().length > 0
+
+  return (
+    <Shell>
+      <section className="panel">
+        <h2>Alerts</h2>
+        <p className="muted">
+          Every possible gun a camera flags lands here. Nothing is sent to police until a
+          reviewer looks at the frame and confirms it. Dismissing a flag records it as a false
+          alarm.
+        </p>
+        <div className="controls">
+          <label className="field">
+            <span>Reviewer name</span>
+            <input
+              type="text"
+              value={reviewer}
+              onChange={(e) => setReviewer(e.target.value)}
+              placeholder="Your name"
+              maxLength={60}
+            />
+          </label>
+          <div className="tabs" role="tablist">
+            <button
+              role="tab"
+              aria-selected={show === 'pending'}
+              className={show === 'pending' ? 'tab tab-on' : 'tab'}
+              onClick={() => setShow('pending')}
+            >
+              Needs review ({pending.length})
+            </button>
+            <button
+              role="tab"
+              aria-selected={show === 'all'}
+              className={show === 'all' ? 'tab tab-on' : 'tab'}
+              onClick={() => setShow('all')}
+            >
+              All ({alerts.length})
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {shown.length === 0 ? (
+        <section className="panel empty">
+          <p className="muted">
+            {alerts.length === 0 ? (
+              <>
+                No alerts yet. Every possible gun a camera flags will show up here.
+              </>
+            ) : (
+              'All caught up. Every alert has been reviewed.'
+            )}
+          </p>
+        </section>
+      ) : (
+        <section className="flags">
+          {!hasReviewer && <p className="muted">Enter your name above to confirm or dismiss alerts.</p>}
+          {shown.map((alert) => (
+            <FlagCard
+              key={alert.id}
+              flag={alert}
+              hasReviewer={hasReviewer}
+              onDecide={(decision) => decide(alert.id, decision)}
+            />
+          ))}
+        </section>
+      )}
+
+      <ReviewLog log={log} onClear={clearLog} />
+    </Shell>
+  )
+}

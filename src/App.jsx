@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import About from './About.jsx'
+import Alerts from './Alerts.jsx'
 import Cameras from './Cameras.jsx'
 import Login from './Login.jsx'
 import { Logo, SignOutButton } from './Layout.jsx'
@@ -69,6 +70,7 @@ export default function App() {
 // between pages.
 function Page({ route }) {
   if (route === '#/cameras') return <Cameras />
+  if (route === '#/alerts') return <Alerts />
   if (route === '#/about') return <About />
   return <Home />
 }

@@ -601,6 +601,19 @@ td.decision-pending {
 }
 
 /* Cameras, Demo and Alerts */
+.count {
+  display: inline-block;
+  min-width: 1.3rem;
+  margin-left: 0.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: #f43f5e;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1.3rem;
+  text-align: center;
+}
+
 .alert-banner {
   display: flex;
   flex-wrap: wrap;
@@ -728,6 +741,35 @@ td.decision-pending {
 .pill-error {
   background: rgba(244, 63, 94, 0.18);
   color: #fda4af;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.tab {
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 9px;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tab-on {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text);
+}
+
+.flag-camera {
+  color: var(--text);
 }
 
 @media (max-width: 640px) {
