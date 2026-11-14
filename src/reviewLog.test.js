@@ -11,6 +11,7 @@ describe('formatTime', () => {
 describe('toCsv', () => {
   const row = {
     loggedAt: '2026-10-16T22:00:00.000Z',
+    camera: 'Main entrance',
     clip: 'Pexels stock clip #4006667',
     videoTime: 5.5,
     label: 'gun',
@@ -22,9 +23,9 @@ describe('toCsv', () => {
 
   it('writes a header row and one line per log entry', () => {
     const lines = toCsv([row]).split('\n')
-    expect(lines[0]).toBe('logged_at,clip,video_time,object,confidence,decision,reviewer,decided_at')
+    expect(lines[0]).toBe('logged_at,camera,clip,video_time,object,confidence,decision,reviewer,decided_at')
     expect(lines[1]).toBe(
-      '"2026-10-16T22:00:00.000Z","Pexels stock clip #4006667","0:05.5","gun","0.86","confirmed","Nate","2026-10-16T22:01:00.000Z"',
+      '"2026-10-16T22:00:00.000Z","Main entrance","Pexels stock clip #4006667","0:05.5","gun","0.86","confirmed","Nate","2026-10-16T22:01:00.000Z"',
     )
   })
 

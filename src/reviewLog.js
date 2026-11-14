@@ -6,12 +6,12 @@ export function formatTime(seconds) {
   return `${m}:${s}`
 }
 
-const CSV_HEADER = ['logged_at', 'clip', 'video_time', 'object', 'confidence', 'decision', 'reviewer', 'decided_at']
+const CSV_HEADER = ['logged_at', 'camera', 'clip', 'video_time', 'object', 'confidence', 'decision', 'reviewer', 'decided_at']
 
 export function toCsv(rows) {
   const quote = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
   const lines = rows.map((r) =>
-    [r.loggedAt, r.clip, formatTime(r.videoTime), r.label, r.confidence.toFixed(2), r.decision, r.reviewer, r.decidedAt]
+    [r.loggedAt, r.camera, r.clip, formatTime(r.videoTime), r.label, r.confidence.toFixed(2), r.decision, r.reviewer, r.decidedAt]
       .map(quote)
       .join(','),
   )

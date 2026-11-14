@@ -49,6 +49,7 @@ export default function ReviewLog({ log, onClear }) {
             <thead>
               <tr>
                 <th>Logged</th>
+                <th>Camera</th>
                 <th>Clip</th>
                 <th>Time</th>
                 <th>Object</th>
@@ -61,6 +62,7 @@ export default function ReviewLog({ log, onClear }) {
               {log.map((row) => (
                 <tr key={row.id}>
                   <td>{new Date(row.loggedAt).toLocaleString()}</td>
+                  <td>{row.camera || '—'}</td>
                   <td>{row.clip}</td>
                   <td>{formatTime(row.videoTime)}</td>
                   <td>{row.label}</td>
