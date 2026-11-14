@@ -18,7 +18,9 @@ let nextCamera = 1
 export function StoreProvider({ children }) {
   const [cameras, setCameras] = useState([])
   const [alerts, setAlerts] = useState([])
-  const [log, setLog] = useState(() => readStored(LOG_KEY, []))
+  // Alerts don't survive a reload, so rows still pending from an earlier visit can never be
+  // reviewed: start without them. Confirmed and dismissed rows are kept.
+  const [log, setLog] = useState(() => readStored(LOG_KEY, []).filter((r) => r.decision !== 'pending'))
   const [reviewer, setReviewer] = useState(() => readStored(REVIEWER_KEY, ''))
   const scanning = useRef(null) // { id } of the scan that should keep going, or null
   const busy = useRef(false) // a scan is still running (even if cancelled)
