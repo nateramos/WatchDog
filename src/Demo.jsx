@@ -9,9 +9,14 @@ import { sightings } from './flags.js'
 // takes minutes on a laptop). Each feed's results file holds what WatchDog found in every
 // checked frame and the alerts it raised, made with tracking/eval_clips.py: the same
 // model and rules as the live check.
+//
+// The footage and results are not in this repo: they are served from a separate S3 bucket
+// (public read of demo/ only, loadable from this site and localhost), so they can be taken
+// down at any time without touching the code or its history.
+const MEDIA = 'https://watchdog-demo-media-2026.s3.us-east-2.amazonaws.com/demo'
 const FEEDS = [
-  { id: 'demo-hallway', name: 'Camera 1 · Hallway', video: '/demo/demo_cam1_hallway.mp4', results: '/demo/demo_cam1_hallway.json' },
-  { id: 'demo-lobby', name: 'Camera 2 · Lobby', video: '/demo/demo_cam2_lobby.mp4', results: '/demo/demo_cam2_lobby.json' },
+  { id: 'demo-hallway', name: 'Camera 1 · Hallway', video: `${MEDIA}/demo_cam1_hallway.mp4`, results: `${MEDIA}/demo_cam1_hallway.json` },
+  { id: 'demo-lobby', name: 'Camera 2 · Lobby', video: `${MEDIA}/demo_cam2_lobby.mp4`, results: `${MEDIA}/demo_cam2_lobby.json` },
 ]
 const SLOTS = 4
 // Each alert gets a short clip around the first flag: this long before it, and this long

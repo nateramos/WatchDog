@@ -108,7 +108,7 @@ export default function AlertClip({ recording }) {
   return (
     <figure className="alert-clip">
       <div className="player">
-        <video ref={videoRef} src={src} muted playsInline preload="auto" />
+        <video ref={videoRef} src={src} crossOrigin="anonymous" muted playsInline preload="auto" />
         <canvas ref={canvasRef} aria-hidden="true" />
       </div>
       <input

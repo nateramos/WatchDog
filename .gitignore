@@ -17,7 +17,7 @@ tracking/*_openvino_model/
 *.mkv
 *.m4v
 
-# Demo page feeds and their saved results: kept out of the repo for now
+# Demo page feeds and their saved results: served from S3 (see src/Demo.jsx), never committed
 public/demo/
 
 # Sample clip shown in the demo (Pexels License)

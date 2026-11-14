@@ -98,6 +98,7 @@ const Player = forwardRef(function Player({ src, timeline, step, ready, progress
         src={src}
         controls={ready && autoPlay}
         loop={loop}
+        crossOrigin="anonymous"
         muted
         playsInline
         onTimeUpdate={onTimeUpdate && ((e) => onTimeUpdate(e.currentTarget))}
