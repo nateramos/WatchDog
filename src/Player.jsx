@@ -35,9 +35,9 @@ export function drawBoxes(ctx, boxes, scale) {
 }
 
 // The clip at full frame rate, with detection boxes drawn on top as it plays. It stays
-// paused on the first frame until every frame has been checked (`ready`), then plays once,
-// so the boxes are there from the start.
-const Player = forwardRef(function Player({ src, timeline, step, ready, progress }, ref) {
+// paused on the first frame until every frame has been checked (`ready`), then plays (once,
+// or over and over with `loop`, like a camera feed), so the boxes are there from the start.
+const Player = forwardRef(function Player({ src, timeline, step, ready, progress, loop = false }, ref) {
   const videoRef = useRef(null)
   const canvasRef = useRef(null)
   const data = useRef({ timeline, step })
@@ -87,7 +87,7 @@ const Player = forwardRef(function Player({ src, timeline, step, ready, progress
 
   return (
     <div className="player">
-      <video ref={videoRef} src={src} controls={ready} muted playsInline />
+      <video ref={videoRef} src={src} controls={ready} loop={loop} muted playsInline />
       <canvas ref={canvasRef} aria-hidden="true" />
       {!ready && (
         <div className="player-wait" role="status">

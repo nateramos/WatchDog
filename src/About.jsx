@@ -155,7 +155,7 @@ export default function About() {
         </ul>
 
         <div className="actions actions-left">
-          <a className="button button-primary" href="#/demo">View Demo</a>
+          <a className="button button-primary" href="#/cameras">Open WatchDog</a>
         </div>
       </article>
     </Shell>

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import About from './About.jsx'
-import Demo from './Demo.jsx'
+import Cameras from './Cameras.jsx'
 import Login from './Login.jsx'
 import { Logo, SignOutButton } from './Layout.jsx'
 import { useAuthStatus } from './auth.js'
 import { StoreProvider } from './store.jsx'
 
-// Hash routes (#/about, #/demo) so Amplify can serve every page from index.html.
+// Hash routes (#/cameras, #/about, ...) so Amplify can serve every page from index.html.
 function useRoute() {
   const [route, setRoute] = useState(window.location.hash)
   useEffect(() => {
@@ -34,11 +34,11 @@ function Home() {
       </p>
 
       <div className="actions">
-        <a className="badge" href="#/about">Read More About WatchDog</a>
-        <a className="badge" href="#/demo">
+        <a className="badge" href="#/cameras">
           <span className="dot" />
-          View Demo
+          Open WatchDog
         </a>
+        <a className="badge" href="#/about">Read More About WatchDog</a>
       </div>
       <SignOutButton />
     </main>
@@ -68,7 +68,7 @@ export default function App() {
 // Cameras and alerts live in StoreProvider, above the pages, so they survive moving
 // between pages.
 function Page({ route }) {
+  if (route === '#/cameras') return <Cameras />
   if (route === '#/about') return <About />
-  if (route === '#/demo') return <Demo />
   return <Home />
 }

@@ -274,7 +274,10 @@ input:focus-visible {
 
 .nav {
   display: flex;
-  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
 }
 
 .nav a {
@@ -594,6 +597,136 @@ td.decision-pending {
 }
 
 .result-wrong {
+  color: #fda4af;
+}
+
+/* Cameras, Demo and Alerts */
+.alert-banner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.9rem 1.25rem;
+  border: 1px solid rgba(244, 63, 94, 0.6);
+  border-radius: 16px;
+  background: rgba(244, 63, 94, 0.15);
+  color: #fecdd3;
+  text-decoration: none;
+  animation: alert-pulse 2s ease-in-out infinite;
+}
+
+.alert-banner span {
+  font-weight: 600;
+}
+
+@keyframes alert-pulse {
+  50% { box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.2); }
+}
+
+.empty {
+  text-align: center;
+}
+
+.camera-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 1rem;
+}
+
+.camera {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(13, 17, 28, 0.85);
+}
+
+.offline-screen {
+  aspect-ratio: 16 / 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 4px),
+    #000;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.offline-screen svg {
+  width: 36px;
+  height: 36px;
+  opacity: 0.7;
+}
+
+.camera-alert {
+  border-color: rgba(244, 63, 94, 0.7);
+}
+
+.camera .player {
+  margin-bottom: 0;
+}
+
+.camera-head,
+.camera-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.camera-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.camera-foot .small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.camera-alerts {
+  color: #fda4af;
+  font-weight: 600;
+}
+
+.camera-error {
+  margin: 0;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+.pill {
+  flex-shrink: 0;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+}
+
+.pill-scanning {
+  background: rgba(79, 140, 255, 0.18);
+  color: #bfd3ff;
+}
+
+.pill-done {
+  background: rgba(52, 211, 153, 0.15);
+  color: #a7f3d0;
+}
+
+.pill-error {
+  background: rgba(244, 63, 94, 0.18);
   color: #fda4af;
 }
 

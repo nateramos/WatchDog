@@ -40,8 +40,8 @@ export function Shell({ children }) {
           <span>WatchDog</span>
         </a>
         <nav className="nav">
+          <a href="#/cameras">Cameras</a>
           <a href="#/about">About</a>
-          <a href="#/demo">Demo</a>
           <SignOutButton />
         </nav>
       </header>
