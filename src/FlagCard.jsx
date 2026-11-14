@@ -1,13 +1,26 @@
+import AlertClip from './AlertClip.jsx'
 import { formatTime } from './reviewLog.js'
 
-// One alert: the flagged frame, where it came from, and the reviewer's decision.
+// One alert: the flagged frame (then, once recorded, a short clip around it), where it came
+// from, and the reviewer's decision.
 export default function FlagCard({ flag, onDecide }) {
   return (
     <article className={`flag flag-${flag.decision}`}>
-      <img
-        src={flag.image}
-        alt={`${flag.camera}, ${formatTime(flag.time)} into the clip, flagged as a possible ${flag.label}`}
-      />
+      {flag.recording?.ready ? (
+        <AlertClip recording={flag.recording} />
+      ) : (
+        <div className="flag-still">
+          <img
+            src={flag.image}
+            alt={`${flag.camera}, ${formatTime(flag.time)} into the clip, flagged as a possible ${flag.label}`}
+          />
+          {flag.recording && (
+            <span className="recording" role="status">
+              <span className="rec-dot" /> Recording the next few seconds…
+            </span>
+          )}
+        </div>
+      )}
       <div className="flag-body">
         <div className="flag-title">
           Possible {flag.label}

@@ -14,6 +14,10 @@ const FEEDS = [
   { id: 'demo-lobby', name: 'Camera 2 · Lobby', video: '/demo/demo_cam2_lobby.mp4', results: '/demo/demo_cam2_lobby.json' },
 ]
 const SLOTS = 4
+// Each alert gets a short clip around the first flag: this long before it, and this long
+// after it (recorded as the feed keeps playing, so the clip arrives a few seconds later).
+export const CLIP_BEFORE = 1
+export const CLIP_AFTER = 4
 
 // A still of the current frame with the alert's box drawn on it.
 function snapshot(video, box) {
@@ -57,6 +61,7 @@ function DemoTile({ feed, run, started }) {
       const best = results.alerts[i]
       if (now >= seen.start && !raised.current.has(id)) {
         raised.current.add(id)
+        const clipEnd = Math.min(seen.start + CLIP_AFTER, video.duration)
         raiseAlert({
           id,
           cameraId: feed.id,
@@ -67,7 +72,19 @@ function DemoTile({ feed, run, started }) {
           time: seen.start,
           image: snapshot(video, seen.box),
           demo: true,
+          recording: {
+            src: feed.video,
+            start: Math.max(0, seen.start - CLIP_BEFORE),
+            end: clipEnd,
+            timeline: results.timeline,
+            step: results.step,
+            ready: false,
+          },
         })
+        // The recording is ready once the feed has played past its end. A timer (not this
+        // tile) finishes it, so it still arrives while the reviewer is on the Alerts page.
+        const wait = Math.max(0, clipEnd - now) * 1000
+        setTimeout(() => updateAlert(id, (a) => ({ recording: { ...a.recording, ready: true } })), wait)
       }
       const better = `${id}-best`
       if (best && now >= best.time && best.confidence > seen.box.confidence && !raised.current.has(better)) {
