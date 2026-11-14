@@ -2,23 +2,33 @@
 
 [![CI](https://github.com/nateramos/WatchDog/actions/workflows/ci.yml/badge.svg)](https://github.com/nateramos/WatchDog/actions/workflows/ci.yml)
 
-**Live:** https://main.dbzst24ccqq7g.amplifyapp.com
+**Live:** https://main.dbzst24ccqq7g.amplifyapp.com (click **Try the demo** to sign in, no password)
 
-WatchDog is a campus safety tool that informs human responders and does not make decisions for them. For the contest MVP, it analyzes one recorded video with an object detection model that flags a possible weapon and displays a confidence score. Each alert goes to a human review screen where a person confirms or dismisses it, with an on-screen prompt to call 911 and a log of every override. The MVP uses no facial recognition. See the [roadmap](#roadmap) for what is not built yet.
+WatchDog is a campus safety tool that informs human responders and does not make decisions for them. It watches a building's security cameras for a possible gun, and when it finds one it sends an alert with a snapshot and a short clip to a reviewer, who confirms the threat or dismisses it as a false alarm. Every decision is signed and logged. It uses no facial recognition.
 
 Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
-**Tech stack:** React + Vite, Model Dublin (a YOLO11m model from Ultralytics, trained for guns and knives), ONNX Runtime Web, AWS Amplify Hosting.
+**Tech stack:** React + Vite, Model Dublin (a YOLO11m model from Ultralytics, trained for guns and knives) running in the browser with ONNX Runtime Web, AWS Amplify Hosting, Amazon Cognito (sign-in), Amazon S3 (demo footage), Vitest and GitHub Actions (tests on every push).
 
-## Try the demo
+## For judges: try it
 
-Open the live site and click **View Demo**. Enter a reviewer name, then upload a clip. (The built-in demo video is being updated.)
+1. Open the [live site](https://main.dbzst24ccqq7g.amplifyapp.com) and click **Try the demo**. This signs in a test account with one click; no password, and no real data. Every demo sign-in starts with an empty review log.
+2. Open **Demo** and press **Start demo**.
+3. When the red alert banner appears, open **Alerts**, type a reviewer name, and confirm or dismiss the alert.
 
-1. WatchDog checks about four frames per second for a possible gun. The model also knows knives, but the MVP flags firearms only.
-2. A gun at 40% confidence or higher, found in two checked frames in a row, is shown as a flagged frame with a box and its confidence score. One-frame blips are dropped.
+## What's in the app
+
+- **Cameras:** the camera wall for a building, with a search box and a **Filters** menu (live or offline, area, floor, wing). This prototype has no live camera connected, so its slots show "Camera offline".
+- **Demo:** the same wall replaying a saved WatchDog run on security camera footage that police released after the 2023 Covenant School shooting in Nashville. The boxes and alerts are WatchDog's real results, saved ahead of time so the demo plays instantly; each alert fires at the moment the video reaches it, and the cameras keep running while you are on other pages. Camera names and locations are a sample building layout, not the real school's.
+- **Alerts:** one inbox for every alert. Each shows the camera, the time and the confidence score, with a snapshot right away and, a few seconds later, a clip from one second before the gun was first seen to four seconds after, which the reviewer can pause and scrub through frame by frame. A reviewer must sign each **Confirm threat** or **Dismiss**. Every alert and decision goes into the review log ("possible gun", "threat confirmed", "false alarm"), which can be exported as CSV.
+
+How WatchDog decides what to flag:
+
+1. It checks about four frames per second for a possible gun. The model also knows knives, but WatchDog flags firearms only.
+2. A gun counts only at 40% confidence or higher and only if it is found in two checked frames in a row, so one-frame blips are dropped.
 3. Detections taller than a quarter of the frame are ignored (see [CCTV size limit](#cctv-size-limit)).
-4. A reviewer must **Confirm** or **Dismiss** each flag. Nothing counts as an alert until a person confirms it.
-5. Every flag and decision goes into the review log, which can be exported as CSV.
+4. A new alert is raised the first time a gun is seen; sightings less than 1.5 seconds apart belong to the same alert, which keeps its clearest frame.
+5. Nothing counts as a threat until a person confirms it.
 
 ## Safety and privacy
 
