@@ -132,9 +132,13 @@ How it was trained:
 
 1. **Weapon photos:** about 146,000 public images with a box drawn around each gun or knife, merged from the datasets below. Several of them are real CCTV or surveillance footage.
 2. **Look-alike photos:** about 49,000 photos with no weapon (phones, umbrellas, remotes, cameras, ceiling fans and similar), which teach the model what *isn't* a gun.
-3. **Training:** on a rented cloud GPU, checked against 11,694 held-out images the model never trained on.
+3. **Training:** 50 epochs (full passes over the training images) on a rented cloud GPU, checked against 11,694 held-out images the model never trained on. We stopped at 50 because further gains would have been too small to notice in practice and not worth more rented GPU time.
 
 Its score on the held-out images is in [Results](#lab-test-11694-images-it-never-saw): 0.874 mAP50 for guns, with 99.8% of look-alike photos correctly ignored.
+
+![Model Dublin's training chart over 50 epochs](docs/model-dublin-training.png)
+
+Model Dublin's training run, one point per epoch. The first three charts in each row are losses (how wrong the model is): the top row on the training images, the bottom row on the held-out images. The last two columns are scores on the held-out images (precision, recall and mAP). The losses fall steadily and the scores rise, and the held-out losses fall along with the training losses, which means the model learned to find guns in new images instead of memorizing the ones it trained on.
 
 ### Training data
 
