@@ -1,43 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
-import Player, { drawBoxes } from './Player.jsx'
+import Player from './Player.jsx'
 import FlagCard from './FlagCard.jsx'
 import ReviewLog from './ReviewLog.jsx'
-import { detect, loadModel, FLAG_CONF } from './detector.js'
-import { confirmBoxes } from './boxes.js'
+import { loadModel, FLAG_CONF } from './detector.js'
+import { MIN_STEP, scanClip } from './scan.js'
 import { LOG_KEY, REVIEWER_KEY, readStored, writeStored } from './storage.js'
-
-const MAX_SAMPLES = 120 // frames checked per clip, so long clips stay quick
-const MIN_STEP = 0.25 // seconds between checked frames: often enough to see a gun twice in a row
-const MERGE_GAP = 1.5 // flags of the same kind closer than this are one event
-
-function waitFor(video, event) {
-  return new Promise((resolve, reject) => {
-    const done = () => {
-      video.removeEventListener(event, done)
-      video.removeEventListener('error', fail)
-      resolve()
-    }
-    const fail = () => {
-      video.removeEventListener(event, done)
-      reject(new Error('This video could not be read. Try an MP4 (H.264) file.'))
-    }
-    video.addEventListener(event, done, { once: true })
-    video.addEventListener('error', fail, { once: true })
-  })
-}
-
-// A still of the flagged frame with the detection box drawn on it.
-function snapshot(video, box) {
-  const scale = Math.min(1, 960 / video.videoWidth)
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(video.videoWidth * scale)
-  canvas.height = Math.round(video.videoHeight * scale)
-  const ctx = canvas.getContext('2d')
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-  drawBoxes(ctx, [box], scale)
-  return canvas.toDataURL('image/jpeg', 0.85)
-}
 
 export default function Demo() {
   const [reviewer, setReviewer] = useState(() => readStored(REVIEWER_KEY, ''))
@@ -71,64 +39,20 @@ export default function Demo() {
     setStatus('loading')
 
     try {
-      await loadModel()
-      const video = document.createElement('video')
-      video.muted = true
-      video.playsInline = true
-      video.preload = 'auto'
-      const loaded = waitFor(video, 'loadeddata')
-      video.src = url
-      await loaded
-
-      setStatus('scanning')
-      const duration = video.duration
-      const step = Math.max(MIN_STEP, duration / MAX_SAMPLES)
-      setStep(step)
-      const found = []
-      const checked = [] // every checked frame, with the boxes the model found
-      const timeline = [] // the same frames, keeping only boxes seen two frames in a row
-
-      // A frame is final once the frames on both sides of it have been checked.
-      const finish = (i) => {
-        const { t, boxes } = checked[i]
-        const kept = confirmBoxes(boxes, [checked[i - 1], checked[i + 1]])
-        timeline.push({ t, boxes: kept })
-        for (const box of kept) {
-          const last = found.findLast((f) => f.label === box.label)
-          if (last && t - last.lastTime <= MERGE_GAP) {
-            last.lastTime = t
-            if (box.confidence > last.confidence) {
-              Object.assign(last, { time: t, confidence: box.confidence, image: box.image })
-            }
-          } else {
-            found.push({
-              id: `${Date.now()}-${found.length}`,
-              label: box.label,
-              confidence: box.confidence,
-              time: t,
-              lastTime: t,
-              image: box.image,
-              decision: 'pending',
-            })
-          }
-        }
-        setFlags(found.map((f) => ({ ...f })))
-        setTimeline([...timeline])
-      }
-
-      for (let t = 0; t < duration; t += step) {
-        if (scanId.current !== id) return // a newer clip was chosen
-        const seeked = waitFor(video, 'seeked')
-        video.currentTime = t
-        await seeked
-
-        const boxes = await detect(video, video.videoWidth, video.videoHeight, canvasRef.current)
-        // Snapshot now, while this frame is on screen; the box may only be confirmed later.
-        checked.push({ t, boxes: boxes.map((box) => ({ ...box, image: snapshot(video, box) })) })
-        if (checked.length > 1) finish(checked.length - 2)
-        setProgress(Math.min(1, (t + step) / duration))
-      }
-      if (checked.length > 0) finish(checked.length - 1)
+      const result = await scanClip(url, {
+        canvas: canvasRef.current,
+        isCancelled: () => scanId.current !== id, // a newer clip was chosen
+        onUpdate: ({ progress, step, timeline, flags }) => {
+          if (scanId.current !== id) return
+          setStatus('scanning')
+          setStep(step)
+          setProgress(progress)
+          setTimeline(timeline)
+          setFlags(flags)
+        },
+      })
+      if (!result) return
+      const found = result.flags
 
       // Every flag goes into the log as pending until a reviewer decides.
       const loggedAt = new Date().toISOString()
