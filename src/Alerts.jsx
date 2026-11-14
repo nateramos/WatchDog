@@ -27,6 +27,11 @@ export default function Alerts() {
   return (
     <Shell>
       <section className="panel">
+        {alerts.some((a) => a.demo) && (
+          <a className="back-link" href="#/demo">
+            ← Back to demo
+          </a>
+        )}
         <h2>Alerts</h2>
         <p className="muted">
           Every possible gun a camera flags lands here. Nothing is sent to police until a

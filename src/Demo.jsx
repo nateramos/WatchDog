@@ -66,6 +66,7 @@ function DemoTile({ feed, run, started }) {
           confidence: seen.box.confidence,
           time: seen.start,
           image: snapshot(video, seen.box),
+          demo: true,
         })
       }
       const better = `${id}-best`

@@ -772,6 +772,24 @@ td.decision-pending {
   color: var(--text);
 }
 
+.tag {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: none;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(79, 140, 255, 0.18);
+  color: #bfd3ff;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .flag-camera {
   color: var(--text);
 }

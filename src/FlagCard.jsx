@@ -12,6 +12,7 @@ export default function FlagCard({ flag, onDecide }) {
         <div className="flag-title">
           Possible {flag.label}
           <span className="score">{Math.round(flag.confidence * 100)}% confidence</span>
+          {flag.demo && <span className="tag">Demo replay</span>}
         </div>
         <div className="muted">
           <strong className="flag-camera">{flag.camera}</strong> · {formatTime(flag.time)} into the
