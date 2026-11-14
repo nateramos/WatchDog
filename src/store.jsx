@@ -110,6 +110,27 @@ export function StoreProvider({ children }) {
     })
   }
 
+  // Add one ready-made alert (the Demo page replays saved results this way). An alert
+  // that is already in the list is left alone.
+  function raiseAlert(alert) {
+    setAlerts((prev) =>
+      prev.some((a) => a.id === alert.id)
+        ? prev
+        : [{ ...alert, raisedAt: new Date().toISOString(), decision: 'pending', reviewer: '', decidedAt: '' }, ...prev],
+    )
+  }
+
+  // Remove the alerts nobody has reviewed yet from these cameras, and their review-log rows:
+  // they can no longer be reviewed, so they would sit in the log as "pending" forever.
+  // Confirmed and dismissed alerts stay, in both places.
+  function clearPending(cameraIds) {
+    const gone = new Set(
+      alerts.filter((a) => a.decision === 'pending' && cameraIds.includes(a.cameraId)).map((a) => a.id),
+    )
+    setAlerts((prev) => prev.filter((a) => !gone.has(a.id)))
+    setLog((prev) => prev.filter((r) => !gone.has(r.id)))
+  }
+
   function decide(id, decision) {
     const name = reviewer.trim()
     const decidedAt = new Date().toISOString()
@@ -123,6 +144,8 @@ export function StoreProvider({ children }) {
     reviewer,
     addCamera,
     removeCamera,
+    raiseAlert,
+    clearPending,
     decide,
     setReviewer,
     clearLog: () => setLog([]),

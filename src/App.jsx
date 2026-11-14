@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import About from './About.jsx'
 import Alerts from './Alerts.jsx'
 import Cameras from './Cameras.jsx'
+import Demo from './Demo.jsx'
 import Login from './Login.jsx'
 import { Logo, SignOutButton } from './Layout.jsx'
 import { useAuthStatus } from './auth.js'
@@ -39,6 +40,7 @@ function Home() {
           <span className="dot" />
           Open WatchDog
         </a>
+        <a className="badge" href="#/demo">View Demo</a>
         <a className="badge" href="#/about">Read More About WatchDog</a>
       </div>
       <SignOutButton />
@@ -71,6 +73,7 @@ export default function App() {
 function Page({ route }) {
   if (route === '#/cameras') return <Cameras />
   if (route === '#/alerts') return <Alerts />
+  if (route === '#/demo') return <Demo />
   if (route === '#/about') return <About />
   return <Home />
 }

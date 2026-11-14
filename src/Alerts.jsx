@@ -82,7 +82,8 @@ export default function Alerts() {
           <p className="muted">
             {alerts.length === 0 ? (
               <>
-                No alerts yet. Every possible gun a camera flags will show up here.
+                No alerts yet. Press Start on the <a href="#/demo">Demo</a> page and every
+                possible gun the cameras flag will show up here.
               </>
             ) : (
               'All caught up. Every alert has been reviewed.'
