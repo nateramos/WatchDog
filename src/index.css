@@ -566,7 +566,7 @@ th {
 td.decision-confirmed,
 td.decision-dismissed,
 td.decision-pending {
-  text-transform: capitalize;
+  text-transform: none;
   font-weight: 600;
 }
 
@@ -871,4 +871,12 @@ td.decision-pending {
 
 .link-button:hover {
   color: var(--text);
+}
+
+/* Log cells start with a capital letter: "Threat confirmed", "Possible gun". */
+td.decision-confirmed::first-letter,
+td.decision-dismissed::first-letter,
+td.decision-pending::first-letter,
+td.detected::first-letter {
+  text-transform: uppercase;
 }

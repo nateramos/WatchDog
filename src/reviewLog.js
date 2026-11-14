@@ -6,12 +6,19 @@ export function formatTime(seconds) {
   return `${m}:${s}`
 }
 
-const CSV_HEADER = ['logged_at', 'camera', 'clip', 'video_time', 'object', 'confidence', 'decision', 'reviewer', 'decided_at']
+// How the log words what was detected and what the reviewer decided. WatchDog never knows
+// there is a gun, only that there may be one; the reviewer's decision says whether it was a
+// real threat.
+export const detectedText = (label) => `possible ${label}`
+const DECISIONS = { pending: 'awaiting review', confirmed: 'threat confirmed', dismissed: 'false alarm' }
+export const decisionText = (decision) => DECISIONS[decision] ?? decision
+
+const CSV_HEADER = ['logged_at', 'camera', 'clip', 'video_time', 'detected', 'confidence', 'decision', 'reviewer', 'decided_at']
 
 export function toCsv(rows) {
   const quote = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`
   const lines = rows.map((r) =>
-    [r.loggedAt, r.camera, r.clip, formatTime(r.videoTime), r.label, r.confidence.toFixed(2), r.decision, r.reviewer, r.decidedAt]
+    [r.loggedAt, r.camera, r.clip, formatTime(r.videoTime), detectedText(r.label), r.confidence.toFixed(2), decisionText(r.decision), r.reviewer, r.decidedAt]
       .map(quote)
       .join(','),
   )

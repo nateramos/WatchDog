@@ -23,9 +23,9 @@ describe('toCsv', () => {
 
   it('writes a header row and one line per log entry', () => {
     const lines = toCsv([row]).split('\n')
-    expect(lines[0]).toBe('logged_at,camera,clip,video_time,object,confidence,decision,reviewer,decided_at')
+    expect(lines[0]).toBe('logged_at,camera,clip,video_time,detected,confidence,decision,reviewer,decided_at')
     expect(lines[1]).toBe(
-      '"2026-10-16T22:00:00.000Z","Main entrance","Pexels stock clip #4006667","0:05.5","gun","0.86","confirmed","Nate","2026-10-16T22:01:00.000Z"',
+      '"2026-10-16T22:00:00.000Z","Main entrance","Pexels stock clip #4006667","0:05.5","possible gun","0.86","threat confirmed","Nate","2026-10-16T22:01:00.000Z"',
     )
   })
 
@@ -33,7 +33,11 @@ describe('toCsv', () => {
     expect(toCsv([{ ...row, reviewer: 'Nate "N" Ramos' }])).toContain('"Nate ""N"" Ramos"')
   })
 
-  it('leaves empty fields blank for pending rows', () => {
-    expect(toCsv([{ ...row, decision: 'pending', reviewer: '', decidedAt: '' }])).toMatch(/"pending","",""$/)
+  it('leaves empty fields blank for rows awaiting review', () => {
+    expect(toCsv([{ ...row, decision: 'pending', reviewer: '', decidedAt: '' }])).toMatch(/"awaiting review","",""$/)
+  })
+
+  it('records a dismissed flag as a false alarm', () => {
+    expect(toCsv([{ ...row, decision: 'dismissed' }])).toContain('"false alarm"')
   })
 })

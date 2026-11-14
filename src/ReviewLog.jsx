@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { downloadCsv, formatTime } from './reviewLog.js'
+import { decisionText, detectedText, downloadCsv, formatTime } from './reviewLog.js'
 
 // Every flag and reviewer decision, with CSV export and a two-step "Clear log".
 export default function ReviewLog({ log, onClear }) {
@@ -52,7 +52,7 @@ export default function ReviewLog({ log, onClear }) {
                 <th>Camera</th>
                 <th>Clip</th>
                 <th>Time</th>
-                <th>Object</th>
+                <th>Detected</th>
                 <th>Confidence</th>
                 <th>Decision</th>
                 <th>Reviewer</th>
@@ -65,9 +65,9 @@ export default function ReviewLog({ log, onClear }) {
                   <td>{row.camera || '—'}</td>
                   <td>{row.clip}</td>
                   <td>{formatTime(row.videoTime)}</td>
-                  <td>{row.label}</td>
+                  <td className="detected">{detectedText(row.label)}</td>
                   <td>{Math.round(row.confidence * 100)}%</td>
-                  <td className={`decision-${row.decision}`}>{row.decision}</td>
+                  <td className={`decision-${row.decision}`}>{decisionText(row.decision)}</td>
                   <td>{row.reviewer || '—'}</td>
                 </tr>
               ))}
