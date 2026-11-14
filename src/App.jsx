@@ -8,7 +8,7 @@ import { Logo, SignOutButton } from './Layout.jsx'
 import { useAuthStatus } from './auth.js'
 import { StoreProvider } from './store.jsx'
 
-// Hash routes (#/cameras, #/about, ...) so Amplify can serve every page from index.html.
+// Hash routes (#/cameras, #/alerts, ...) so Amplify can serve every page from index.html.
 function useRoute() {
   const [route, setRoute] = useState(window.location.hash)
   useEffect(() => {
@@ -69,11 +69,30 @@ export default function App() {
 }
 
 // Cameras and alerts live in StoreProvider, above the pages, so they survive moving
-// between pages.
+// between pages. Once opened, the Demo page stays mounted (just hidden) on other pages, so
+// its camera feeds keep playing and raising alerts while the reviewer is on Alerts, the
+// way live cameras would.
 function Page({ route }) {
+  const onDemo = route === '#/demo'
+  const [demoOpened, setDemoOpened] = useState(onDemo)
+  useEffect(() => {
+    if (onDemo) setDemoOpened(true)
+  }, [onDemo])
+  return (
+    <>
+      {demoOpened && (
+        <div hidden={!onDemo}>
+          <Demo />
+        </div>
+      )}
+      {!onDemo && <OtherPage route={route} />}
+    </>
+  )
+}
+
+function OtherPage({ route }) {
   if (route === '#/cameras') return <Cameras />
   if (route === '#/alerts') return <Alerts />
-  if (route === '#/demo') return <Demo />
   if (route === '#/about') return <About />
   return <Home />
 }
