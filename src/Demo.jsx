@@ -16,10 +16,24 @@ import { SITE_CAMERAS } from './site.js'
 // (public read of demo/ only, loadable from this site and localhost), so they can be taken
 // down at any time without touching the code or its history.
 const MEDIA = 'https://watchdog-demo-media-2026.s3.us-east-2.amazonaws.com/demo'
-// The two feeds play in the first two camera slots of the sample building (src/site.js).
+// One feed shows the attacker (Nashville, camera 1). The other live feeds show ordinary people
+// from two public datasets, so the wall also shows WatchDog staying quiet on everyday footage:
+// MEVA (an indoor school building, filmed with consenting actors) and ShanghaiTech Campus
+// (outdoor walkways). The last cameras on the wall are offline, as some always are.
+const feed = (slot, id, file) => ({
+  ...SITE_CAMERAS[slot],
+  id,
+  status: 'live',
+  video: `${MEDIA}/${file}.mp4`,
+  results: `${MEDIA}/${file}.json`,
+})
 const FEEDS = [
-  { ...SITE_CAMERAS[0], id: 'demo-hallway', status: 'live', video: `${MEDIA}/demo_cam1_hallway.mp4`, results: `${MEDIA}/demo_cam1_hallway.json` },
-  { ...SITE_CAMERAS[1], id: 'demo-lobby', status: 'live', video: `${MEDIA}/demo_cam2_lobby.mp4`, results: `${MEDIA}/demo_cam2_lobby.json` },
+  feed(0, 'demo-hallway', 'demo_cam1_hallway'),
+  feed(1, 'demo-east-hallway', 'demo_cam3_hallway'),
+  feed(2, 'demo-cafeteria', 'demo_cam4_cafeteria'),
+  feed(3, 'demo-gym', 'demo_cam5_gym'),
+  feed(4, 'demo-walkway', 'demo_cam3_walkway'),
+  feed(5, 'demo-plaza', 'demo_cam4_plaza'),
 ]
 const OFFLINE = SITE_CAMERAS.slice(FEEDS.length).map((c) => ({ ...c, status: 'offline' }))
 // Each alert gets a short clip around the first flag: this long before it, and this long
@@ -191,7 +205,12 @@ export default function Demo() {
           )}
         </div>
         <CameraFilters cameras={wall} query={query} onQuery={setQuery} filters={filters} onFilters={setFilters} />
-        <p className="muted small">Camera names and locations are a sample building layout, not the real school's.</p>
+        <p className="muted small">
+          Camera names and locations are a sample building layout, not the real school's. Only
+          Camera 1 shows the attacker. Cameras 2 to 6 show ordinary people from two public
+          datasets, MEVA (an indoor school building, filmed with actors) and ShanghaiTech Campus
+          (outdoor walkways), to show WatchDog staying quiet on everyday footage.
+        </p>
       </section>
 
       {shown === 0 && <NoMatch />}
