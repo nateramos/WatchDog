@@ -197,6 +197,16 @@ export default function About() {
           the camera, which is WatchDog's job.
         </p>
         <p>
+          <strong>An hour of ordinary campus CCTV.</strong> A school will ask how often WatchDog
+          raises a false alarm on an ordinary day. We ran it on one hour of everyday security
+          footage with no guns: 115 clips from all 13 cameras of the public ShanghaiTech Campus
+          dataset, with students walking and carrying backpacks, bags and phones, some of them
+          crowded and close to the camera. It checked 12,670 frames and raised{' '}
+          <strong>no false alarm</strong>. The same setup still caught the gun in the Nashville
+          clips, so the detector was working. Zero in one hour does not mean never, which is
+          why a person reviews every alert; an indoor hallway test is next.
+        </p>
+        <p>
           <strong>Staged home clips.</strong> We also filmed 42 clips at home with an
           orange-tipped prop gun: 6 with the prop gun and 36 with everyday objects that could
           fool a detector, such as a phone, backpack, laptop, scissors and keys, each in normal
@@ -222,6 +232,7 @@ export default function About() {
           <li>A campus map that shows which camera raised an alert</li>
           <li>Following a person or gun across cameras, and predicting where they are heading</li>
           <li>A one-click incident report for police and administrators</li>
+          <li>A longer false-alarm test on indoor school footage</li>
         </ul>
 
         <div className="actions actions-left">

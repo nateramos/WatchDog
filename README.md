@@ -4,7 +4,7 @@
 
 **Live:** https://main.dbzst24ccqq7g.amplifyapp.com (click **Try the demo** to sign in, no password)
 
-WatchDog is a campus safety tool that informs human responders and does not make decisions for them. It watches a building's security cameras for a possible gun, and when it finds one it sends an alert with a snapshot and a short clip to a reviewer, who confirms the threat or dismisses it as a false alarm. Every decision is signed and logged. It uses no facial recognition. It has been tested on security camera footage from three real school shootings (see [Results](#results)).
+WatchDog is a campus safety tool that informs human responders and does not make decisions for them. It watches a building's security cameras for a possible gun, and when it finds one it sends an alert with a snapshot and a short clip to a reviewer, who confirms the threat or dismisses it as a false alarm. Every decision is signed and logged. It uses no facial recognition. It has been tested on security camera footage from three real school shootings, and it raised no false alarm in an hour of ordinary campus security footage (see [Results](#results)).
 
 Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
@@ -43,7 +43,7 @@ How WatchDog decides what to flag:
 
 ## Results
 
-WatchDog was tested three ways: on 11,694 labeled images the model never trained on, on security footage from three real school shootings, and on staged clips filmed at home.
+WatchDog was tested four ways: on 11,694 labeled images the model never trained on, on security footage from three real school shootings, on an hour of ordinary campus security footage with no guns, and on staged clips filmed at home. None of the test footage was used to train the model.
 
 ### Lab test: 11,694 images it never saw
 
@@ -71,6 +71,19 @@ We ran WatchDog on five clips of security camera footage from three real school 
 **WatchDog raised an alert on all five clips, and all 8 alerts were on the real gun** (we checked every alert snapshot by hand). It did best on ordinary ceiling cameras like Nashville's, where it saw the gun in most checked frames; it struggled most with Uvalde's fisheye lens and a distant figure, where it caught the rifle in moments rather than the whole time. That is enough to point a reviewer at the camera, which is WatchDog's job; following the gun continuously is on the [roadmap](#roadmap).
 
 The footage is not in this repo. The clips were cut from [KVUE's Uvalde hallway video](https://www.youtube.com/watch?v=I3poHE3nOb8), [a Parkland video on YouTube](https://www.youtube.com/watch?v=YM-vc6JqzhM) and [The Washington Post's Nashville video](https://www.washingtonpost.com/video/national/police-release-video-of-nashville-shooter-inside-school/2023/03/28/134b2cd2-de2d-43a1-a312-73ea108c3e7f_video.html), and the Demo page's Nashville feed is served from a separate storage bucket that can be taken down at any time, like its everyday feeds.
+
+### One hour of ordinary campus CCTV: false alarms
+
+A school will ask how often WatchDog raises a false alarm on an ordinary day. We ran it on one hour of everyday security camera footage with no guns: 115 clips (63.4 minutes) from all 13 cameras of the public [ShanghaiTech Campus](https://svip-lab.github.io/dataset/campus_dataset.html) dataset, which shows students walking, carrying backpacks, bags and phones across outdoor walkways and plazas, some of them crowded and close to the camera. Same settings as the app, run on a cloud GPU with `tracking/eval_clips.py`'s check.
+
+| Ordinary campus CCTV, no guns | |
+| --- | --- |
+| Footage | 63.4 minutes, 115 clips, 13 cameras |
+| Frames checked | 12,670 |
+| Frames flagged | **0** |
+| False alarms (alerts) | **0 in one hour** |
+
+To make sure the detector was really working in that run, we ran two of the Nashville clips through the same setup: it caught the gun with the same results as the table above (84% and 76%). Zero false alarms in one hour does not mean WatchDog never makes one, which is why a person reviews every alert. This footage is outdoors; an indoor hallway test is on the [roadmap](#roadmap). The footage is not in this repo.
 
 ### Staged home clips
 
@@ -118,6 +131,7 @@ Not built yet:
 - A campus map that shows which camera raised an alert
 - Following a person or gun across cameras, and predicting where they are heading, for responders
 - A one-click incident report (snapshots, clips and decisions) for police and administrators
+- A longer false-alarm test on indoor school footage (hallways, cafeteria, gym)
 
 ## Run it locally
 
@@ -159,6 +173,16 @@ Model Dublin's training run, one point per epoch. The first three charts in each
 | [COCO 2017](https://cocodataset.org/) | Look-alike photos (phones, umbrellas, remotes...) | CC BY 4.0 |
 
 Some sets allow research or non-commercial use only, which fits a student prototype. A commercial version would need to retrain without them. The scripts that built the model are in `tracking/train/` ([how Model Dublin was made](tracking/train/README.md)).
+
+### Test and demo footage
+
+None of this footage was used to train the model, and none of it is in this repo.
+
+| Source | Used for | License |
+| --- | --- | --- |
+| KVUE (Uvalde), YouTube (Parkland), The Washington Post (Nashville) | Real CCTV test; Demo camera 1 (Nashville) | Publicly released by police and news outlets; used for testing and a credited demo |
+| [ShanghaiTech Campus](https://svip-lab.github.io/dataset/campus_dataset.html) (Liu et al., CVPR 2018) | One-hour false-alarm test; Demo cameras 5 and 6 | BSD 2-Clause |
+| [MEVA](https://mevadata.org/) (Kitware and IARPA), filmed with consenting actors | Demo cameras 2 to 4 (school hallway, cafeteria, gym) | CC BY 4.0 |
 
 `tracking/track.py` is the desktop prototype: it tracks people (pose) and the objects they hold on a webcam or video file. The web demo is where weapon detection runs.
 
