@@ -1090,52 +1090,266 @@ td.decision-pending {
   * { animation: none !important; }
 }
 
-/* Login screen */
+/* Login screen: same brand as the landing page (src/landing.css). */
+.login-page {
+  background:
+    radial-gradient(700px 420px at 50% 0%, rgba(77, 141, 255, 0.16), transparent 70%),
+    #070b12;
+}
+
+/* Split screen: the school photo on the left (desktop only), the form on the right. */
+.login-split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  min-height: calc(100vh - 44px);
+}
+
+.login-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px clamp(32px, 4vw, 64px) 56px;
+  background:
+    linear-gradient(90deg, rgba(7, 11, 18, 0.15) 0%, rgba(7, 11, 18, 0.45) 55%, rgba(7, 11, 18, 0.85) 85%, #070b12 100%),
+    linear-gradient(0deg, rgba(7, 11, 18, 0.92) 0%, rgba(7, 11, 18, 0.35) 45%, rgba(7, 11, 18, 0.55) 100%),
+    url('/landing/hero.jpg') 70% center / cover no-repeat,
+    #0d1420;
+}
+
+.login-visual-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #f5f7fa;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.login-visual-copy {
+  max-width: 30rem;
+}
+
+.login-visual-title {
+  margin: 0;
+  font-family: var(--display);
+  font-size: clamp(1.9rem, 2.8vw, 2.7rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: #f5f7fa;
+}
+
+.login-visual-title span {
+  color: #4d8dff;
+}
+
+.login-split .login {
+  align-self: center;
+  padding-top: 32px;
+  gap: 18px;
+}
+
+/* Desktop: keep the photo side the height of the screen while the form scrolls, and drop
+   the form's own logo, since the photo side already shows it. */
+@media (min-width: 901px) {
+  .login-visual {
+    position: sticky;
+    top: 0;
+    height: calc(100vh - 44px);
+  }
+
+  .login-split .login-head svg {
+    display: none;
+  }
+
+  /* no top glow behind the form on desktop, so the photo blends into the page with no seam */
+  .login-page {
+    background: #070b12;
+  }
+}
+
+@media (max-width: 900px) {
+  .login-split {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .login-visual {
+    display: none;
+  }
+}
+
 .login {
-  max-width: 420px;
+  width: 100%;
+  max-width: 440px;
   margin: 0 auto;
-  padding: 32px 16px 64px;
+  padding: 28px 16px 72px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-family: 'Inter Variable', Inter, system-ui, sans-serif;
+}
+
+.login-back {
+  align-self: flex-start;
+  color: #9aa8ba;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.login-back:hover {
+  color: #f5f7fa;
+}
+
+.login-head {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 12px;
+  margin-top: 8px;
+}
+
+.login-head h1 {
+  margin: 4px 0 0;
+  font-family: 'Geist Variable', 'Inter Variable', system-ui, sans-serif;
+  font-size: clamp(1.8rem, 6vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  background: none;
+  color: #f5f7fa;
+  -webkit-text-fill-color: currentColor;
+  animation: none;
+}
+
+.login-head p {
+  margin: 0;
+  color: #9aa8ba;
+  font-size: 0.95rem;
 }
 
 .login-demo {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
-  margin-top: 8px;
+  justify-content: space-between;
+  gap: 14px 18px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  border: 1px solid rgba(199, 208, 220, 0.12);
+  background: linear-gradient(135deg, rgba(77, 141, 255, 0.08), rgba(13, 20, 32, 0.9) 60%);
+}
+
+.login-demo h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #f5f7fa;
 }
 
 .login-demo p {
+  margin: 4px 0 0;
+  color: #9aa8ba;
+  font-size: 0.88rem;
+}
+
+.login-demo .login-demo-error {
+  flex-basis: 100%;
   margin: 0;
 }
 
-/* Amplify's sign-in form, restyled to match WatchDog's panels, inputs and buttons. */
+.login-demo-button {
+  height: 44px;
+  padding: 0 1.2rem;
+  border: 1px solid rgba(245, 247, 250, 0.22);
+  border-radius: 10px;
+  background: rgba(245, 247, 250, 0.04);
+  color: #f5f7fa;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.login-demo-button:hover:not(:disabled) {
+  background: rgba(245, 247, 250, 0.09);
+  border-color: rgba(245, 247, 250, 0.4);
+  transform: translateY(-1px);
+}
+
+.login-demo-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.login-demo-button:focus-visible,
+.login-back:focus-visible {
+  outline: 2px solid #63c5e8;
+  outline-offset: 3px;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #9aa8ba;
+  font-size: 0.82rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(199, 208, 220, 0.14);
+}
+
+/* Amplify's sign-in form, restyled to match the brand panels, inputs and buttons. */
 .login [data-amplify-authenticator] {
   width: 100%;
+  display: block;
+}
+
+/* Amplify gives its form a fixed ~480px width; make it fill the 440px login column instead,
+   so the form lines up with the heading, the divider and the demo button. */
+.login [data-amplify-authenticator] [data-amplify-container] {
+  width: 100%;
+  max-width: none;
+}
+
+.login [data-amplify-authenticator] [data-amplify-router-content] {
+  padding: 0;
+}
+
+.login [data-amplify-authenticator] [data-amplify-form] {
+  padding: 24px;
 }
 
 .login [data-amplify-authenticator] [data-amplify-router] {
-  border: 1px solid var(--border);
+  border: 1px solid rgba(199, 208, 220, 0.12);
   border-radius: 16px;
-  background: rgba(13, 17, 28, 0.85);
+  background: #0d1420;
   box-shadow: none;
 }
 
 .login .amplify-label {
-  color: var(--muted);
+  color: #9aa8ba;
 }
 
 .login .amplify-input,
 .login .amplify-field-group__outer-end .amplify-button {
   min-height: 44px;
-  border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text);
+  border: 1px solid rgba(199, 208, 220, 0.16);
+  background: rgba(245, 247, 250, 0.04);
+  color: #f5f7fa;
   font-size: 1rem;
 }
 
@@ -1144,22 +1358,27 @@ td.decision-pending {
 }
 
 .login .amplify-input:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(79, 140, 255, 0.25);
+  border-color: #4d8dff;
+  box-shadow: 0 0 0 2px rgba(77, 141, 255, 0.25);
 }
 
 .login .amplify-button--primary {
-  min-height: 44px;
+  min-height: 50px;
   border: none;
-  border-radius: 999px;
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 30px rgba(79, 140, 255, 0.3);
+  border-radius: 10px;
+  background: #4d8dff;
+  box-shadow: 0 8px 30px -10px rgba(77, 141, 255, 0.7);
   color: #fff;
+  font-size: 1rem;
   font-weight: 600;
 }
 
+.login .amplify-button--primary:hover {
+  background: #6a9fff;
+}
+
 .login .amplify-button--link {
-  color: var(--accent);
+  color: #63c5e8;
 }
 
 .link-button {
