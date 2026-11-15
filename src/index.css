@@ -147,6 +147,24 @@ h1 {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* The login screen and the app fade in when they appear, so signing in isn't a hard cut.
+   It ends at transform: none so fixed and sticky elements inside keep working. */
+.page-enter {
+  animation: page-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Sign-in and sign-out crossfade (see crossfade() in src/auth.js). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* Buttons */
 
 .actions {

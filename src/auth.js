@@ -1,3 +1,4 @@
+import { flushSync } from 'react-dom'
 import { useEffect, useState } from 'react'
 import { Amplify } from 'aws-amplify'
 import { Hub } from 'aws-amplify/utils'
@@ -23,6 +24,14 @@ function configure() {
   return configured
 }
 
+// Signing in or out dissolves the login screen into the app (and back) with the browser's
+// View Transitions API. Browsers without it, or with reduced motion on, just switch.
+function crossfade(update) {
+  const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+  if (!document.startViewTransition || reduced) return update()
+  document.startViewTransition(() => flushSync(update))
+}
+
 // 'loading' | 'unconfigured' | 'signedOut' | 'signedIn'
 export function useAuthStatus() {
   const [status, setStatus] = useState('loading')
@@ -34,8 +43,8 @@ export function useAuthStatus() {
         .catch(() => alive && setStatus('signedOut'))
     configure().then((ok) => (ok ? check() : alive && setStatus('unconfigured')))
     const stop = Hub.listen('auth', ({ payload }) => {
-      if (payload.event === 'signedIn') setStatus('signedIn')
-      if (payload.event === 'signedOut') setStatus('signedOut')
+      if (payload.event === 'signedIn') crossfade(() => setStatus('signedIn'))
+      if (payload.event === 'signedOut') crossfade(() => setStatus('signedOut'))
     })
     return () => {
       alive = false

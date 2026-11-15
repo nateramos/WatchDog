@@ -38,10 +38,19 @@ export default function App() {
       </main>
     )
   }
-  if (auth === 'signedOut') return <Login />
+  if (auth === 'signedOut') {
+    return (
+      <div className="page-enter">
+        <Login />
+      </div>
+    )
+  }
+  // Signing in fades the app in instead of cutting straight from the login screen.
   return (
     <StoreProvider>
-      <Page route={route} />
+      <div className="page-enter">
+        <Page route={route} />
+      </div>
     </StoreProvider>
   )
 }
