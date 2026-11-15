@@ -13,13 +13,13 @@ Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 ## For judges: try it
 
 1. Open the [live site](https://main.dbzst24ccqq7g.amplifyapp.com) and click **Try the demo**. This signs in a test account with one click; no password, and no real data. Every demo sign-in starts with an empty review log.
-2. Open **Demo** and press **Start demo**.
+2. Open **Demo** and press **Start demo**. The wall plays for about 10 seconds before Camera 1 starts.
 3. When the red alert banner appears, open **Alerts**, type a reviewer name, and confirm or dismiss the alert.
 
 ## What's in the app
 
 - **Cameras:** the camera wall for a building, with a search box and a **Filters** menu (live or offline, area, floor, wing). This prototype has no live camera connected, so its slots show "Camera offline".
-- **Demo:** the same wall replaying a saved WatchDog run on security camera footage that police released after the 2023 Covenant School shooting in Nashville. The boxes and alerts are WatchDog's real results, saved ahead of time so the demo plays instantly; each alert fires at the moment the video reaches it, and the cameras keep running while you are on other pages. Camera names and locations are a sample building layout, not the real school's.
+- **Demo:** the same wall, eight cameras, replaying a saved WatchDog run. Only Camera 1 shows the attacker, in security footage that police released after the 2023 Covenant School shooting in Nashville; it waits about 10 seconds on an empty hallway, then plays once. Cameras 2 to 6 loop ordinary footage from two public datasets, an indoor school building (MEVA) and outdoor campus walkways (ShanghaiTech Campus), and WatchDog stays quiet on all of them, including a person carrying a broom. Cameras 7 and 8 are offline. The boxes and alerts are WatchDog's real results, saved ahead of time so the demo plays instantly; each alert fires at the moment the video reaches it, and the cameras keep running while you are on other pages. Camera names and locations are a sample building layout, not the real places'.
 - **Alerts:** one inbox for every alert. Each shows the camera, the time and the confidence score, with a snapshot right away and, a few seconds later, a clip from one second before the gun was first seen to four seconds after, which the reviewer can pause and scrub through frame by frame. A reviewer must sign each **Confirm threat** or **Dismiss**. Every alert and decision goes into the review log ("possible gun", "threat confirmed", "false alarm"), which can be exported as CSV.
 
 How WatchDog decides what to flag:
@@ -38,7 +38,7 @@ How WatchDog decides what to flag:
 - **Careful wording:** the app always says "possible gun", and alerts from the Demo page are tagged "Demo replay" so they are never mistaken for live ones.
 - **No facial recognition:** WatchDog detects objects only and identifies no one.
 - **Video is checked on the device:** the model runs in the viewer's browser, so no video is sent to a server to be analyzed.
-- **Real footage, handled with care:** the real CCTV comes only from footage that police and news outlets released publicly. Sources are credited, the footage is kept out of this repo, the Demo page warns before showing it, and its camera names are labeled as a sample layout rather than the real school's.
+- **Real footage, handled with care:** footage of an attack comes only from video that police and news outlets released publicly, and the Demo page shows it on one camera, once. Everyday footage comes from public research datasets (MEVA, filmed with consenting actors, and ShanghaiTech Campus). Sources are credited, no footage is kept in this repo, the Demo page warns before showing the attack, and its camera names are labeled as a sample layout rather than the real places'.
 - **Staged clips, never on campus:** home test clips use an orange-tipped prop gun and were filmed at home, not on campus.
 
 ## Results
@@ -70,7 +70,7 @@ We ran WatchDog on five clips of security camera footage from three real school 
 
 **WatchDog raised an alert on all five clips, and all 8 alerts were on the real gun** (we checked every alert snapshot by hand). It did best on ordinary ceiling cameras like Nashville's, where it saw the gun in most checked frames; it struggled most with Uvalde's fisheye lens and a distant figure, where it caught the rifle in moments rather than the whole time. That is enough to point a reviewer at the camera, which is WatchDog's job; following the gun continuously is on the [roadmap](#roadmap).
 
-The footage is not in this repo. The clips were cut from [KVUE's Uvalde hallway video](https://www.youtube.com/watch?v=I3poHE3nOb8), [a Parkland video on YouTube](https://www.youtube.com/watch?v=YM-vc6JqzhM) and [The Washington Post's Nashville video](https://www.washingtonpost.com/video/national/police-release-video-of-nashville-shooter-inside-school/2023/03/28/134b2cd2-de2d-43a1-a312-73ea108c3e7f_video.html), and the Demo page's two Nashville feeds are served from a separate storage bucket that can be taken down at any time.
+The footage is not in this repo. The clips were cut from [KVUE's Uvalde hallway video](https://www.youtube.com/watch?v=I3poHE3nOb8), [a Parkland video on YouTube](https://www.youtube.com/watch?v=YM-vc6JqzhM) and [The Washington Post's Nashville video](https://www.washingtonpost.com/video/national/police-release-video-of-nashville-shooter-inside-school/2023/03/28/134b2cd2-de2d-43a1-a312-73ea108c3e7f_video.html), and the Demo page's Nashville feed is served from a separate storage bucket that can be taken down at any time, like its everyday feeds.
 
 ### Staged home clips
 
@@ -107,7 +107,7 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 | Code quality & GitHub transparency | 15% | Small single-purpose modules, 33 unit tests, CI on every push, and a step-by-step public commit history. Training data sources, licenses, the training chart and test results are in the repo; real footage is kept out of it. |
 | UX & design | 10% | A security-console layout: camera wall with search and a Filters menu, a red alert banner and an Alerts badge, alert clips with pause and frame-by-frame scrubbing, a reviewer-name prompt, and a layout that uses wide screens and works on phones. |
 | Business impact & presentation | 10% | No server or per-camera cloud cost: detection runs on the viewer's device. |
-| Bonus: ethical AI | up to 5 | A person confirms every alert and signs each decision, everything is logged, "possible gun" wording and "Demo replay" tags, no facial recognition, video never sent to a server, real footage only from public police and news releases, credited and kept out of the repo. |
+| Bonus: ethical AI | up to 5 | A person confirms every alert and signs each decision, everything is logged, "possible gun" wording and "Demo replay" tags, no facial recognition, video never sent to a server, attack footage only from public police and news releases and everyday footage only from public research datasets, all credited and kept out of the repo. |
 
 ## Roadmap
 

@@ -205,12 +205,12 @@ export default function Demo() {
       <section className="panel">
         <h2>Demo</h2>
         <p className="muted">
-          The camera wall replaying a saved WatchDog run on security camera footage that police
-          released after the 2023 Covenant School shooting in Nashville (via The Washington
-          Post). The boxes and alerts are WatchDog's real results from the same model and rules
-          as a live check, saved ahead of time so the demo plays instantly. When an alert
-          appears, open <a href="#/alerts">Alerts</a> to confirm or dismiss it. Press Start demo to
-          begin.
+          A school's camera wall replaying a saved WatchDog run. Camera 1 shows security camera
+          footage that police released after the 2023 Covenant School shooting in Nashville (via
+          The Washington Post); the other cameras show ordinary people. The boxes and alerts are
+          WatchDog's real results from the same model and rules as a live check, saved ahead of
+          time so the demo plays instantly. When an alert appears, open{' '}
+          <a href="#/alerts">Alerts</a> to confirm or dismiss it. Press Start demo to begin.
         </p>
         <p className="muted small">Contains real footage of an armed attacker inside a school.</p>
         <div className="actions actions-left">

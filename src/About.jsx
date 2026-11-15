@@ -110,7 +110,8 @@ export default function About() {
         </ol>
         <p>
           This prototype has no live camera connected yet. The <a href="#/demo">Demo</a> page
-          replays WatchDog's real results on released security footage instead.
+          replays WatchDog's real results on a wall of eight cameras instead: one shows released
+          footage of an attack, and the others show ordinary people.
         </p>
 
         <h3>Safety guardrails</h3>
@@ -136,9 +137,10 @@ export default function About() {
             browser, so no video is sent to a server to be analyzed.
           </li>
           <li>
-            <strong>Real footage, handled with care.</strong> The real CCTV comes only from
-            footage that police and news outlets released publicly. It is credited, kept out of
-            the code repository, and the Demo page warns before showing it.
+            <strong>Real footage, handled with care.</strong> Footage of an attack comes only
+            from video that police and news outlets released publicly, shown on one camera, once.
+            Everyday footage comes from public research datasets. All of it is credited, kept out
+            of the code repository, and the Demo page warns before showing the attack.
           </li>
           <li>
             <strong>Staged clips, never on campus.</strong> Home test clips use an
