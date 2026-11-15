@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- WatchDog browser-tab icon: the same mark as src/LogoMark.jsx -->
+  <defs>
+    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.18" stop-color="#DCE3EC"/>
+      <stop offset="0.38" stop-color="#7C8797"/>
+      <stop offset="0.52" stop-color="#EEF2F7"/>
+      <stop offset="0.7" stop-color="#9AA5B4"/>
+      <stop offset="0.88" stop-color="#4A5361"/>
+      <stop offset="1" stop-color="#C9D1DC"/>
+    </linearGradient>
+    <linearGradient id="chromeV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.45" stop-color="#C3CCD8"/>
+      <stop offset="0.55" stop-color="#7E8998"/>
+      <stop offset="1" stop-color="#E4E9F0"/>
+    </linearGradient>
+    <radialGradient id="face" cx="0.5" cy="0.3" r="0.8">
+      <stop offset="0" stop-color="#1B2638"/>
+      <stop offset="0.6" stop-color="#0A111C"/>
+      <stop offset="1" stop-color="#03060B"/>
+    </radialGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="iris" cx="0.4" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#B9ECFF"/>
+      <stop offset="0.45" stop-color="#63C5E8"/>
+      <stop offset="1" stop-color="#2F5FD0"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#63C5E8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#4D8DFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="2.2"/></filter>
+  </defs>
+  <path d="M100 12 L174 42 L170 108 Q162 150 100 190 Q38 150 30 108 L26 42 Z" fill="url(#chrome)"/>
+  <path d="M100 12 L174 42 L170 108 Q162 150 100 190 Q38 150 30 108 L26 42 Z" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="1.2"/>
+  <path d="M100 29 L158 53 L155 106 Q148 140 100 172 Q52 140 45 106 L42 53 Z" fill="#2A323E"/>
+  <path d="M100 29 L158 53 L155 106 Q148 140 100 172 Q52 140 45 106 L42 53 Z" fill="url(#face)" transform="translate(100 100) scale(.985) translate(-100 -100)"/>
+  <path d="M100 29 L158 53 L155 106 Q148 140 100 172 Q52 140 45 106 L42 53 Z" fill="none" stroke="#000" stroke-opacity="0.7" stroke-width="2"/>
+  <path d="M100 31 L156 54 L154 84 Q100 70 46 84 L44 54 Z" fill="url(#gloss)"/>
+  <path d="M68 85V72h13M119 72h13v13M132 117v13h-13M81 130H68v-13" fill="none" stroke="url(#chromeV)" stroke-width="5" stroke-linecap="square"/>
+  <circle cx="100" cy="104" r="20" fill="url(#glow)" filter="url(#soft)"/>
+  <circle cx="100" cy="106" r="15.5" fill="url(#iris)"/>
+  <circle cx="100" cy="106" r="15.5" fill="none" stroke="#0A0F18" stroke-opacity="0.5" stroke-width="1.5"/>
+  <circle cx="100" cy="106" r="7.2" fill="#05080D"/>
+  <circle cx="96" cy="101.5" r="2.6" fill="#FFFFFF" opacity="0.95"/>
+  <path d="M58 102 Q100 64 142 102 Q100 80 58 102 Z" fill="url(#chromeV)"/>
+  <path d="M58 102 Q100 64 142 102" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1"/>
+</svg>
