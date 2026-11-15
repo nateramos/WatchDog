@@ -3,8 +3,8 @@ import About from './About.jsx'
 import Alerts from './Alerts.jsx'
 import Cameras from './Cameras.jsx'
 import Demo from './Demo.jsx'
+import Landing from './Landing.jsx'
 import Login from './Login.jsx'
-import { Logo, SignOutButton } from './Layout.jsx'
 import { useAuthStatus } from './auth.js'
 import { StoreProvider } from './store.jsx'
 
@@ -22,36 +22,14 @@ function useRoute() {
   return route
 }
 
-function Home() {
-  return (
-    <main className="page">
-      <div className="glow" aria-hidden="true" />
+// The landing page (#/) is public. Every page of the app itself is behind the login
+// (contest rule: a working login, not a placeholder).
+const isLanding = (route) => route === '' || route === '#' || route === '#/'
 
-      <Logo />
-
-      <h1>WatchDog</h1>
-      <p className="description">
-        AI-assisted campus safety tool that flags possible weapons in video and
-        sends alerts to human responders for review.
-      </p>
-
-      <div className="actions">
-        <a className="badge" href="#/cameras">
-          <span className="dot" />
-          Open WatchDog
-        </a>
-        <a className="badge" href="#/demo">View Demo</a>
-        <a className="badge" href="#/about">Read More About WatchDog</a>
-      </div>
-      <SignOutButton />
-    </main>
-  )
-}
-
-// The whole site is behind the login (contest rule: a working login, not a placeholder).
 export default function App() {
   const route = useRoute()
   const auth = useAuthStatus()
+  if (isLanding(route)) return <Landing signedIn={auth === 'signedIn'} />
   if (auth === 'loading') return null
   if (auth === 'unconfigured') {
     return (
@@ -94,5 +72,5 @@ function OtherPage({ route }) {
   if (route === '#/cameras') return <Cameras />
   if (route === '#/alerts') return <Alerts />
   if (route === '#/about') return <About />
-  return <Home />
+  return <Cameras />
 }
