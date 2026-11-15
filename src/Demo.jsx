@@ -20,15 +20,20 @@ const MEDIA = 'https://watchdog-demo-media-2026.s3.us-east-2.amazonaws.com/demo'
 // from two public datasets, so the wall also shows WatchDog staying quiet on everyday footage:
 // MEVA (an indoor school building, filmed with consenting actors) and ShanghaiTech Campus
 // (outdoor walkways). The last cameras on the wall are offline, as some always are.
-const feed = (slot, id, file) => ({
+// The everyday feeds loop like real cameras. The attacker's feed waits 10 seconds on its first
+// frame (an empty hallway), so viewers take in the quiet wall first, then plays once, so the
+// footage is shown only as long as the detection needs (Replay demo plays it again on purpose).
+const feed = (slot, id, file, { loop = true, delay = 0 } = {}) => ({
   ...SITE_CAMERAS[slot],
   id,
   status: 'live',
   video: `${MEDIA}/${file}.mp4`,
   results: `${MEDIA}/${file}.json`,
+  loop,
+  delay,
 })
 const FEEDS = [
-  feed(0, 'demo-hallway', 'demo_cam1_hallway'),
+  feed(0, 'demo-hallway', 'demo_cam1_hallway', { loop: false, delay: 10 }),
   feed(1, 'demo-east-hallway', 'demo_cam3_hallway'),
   feed(2, 'demo-cafeteria', 'demo_cam4_cafeteria'),
   feed(3, 'demo-gym', 'demo_cam5_gym'),
@@ -68,10 +73,24 @@ function DemoTile({ feed, run, started, hidden = false }) {
   }, [feed.results])
 
   // "Start demo" / "Replay demo" plays the clip from the beginning and lets its alerts fire again.
+  // A feed with a delay waits on its first frame first, so viewers take in the quiet wall
+  // before that camera starts.
+  const [holding, setHolding] = useState(false)
   useEffect(() => {
     raised.current = new Set()
-    if (run > 0) player.current?.restart()
-  }, [run])
+    if (run === 0) return
+    if (!feed.delay) {
+      player.current?.restart()
+      return
+    }
+    setHolding(true)
+    player.current?.hold()
+    const timer = setTimeout(() => {
+      setHolding(false)
+      player.current?.restart()
+    }, feed.delay * 1000)
+    return () => clearTimeout(timer)
+  }, [run, feed.delay])
 
   // Raise each alert the moment the gun is first seen, as the live check does, then swap in
   // the clearest frame once the clip reaches it (the saved alert's most confident frame).
@@ -139,7 +158,8 @@ function DemoTile({ feed, run, started, hidden = false }) {
           step={results?.step ?? 0.25}
           ready={Boolean(results)}
           progress={0}
-          autoPlay={started}
+          autoPlay={started && !holding}
+          loop={feed.loop}
           onTimeUpdate={onTimeUpdate}
         />
       )}

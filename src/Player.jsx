@@ -50,6 +50,12 @@ const Player = forwardRef(function Player({ src, timeline, step, ready, progress
       video.currentTime = 0
       video.play().catch(() => {})
     },
+    // Wait on the first frame (the Demo holds a feed here before it starts playing).
+    hold() {
+      const video = videoRef.current
+      video.pause()
+      video.currentTime = 0
+    },
     seek(time) {
       const video = videoRef.current
       video.pause()
