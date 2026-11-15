@@ -2,14 +2,16 @@
   /* How wide pages get on big screens, and the space at the sides. */
   --page-width: 1600px;
   --gutter: clamp(16px, 2.5vw, 40px);
-  --bg: #07090f;
-  --text: #e8ecf4;
-  --muted: #9aa3b5;
-  --accent: #4f8cff;
-  --accent-2: #8b5cf6;
-  --border: rgba(255, 255, 255, 0.1);
+  /* WatchDog brand palette (same as the landing page) */
+  --bg: #070b12;
+  --text: #f5f7fa;
+  --muted: #9aa8ba;
+  --accent: #4d8dff;
+  --accent-2: #63c5e8;
+  --border: rgba(199, 208, 220, 0.12);
+  --display: 'Geist Variable', 'Inter Variable', system-ui, sans-serif;
 
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: 'Inter Variable', Inter, system-ui, -apple-system, sans-serif;
   color: var(--text);
   background: var(--bg);
 }
@@ -48,7 +50,7 @@ body {
   height: 640px;
   max-width: 120vw;
   transform: translate(-50%, -55%);
-  background: radial-gradient(circle, rgba(79, 140, 255, 0.28), rgba(139, 92, 246, 0.12) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(77, 141, 255, 0.28), rgba(99, 197, 232, 0.12) 45%, transparent 70%);
   filter: blur(20px);
   pointer-events: none;
 }
@@ -193,12 +195,12 @@ input:focus-visible {
 
 .button-primary {
   border-color: transparent;
-  background: linear-gradient(120deg, var(--accent), var(--accent-2));
-  box-shadow: 0 0 30px rgba(79, 140, 255, 0.3);
+  background: var(--accent);
+  box-shadow: 0 8px 30px -10px rgba(77, 141, 255, 0.7);
 }
 
 .button-primary:hover {
-  background: linear-gradient(120deg, #6a9eff, #9b74f8);
+  background: #6a9fff;
   border-color: transparent;
 }
 
@@ -231,14 +233,38 @@ input:focus-visible {
   background-size: 48px 48px;
 }
 
+/* Prototype and 911 notice on every app page and the login: a slim dark bar in the brand
+   palette. */
 .notice {
-  padding: 0.65rem 16px;
-  background: rgba(251, 191, 36, 0.12);
-  border-bottom: 1px solid rgba(251, 191, 36, 0.35);
-  color: #fde68a;
-  font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+  padding: 0.55rem 16px;
+  background: linear-gradient(90deg, rgba(13, 20, 32, 0.6), #0d1420 50%, rgba(13, 20, 32, 0.6));
+  border-bottom: 1px solid rgba(199, 208, 220, 0.1);
+  color: #9aa8ba;
+  font-size: 0.82rem;
   line-height: 1.5;
   text-align: center;
+}
+
+.notice-sep {
+  width: 1px;
+  height: 0.9rem;
+  background: rgba(199, 208, 220, 0.2);
+}
+
+.notice strong {
+  color: #f5f7fa;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .notice-sep {
+    display: none;
+  }
 }
 
 /* Alerts page: a person reviews every alert before anything happens. */
@@ -269,8 +295,10 @@ input:focus-visible {
   align-items: center;
   gap: 0.6rem;
   color: var(--text);
-  font-weight: 800;
-  font-size: 1.15rem;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.01em;
   text-decoration: none;
 }
 
@@ -327,14 +355,21 @@ a {
   color: var(--accent);
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+}
+
 h2 {
   font-size: clamp(1.6rem, 5vw, 2.2rem);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.035em;
   margin: 0 0 0.75rem;
 }
 
 h3 {
   font-size: 1.15rem;
+  letter-spacing: -0.01em;
   margin: 0 0 0.5rem;
 }
 

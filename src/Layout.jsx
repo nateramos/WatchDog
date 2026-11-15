@@ -1,24 +1,18 @@
+import { LogoMark } from './LogoMark.jsx'
 import { signOut } from './auth.js'
 import { useStore } from './store.jsx'
-
-export function Logo({ small = false }) {
-  return (
-    <div className={small ? 'logo logo-small' : 'logo'} aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2.5 4 5.5v6c0 4.8 3.4 8.9 8 10 4.6-1.1 8-5.2 8-10v-6l-8-3Z" />
-        <path d="M7.5 12s1.7-3 4.5-3 4.5 3 4.5 3-1.7 3-4.5 3-4.5-3-4.5-3Z" />
-        <circle cx="12" cy="12" r="1.2" fill="currentColor" />
-      </svg>
-    </div>
-  )
-}
 
 // Shown at the top of every inner page: this is a prototype, not an emergency service.
 export function PrototypeNotice() {
   return (
     <div className="notice" role="note">
-      <strong>Prototype for the Busch School of Business Vibe Code Contest Fall 2026.</strong> WatchDog does not replace calling{' '}
-      <strong>911</strong>.
+      <span>
+        <strong>Prototype MVP</strong> · Busch School of Business Vibe Code Contest · Fall 2026
+      </span>
+      <span className="notice-sep" aria-hidden="true" />
+      <span>
+        WatchDog does not replace calling 911.
+      </span>
     </div>
   )
 }
@@ -39,7 +33,7 @@ export function Shell({ children }) {
       <PrototypeNotice />
       <header className="topbar">
         <a className="brand" href="#/">
-          <Logo small />
+          <LogoMark size={30} />
           <span>WatchDog</span>
         </a>
         <nav className="nav">
