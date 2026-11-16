@@ -23,6 +23,13 @@ export function useWall() {
     document.addEventListener('keydown', onKey)
     return () => document.removeEventListener('keydown', onKey)
   }, [focus])
+  // Moving to another page closes the camera that was open large, so coming back shows the
+  // whole wall. (The Demo page stays loaded while hidden, so it would otherwise remember it.)
+  useEffect(() => {
+    const onPage = () => setFocus(null)
+    window.addEventListener('hashchange', onPage)
+    return () => window.removeEventListener('hashchange', onPage)
+  }, [])
   return { cols, setCols, focus, setFocus }
 }
 
