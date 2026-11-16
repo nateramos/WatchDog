@@ -56,6 +56,18 @@ How WatchDog decides what to flag:
 - **Real footage, handled with care:** footage of an attack comes only from video that police and news outlets released publicly, and the Demo page shows it on one camera, once. Everyday footage comes from public research datasets (MEVA, filmed with consenting actors, and ShanghaiTech Campus). Sources are credited, no footage is kept in this repo, the Demo page warns before showing the attack, and its camera names are labeled as a sample layout rather than the real places'.
 - **Staged clips, never on campus:** home test clips use an orange-tipped prop gun and were filmed at home, not on campus.
 
+## Questions people ask
+
+**What happens when WatchDog gets it wrong?** If it misses a gun, that camera simply raises no alert, which is why WatchDog is an extra set of eyes, not a replacement for staff, procedures or 911. If it raises a false alarm, a reviewer sees the snapshot and clip and clicks Dismiss; nothing is sent anywhere, and the mistake is logged so it can be studied. A real case shows why this matters: in October 2025 another school's AI system flagged a student's bag of chips as a gun after hours, and police arrived with weapons drawn even though school security had already cancelled the alert ([CBS Baltimore](https://www.cbsnews.com/baltimore/news/ai-gun-detection-system-kenwood-high-school-mistakes-a-bag-of-chips)). In WatchDog, nothing leaves the reviewer's screen until a person decides.
+
+**Does it recognize faces?** No. It looks for guns, not people, and identifies no one.
+
+**Does video leave the school?** In the planned product, no: the model runs on a computer inside the building. In this prototype it runs in the viewer's own browser.
+
+**Does it call 911?** No. A person reviews the alert and the school follows its own emergency procedures.
+
+**Who is responsible if it misses something?** The school's staff and procedures stay in charge. WatchDog is sold as an assistive tool, not a guarantee; a real company would say so in its contracts and carry liability insurance.
+
 ## Results
 
 WatchDog was tested four ways: on 11,694 labeled images the model never trained on, on security footage from three real school shootings, on an hour of ordinary campus security footage with no guns, and on staged clips filmed at home. None of the test footage was used to train the model.
