@@ -1090,14 +1090,14 @@
   overflow: hidden;
 }
 
-/* Camera 1 sits in the top-left quarter of the screenshot */
+/* Camera 1 is the top-left tile of the screenshot (304 x 172 at 10,10 of 1282 x 379 pixels) */
 .lp-herowall-ring {
   position: absolute;
-  left: 0.2%;
-  top: 0.3%;
-  width: 24.2%;
-  height: 50%;
-  border-radius: 12px;
+  left: 0.78%;
+  top: 2.64%;
+  width: 23.71%;
+  height: 45.38%;
+  border-radius: 8px;
   box-shadow: 0 0 0 2px rgba(255, 90, 103, 0.9);
   animation: lp-ring 2s ease-out infinite;
 }

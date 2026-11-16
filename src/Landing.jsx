@@ -13,8 +13,8 @@ import { LogoMark } from './LogoMark.jsx'
 
 // The public front page: what WatchDog is, how it works, what it has shown in testing, and
 // a way into the real app. Everything behind the buttons (Cameras, Demo, Alerts) stays behind
-// the sign-in. Product images are real screenshots of the app; the camera showing the attacker
-// is blurred here, because this page is public and has no content warning in front of it.
+// the sign-in. Product images are real screenshots of the app; the attack footage isn't shown
+// here, because this page is public and has no content warning in front of it.
 // The school and security-office photos are AI-generated.
 
 const DEMO = '#/demo'
@@ -318,8 +318,9 @@ function Hero() {
   )
 }
 
-// The real camera wall from the prototype, with Camera 1 pulsing and its alert sliding in.
-// Camera 1 is blurred in the screenshot because this page has no content warning in front of it.
+// The real camera wall from the prototype, quiet, as it looks before anything happens; the
+// pulsing ring and the sliding alert card show WatchDog spotting a possible gun on Camera 1.
+// This page has no content warning in front of it, so the attack footage itself isn't shown.
 function HeroWall() {
   return (
     <motion.figure
@@ -337,7 +338,7 @@ function HeroWall() {
           <span className="lp-live">Demo replay</span>
         </div>
         <div className="lp-herowall-view">
-          <img src="/landing/wall-alert.jpg" alt="The WatchDog camera wall: Camera 1, West hallway, is outlined in red and marked Possible gun, Review, while the other cameras show ordinary school activity." />
+          <img src="/landing/wall-alert.jpg" alt="The WatchDog camera wall: eight school cameras, including a hallway, a cafeteria, a gym and outdoor walkways, two of them offline. An alert card points to Camera 1, West hallway." />
           <span className="lp-herowall-ring" aria-hidden="true" />
           <span className="lp-scan-beam lp-herowall-beam" aria-hidden="true" />
         </div>
