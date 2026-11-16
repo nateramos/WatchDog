@@ -22,6 +22,12 @@ export function StoreProvider({ children }) {
   // reviewed: start without them. Confirmed and dismissed rows are kept.
   const [log, setLog] = useState(() => readStored(LOG_KEY, []).filter((r) => r.decision !== 'pending'))
   const [reviewer, setReviewer] = useState(() => readStored(REVIEWER_KEY, ''))
+  // The current Demo run (0 until Start demo is first pressed), shared so the guide on the
+  // Alerts page knows where the visitor is too, and the run whose Review log they opened
+  // (the guide's last step). The guide can be hidden and shown again.
+  const [demoRun, setDemoRun] = useState(0)
+  const [logRun, setLogRun] = useState(0)
+  const [guideHidden, setGuideHidden] = useState(false)
   const scanning = useRef(null) // { id } of the scan that should keep going, or null
   const busy = useRef(false) // a scan is still running (even if cancelled)
   const canvas = useRef(null)
@@ -149,6 +155,12 @@ export function StoreProvider({ children }) {
     alerts,
     log,
     reviewer,
+    demoRun,
+    setDemoRun,
+    logRun,
+    setLogRun,
+    guideHidden,
+    setGuideHidden,
     addCamera,
     removeCamera,
     raiseAlert,

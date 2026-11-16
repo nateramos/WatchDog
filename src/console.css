@@ -960,3 +960,205 @@ kbd {
     width: auto;
   }
 }
+
+/* ---------- Demo guide (Guide.jsx) ---------- */
+.guide {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid rgba(77, 141, 255, 0.35);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(77, 141, 255, 0.1), rgba(77, 141, 255, 0.03));
+}
+
+.guide p {
+  margin: 0;
+}
+
+.guide a {
+  color: var(--accent-2);
+}
+
+.guide-count {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.guide-hide {
+  padding: 4px 2px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.guide-hide:hover {
+  color: var(--text);
+}
+
+/* Before the demo starts: a large panel with its own Start button */
+.guide-intro {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+}
+
+.guide-intro h3 {
+  margin: 4px 0 4px;
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.guide-intro p:not(.guide-count) {
+  color: var(--muted);
+}
+
+.guide-intro-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.guide-intro .con-start {
+  min-height: 48px;
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+}
+
+/* After: the five steps in a row, then what to do now */
+.guide-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.guide-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.guide-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--con-line);
+  border-radius: 50%;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.guide-steps .is-now {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.guide-steps .is-now .guide-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(77, 141, 255, 0.25);
+}
+
+.guide-steps .is-done .guide-dot {
+  border-color: rgba(53, 201, 138, 0.5);
+  color: var(--con-green);
+}
+
+.guide-now {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.guide-now p {
+  flex: 1 1 320px;
+}
+
+.guide-now-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guide-now .button {
+  min-height: 34px;
+  padding: 0.35rem 1rem;
+}
+
+@media (max-width: 760px) {
+  /* phones: the step counter in the text says where you are; the row of steps is too long */
+  .guide-steps {
+    display: none;
+  }
+
+  .guide-intro {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px;
+  }
+
+  .guide-intro-actions {
+    align-items: stretch;
+  }
+
+  .guide-now p {
+    flex-basis: 100%;
+  }
+}
+
+/* "Show guide": what is left of the guide after "Hide guide" */
+.guide-show-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.guide-show {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 6px;
+  border: 1px solid rgba(77, 141, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(77, 141, 255, 0.08);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.guide-show:hover {
+  background: rgba(77, 141, 255, 0.16);
+}
+
+.guide-show span {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}

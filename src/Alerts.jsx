@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import FlagCard from './FlagCard.jsx'
+import Guide from './Guide.jsx'
 import ReviewLog from './ReviewLog.jsx'
 import { cameraLabel } from './Cameras.jsx'
 import { useStore } from './store.jsx'
@@ -106,6 +107,8 @@ export default function Alerts() {
           )}
         </div>
       </section>
+
+      <Guide onAlerts inLog={tab === 'log'} onOpenLog={() => setTab('log')} />
 
       <p className="review-notice" role="note">
         <strong>Action is not taken until a CCTV operator reviews the alert.</strong> Nothing is sent

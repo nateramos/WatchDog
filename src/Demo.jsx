@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import Player, { drawBoxes } from './Player.jsx'
 import { AlertBanner, AlertBar, CameraFilters, NoMatch, OfflineTile, TileOverlay, WallButtons, place, useWall } from './Cameras.jsx'
+import Guide from './Guide.jsx'
 import { useStore } from './store.jsx'
 import { sightings } from './flags.js'
 import { NO_FILTERS, passes } from './search.js'
@@ -174,9 +175,8 @@ function DemoTile({ feed, run, started, hidden = false, onOpen }) {
 }
 
 export default function Demo() {
-  const { clearPending } = useStore()
-  const [started, setStarted] = useState(false)
-  const [run, setRun] = useState(0)
+  const { clearPending, demoRun: run, setDemoRun, guideHidden } = useStore()
+  const started = run > 0
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState(NO_FILTERS)
   const wall = [...FEEDS, ...OFFLINE]
@@ -188,8 +188,7 @@ export default function Demo() {
   // after leaving this page and coming back.
   function start() {
     clearPending(FEEDS.map((f) => f.id))
-    setRun(Date.now())
-    setStarted(true)
+    setDemoRun(Date.now())
   }
 
   const view = useWall()
@@ -198,6 +197,7 @@ export default function Demo() {
   return (
     <Shell>
       <AlertBanner />
+      <Guide onStart={start} />
 
       <section className="con-toolbar">
         <div className="con-toolbar-title">
@@ -215,7 +215,9 @@ export default function Demo() {
               Replay demo
             </button>
           ) : (
-            <button className="button button-primary con-start" onClick={start}>
+            // While the guide shows its own large Start button, this one stays plain, so the
+            // page has one obvious place to start.
+            <button className={guideHidden ? 'button button-primary con-start' : 'button'} onClick={start}>
               ▶ Start demo
             </button>
           )}
