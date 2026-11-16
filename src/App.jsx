@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import About from './About.jsx'
 import Alerts from './Alerts.jsx'
 import Cameras from './Cameras.jsx'
 import Demo from './Demo.jsx'
@@ -80,6 +79,5 @@ function Page({ route }) {
 function OtherPage({ route }) {
   if (route === '#/cameras') return <Cameras />
   if (route === '#/alerts') return <Alerts />
-  if (route === '#/about') return <About />
   return <Cameras />
 }

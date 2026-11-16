@@ -54,7 +54,6 @@ export function Shell({ children }) {
             {pending > 0 && <span className="count" aria-label={`${pending} need review`}>{pending}</span>}
           </a>
           <a href="#/demo">Demo</a>
-          <a href="#/about">About</a>
           <SignOutButton />
         </nav>
       </header>
