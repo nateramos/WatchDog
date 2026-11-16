@@ -1,4 +1,4 @@
-import { Shell } from './Layout.jsx'
+import { Shell, useNow } from './Layout.jsx'
 import Player from './Player.jsx'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from './store.jsx'
@@ -12,37 +12,100 @@ const STATUS_TEXT = {
   error: 'Error',
 }
 
-export function CameraTile({ camera, alertCount, pendingCount, onRemove, hidden = false }) {
-  const checking = camera.status === 'scanning'
+// Wall layout shared by the Cameras and Demo pages: how many cameras per row (2x2, 3x3, 4x4)
+// and which camera, if any, is open large. Esc returns to the wall.
+export function useWall() {
+  const [cols, setCols] = useState(4)
+  const [focus, setFocus] = useState(null)
+  useEffect(() => {
+    if (!focus) return
+    const onKey = (e) => e.key === 'Escape' && setFocus(null)
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [focus])
+  return { cols, setCols, focus, setFocus }
+}
+
+export function WallButtons({ wall }) {
+  const { cols, setCols, focus, setFocus } = wall
+  if (focus) {
+    return (
+      <button className="con-btn" onClick={() => setFocus(null)}>
+        ← Back to wall <kbd>Esc</kbd>
+      </button>
+    )
+  }
   return (
-    <article className={`camera ${pendingCount > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
-      <header className="camera-head">
-        <span className="camera-name">{camera.name}</span>
-        {pendingCount > 0 ? (
-          <a href="#/alerts" className="pill pill-threat">
-            Possible gun · Review
-          </a>
+    <div className="con-seg con-seg-layout" role="group" aria-label="Wall layout">
+      {[2, 3, 4].map((n) => (
+        <button key={n} className={cols === n ? 'is-on' : ''} aria-pressed={cols === n} onClick={() => setCols(n)}>
+          {n}×{n}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// "Camera 1 · West hallway" -> ["CAM 01", "West hallway"]
+export function cameraLabel(name) {
+  const [first, ...rest] = name.split(' · ')
+  const n = first.match(/\d+/)
+  return [n ? `CAM ${n[0].padStart(2, '0')}` : first.toUpperCase(), rest.join(' · ')]
+}
+
+// The text a real CCTV system burns onto the picture: camera ID and name, a status tag and,
+// on live feeds, a ticking timestamp. `tag` is what the feed really is: REPLAY, LIVE or OFFLINE.
+export function TileOverlay({ name, tag }) {
+  const now = useNow()
+  const [id, label] = cameraLabel(name)
+  const stamp = `${now.toLocaleDateString('en-CA')} ${now.toLocaleTimeString('en-GB')}`
+  return (
+    <div className="cctv-overlay" aria-hidden="true">
+      <span className="cctv-id">
+        <b>{id}</b> {label}
+      </span>
+      <span className="cctv-meta">
+        <span className={`cctv-tag cctv-tag-${tag.toLowerCase()}`}>{tag}</span>
+        {/* Replayed footage keeps its own recorded time; only live feeds get the clock. */}
+        {tag === 'LIVE' && <span className="cctv-time">{stamp}</span>}
+      </span>
+    </div>
+  )
+}
+
+// The red bar across a camera that has an alert waiting for review.
+export function AlertBar() {
+  return (
+    <a className="cctv-alertbar" href="#/alerts">
+      ⚠ POSSIBLE GUN · REVIEW
+    </a>
+  )
+}
+
+export function CameraTile({ camera, alertCount, pendingCount, onRemove, hidden = false }) {
+  // On the wall `status` is live/offline (for the Filters menu); the clip's own progress is
+  // kept in `scanStatus`.
+  const state = camera.scanStatus ?? camera.status
+  return (
+    <article className={`camera cctv ${pendingCount > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
+      <div className="cctv-screen">
+        {state === 'error' ? (
+          <p className="error camera-error">{camera.error}</p>
         ) : (
-          <span className={`pill pill-${camera.status}`}>
-            {STATUS_TEXT[camera.status]}
-            {checking && ` ${Math.round(camera.progress * 100)}%`}
-          </span>
+          <Player
+            src={camera.url}
+            timeline={camera.timeline}
+            step={camera.step}
+            ready={state === 'done'}
+            progress={camera.progress}
+            loop
+          />
         )}
-      </header>
-      {camera.status === 'error' ? (
-        <p className="error camera-error">{camera.error}</p>
-      ) : (
-        <Player
-          src={camera.url}
-          timeline={camera.timeline}
-          step={camera.step}
-          ready={camera.status === 'done'}
-          progress={camera.progress}
-          loop
-        />
-      )}
-      <footer className="camera-foot">
-        <span className="muted small" title={camera.fileName}>
+        <TileOverlay name={camera.name} tag={state === 'done' ? 'LIVE' : STATUS_TEXT[state]?.toUpperCase() || 'LIVE'} />
+        {pendingCount > 0 && <AlertBar />}
+      </div>
+      <footer className="cctv-foot">
+        <span>
           {alertCount > 0 ? (
             <a href="#/alerts" className="camera-alerts">
               {alertCount} alert{alertCount > 1 ? 's' : ''}
@@ -69,21 +132,15 @@ export function place(camera) {
 export function OfflineTile({ camera, hidden = false }) {
   const { name } = camera
   return (
-    <article className="camera camera-offline" hidden={hidden}>
-      <header className="camera-head">
-        <span className="camera-name">{name}</span>
-        <span className="pill">Offline</span>
-      </header>
-      <div className="offline-screen" role="img" aria-label={`${name} is offline`}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 3l18 18" />
-          <path d="M15 10.5 20 7v10l-1.5-1" />
-          <path d="M8.5 6H13a2 2 0 0 1 2 2v4.5M15 16a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2" />
-        </svg>
-        <span>Camera offline</span>
+    <article className="camera cctv camera-offline" hidden={hidden}>
+      <div className="cctv-screen">
+        <div className="offline-screen" role="img" aria-label={`${name} is offline`}>
+          <span className="no-signal">NO SIGNAL</span>
+        </div>
+        <TileOverlay name={name} tag="OFFLINE" />
       </div>
-      <footer className="camera-foot">
-        <span className="muted small">{place(camera) || 'No feed connected'}</span>
+      <footer className="cctv-foot">
+        <span>{place(camera) || 'No feed connected'}</span>
       </footer>
     </article>
   )
@@ -239,23 +296,37 @@ export default function Cameras() {
   const wall = [...live, ...offline]
   const shown = wall.filter((c) => passes(c, query, filters)).length
 
+  const view = useWall()
+  const isShown = (c) => passes(c, query, filters) && (!view.focus || view.focus === c.id)
+
   return (
     <Shell>
       <AlertBanner />
 
-      <section className="panel">
-        <h2>Cameras</h2>
-        <p className="muted">
-          Each camera's feed is checked about four times per second for a possible gun.
-          Anything WatchDog finds goes to <a href="#/alerts">Alerts</a>, where a person confirms
-          or dismisses it before anyone is called. Video is checked in this browser and never
-          uploaded.
-        </p>
-        <CameraFilters cameras={wall} query={query} onQuery={setQuery} filters={filters} onFilters={setFilters} />
+      <section className="con-toolbar">
+        <div className="con-toolbar-title">
+          <h2>Cameras</h2>
+          <span className="con-chip">
+            <i />
+            {live.length} of {wall.length} cameras connected
+          </span>
+        </div>
+        <div className="con-toolbar-tools">
+          <CameraFilters cameras={wall} query={query} onQuery={setQuery} filters={filters} onFilters={setFilters} />
+          <WallButtons wall={view} />
+        </div>
       </section>
 
+      {live.length === 0 && (
+        <p className="con-about con-note">
+          No live cameras are connected in this prototype. In a school, WatchDog would run on a
+          computer on site and check every camera about four times a second. To see it work on
+          real footage, open the <a href="#/demo">Demo</a>.
+        </p>
+      )}
+
       {shown === 0 && <NoMatch />}
-      <section className="camera-grid">
+      <section className={`camera-grid cols-${view.cols} ${view.focus ? 'is-single' : ''}`}>
         {live.map((camera) => (
           <CameraTile
             key={camera.id}
@@ -263,11 +334,11 @@ export default function Cameras() {
             alertCount={alerts.filter((a) => a.cameraId === camera.id).length}
             pendingCount={alerts.filter((a) => a.cameraId === camera.id && a.decision === 'pending').length}
             onRemove={() => removeCamera(camera.id)}
-            hidden={!passes(camera, query, filters)}
+            hidden={!isShown(camera)}
           />
         ))}
         {offline.map((camera) => (
-          <OfflineTile key={camera.id} camera={camera} hidden={!passes(camera, query, filters)} />
+          <OfflineTile key={camera.id} camera={camera} hidden={!isShown(camera)} />
         ))}
       </section>
     </Shell>

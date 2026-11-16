@@ -102,7 +102,6 @@ const Player = forwardRef(function Player({ src, timeline, step, ready, progress
       <video
         ref={videoRef}
         src={src}
-        controls={ready && autoPlay}
         loop={loop}
         crossOrigin="anonymous"
         muted

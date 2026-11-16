@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Shell } from './Layout.jsx'
 import Player, { drawBoxes } from './Player.jsx'
-import { AlertBanner, CameraFilters, NoMatch, OfflineTile, place } from './Cameras.jsx'
+import { AlertBanner, AlertBar, CameraFilters, NoMatch, OfflineTile, TileOverlay, WallButtons, place, useWall } from './Cameras.jsx'
 import { useStore } from './store.jsx'
 import { sightings } from './flags.js'
 import { NO_FILTERS, passes } from './search.js'
@@ -58,7 +58,7 @@ function snapshot(video, box) {
   return canvas.toDataURL('image/jpeg', 0.85)
 }
 
-function DemoTile({ feed, run, started, hidden = false }) {
+function DemoTile({ feed, run, started, hidden = false, onOpen }) {
   const { alerts, raiseAlert, updateAlert } = useStore()
   const [results, setResults] = useState(null)
   const [error, setError] = useState('')
@@ -137,34 +137,28 @@ function DemoTile({ feed, run, started, hidden = false }) {
 
   const pending = alerts.filter((a) => a.cameraId === feed.id && a.decision === 'pending').length
   return (
-    <article className={`camera ${pending > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
-      <header className="camera-head">
-        <span className="camera-name">{feed.name}</span>
-        {pending > 0 ? (
-          <a href="#/alerts" className="pill pill-threat">
-            Possible gun · Review
-          </a>
+    <article className={`camera cctv ${pending > 0 ? 'camera-alert' : ''}`} hidden={hidden}>
+      <div className="cctv-screen" onClick={onOpen} title={onOpen ? 'Open this camera large' : undefined}>
+        {error ? (
+          <p className="error camera-error">{error}</p>
         ) : (
-          <span className="pill pill-done">Replay</span>
+          <Player
+            ref={player}
+            src={feed.video}
+            timeline={results?.timeline ?? []}
+            step={results?.step ?? 0.25}
+            ready={Boolean(results)}
+            progress={0}
+            autoPlay={started && !holding}
+            loop={feed.loop}
+            onTimeUpdate={onTimeUpdate}
+          />
         )}
-      </header>
-      {error ? (
-        <p className="error camera-error">{error}</p>
-      ) : (
-        <Player
-          ref={player}
-          src={feed.video}
-          timeline={results?.timeline ?? []}
-          step={results?.step ?? 0.25}
-          ready={Boolean(results)}
-          progress={0}
-          autoPlay={started && !holding}
-          loop={feed.loop}
-          onTimeUpdate={onTimeUpdate}
-        />
-      )}
-      <footer className="camera-foot">
-        <span className="muted small">
+        <TileOverlay name={feed.name} tag="REPLAY" />
+        {pending > 0 && <AlertBar />}
+      </div>
+      <footer className="cctv-foot">
+        <span>
           {pending > 0 ? (
             <a href="#/alerts" className="camera-alerts">
               {pending} alert{pending > 1 ? 's' : ''} to review
@@ -198,54 +192,73 @@ export default function Demo() {
     setStarted(true)
   }
 
+  const view = useWall()
+  const isShown = (c) => passes(c, query, filters) && (!view.focus || view.focus === c.id)
+
   return (
     <Shell>
       <AlertBanner />
 
-      <section className="panel">
-        <h2>Demo</h2>
-        <p className="muted">
-          A school's camera wall replaying a saved WatchDog run. Camera 1 shows security camera
-          footage that police released after the 2023 Covenant School shooting in Nashville (via
-          The Washington Post); the other cameras show ordinary people. The boxes and alerts are
-          WatchDog's real results from the same model and rules as a live check, saved ahead of
-          time so the demo plays instantly. When an alert appears, open{' '}
-          <a href="#/alerts">Alerts</a> to confirm or dismiss it. Press Start demo to begin.
-        </p>
-        <p className="muted small">Contains real footage of an armed attacker inside a school.</p>
-        <div className="actions actions-left">
+      <section className="con-toolbar">
+        <div className="con-toolbar-title">
+          <h2>Demo replay</h2>
+          <span className="con-chip">
+            <i className="dot-replay" />
+            {FEEDS.length} of {wall.length} cameras replaying
+          </span>
+        </div>
+        <div className="con-toolbar-tools">
+          <CameraFilters cameras={wall} query={query} onQuery={setQuery} filters={filters} onFilters={setFilters} />
+          <WallButtons wall={view} />
           {started ? (
             <button className="button" onClick={start}>
               Replay demo
             </button>
           ) : (
-            <button className="button button-primary" onClick={start}>
+            <button className="button button-primary con-start" onClick={start}>
               ▶ Start demo
             </button>
           )}
         </div>
-        <CameraFilters cameras={wall} query={query} onQuery={setQuery} filters={filters} onFilters={setFilters} />
-        <p className="muted small">
-          Camera names and locations are a sample building layout, not the real school's. Only
+      </section>
+
+      <p className="con-warning" role="note">
+        <b>Content note</b> Camera 1 shows real security footage of an armed attacker inside a
+        school, released by police after the 2023 Covenant School shooting in Nashville (via The
+        Washington Post).
+      </p>
+
+      <details className="con-about">
+        <summary>About this demo</summary>
+        <p>
+          A school&rsquo;s camera wall replaying a saved WatchDog run. The boxes and alerts are
+          WatchDog&rsquo;s real results from the same model and rules as a live check, saved ahead
+          of time so the demo plays instantly on any laptop. Press Start demo: about 10 seconds in,
+          Camera 1 plays and raises its alerts. Open <a href="#/alerts">Alerts</a> to confirm or
+          dismiss them.
+        </p>
+        <p>
+          Camera names and locations are a sample building layout, not the real school&rsquo;s. Only
           Camera 1 shows the attacker. Cameras 2 to 6 show ordinary people from two public
           datasets, MEVA (an indoor school building, filmed with actors) and ShanghaiTech Campus
           (outdoor walkways), to show WatchDog staying quiet on everyday footage.
         </p>
-      </section>
+      </details>
 
       {shown === 0 && <NoMatch />}
-      <section className="camera-grid">
+      <section className={`camera-grid cols-${view.cols} ${view.focus ? 'is-single' : ''}`}>
         {FEEDS.map((feed) => (
           <DemoTile
             key={feed.id}
             feed={feed}
             run={run}
             started={started}
-            hidden={!passes(feed, query, filters)}
+            hidden={!isShown(feed)}
+            onOpen={view.focus ? undefined : () => view.setFocus(feed.id)}
           />
         ))}
         {OFFLINE.map((camera) => (
-          <OfflineTile key={camera.id} camera={camera} hidden={!passes(camera, query, filters)} />
+          <OfflineTile key={camera.id} camera={camera} hidden={!isShown(camera)} />
         ))}
       </section>
     </Shell>

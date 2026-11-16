@@ -299,3 +299,411 @@
     display: none;
   }
 }
+
+/* ---------- CCTV camera tiles (Cameras and Demo walls) ---------- */
+.camera.cctv {
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--con-line);
+  background: #05080d;
+}
+
+.cctv-screen {
+  position: relative;
+  background: #000;
+}
+
+.cctv-screen .player {
+  border-radius: 0;
+}
+
+.cctv-screen .player video,
+.cctv-screen .player canvas {
+  border-radius: 0;
+}
+
+/* Text burned onto the picture, like a real CCTV feed */
+.cctv-overlay {
+  position: absolute;
+  inset: 0 0 auto 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 6px 8px;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: #fff;
+  text-shadow: 0 1px 2px #000, 0 0 4px #000;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent);
+}
+
+.cctv-id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cctv-id b {
+  color: #fff;
+  font-weight: 700;
+}
+
+.cctv-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  flex: none;
+}
+
+.cctv-tag {
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: none;
+}
+
+.cctv-tag-replay {
+  background: rgba(99, 197, 232, 0.85);
+  color: #04121a;
+}
+
+.cctv-tag-live {
+  background: var(--con-red);
+  color: #fff;
+}
+
+.cctv-tag-offline {
+  background: rgba(154, 168, 186, 0.35);
+  color: #e6ebf2;
+}
+
+.cctv-tag-waiting,
+.cctv-tag-checking {
+  background: var(--con-amber);
+  color: #241500;
+}
+
+.cctv-time {
+  font-variant-numeric: tabular-nums;
+}
+
+/* No feed: static and NO SIGNAL */
+.camera.cctv .offline-screen {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 0;
+  overflow: hidden;
+  background: #0a0c10;
+}
+
+.camera.cctv .offline-screen::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background-image:
+    repeating-radial-gradient(circle at 17% 32%, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 3px),
+    repeating-radial-gradient(circle at 73% 61%, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 2px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.03) 0 1px, transparent 1px 3px);
+  animation: cctv-static 0.35s steps(4) infinite;
+}
+
+.no-signal {
+  position: relative;
+  padding: 4px 10px;
+  border: 1px solid rgba(230, 235, 242, 0.35);
+  background: rgba(0, 0, 0, 0.55);
+  color: #d4dbe5;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+}
+
+@keyframes cctv-static {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-3%, 2%); }
+  50% { transform: translate(2%, -3%); }
+  75% { transform: translate(-1%, -1%); }
+  100% { transform: translate(3%, 1%); }
+}
+
+/* A camera with a possible gun waiting for review */
+.camera.cctv.camera-alert {
+  border-color: var(--con-red);
+  animation: cctv-alert 1.1s ease-in-out infinite;
+}
+
+@keyframes cctv-alert {
+  0%, 100% { box-shadow: 0 0 0 1px var(--con-red), 0 0 18px rgba(255, 90, 103, 0.55); }
+  50% { box-shadow: 0 0 0 2px var(--con-red), 0 0 32px rgba(255, 90, 103, 0.85); }
+}
+
+/* Below the picture, never on top of it: the footage is what the reviewer needs to see. */
+.cctv-alertbar {
+  display: block;
+  padding: 6px 8px;
+  background: rgba(220, 38, 54, 0.9);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cctv-alertbar:hover {
+  background: #e5303f;
+}
+
+.cctv-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 6px 10px;
+  border-top: 1px solid var(--con-line);
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.cctv-foot .link-button {
+  font-size: 0.72rem;
+}
+
+.camera-grid {
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .camera.cctv .offline-screen::before,
+  .camera.cctv.camera-alert {
+    animation: none;
+  }
+}
+
+/* ---------- Page toolbar (Demo, Cameras) ---------- */
+.con-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+  padding: 10px 12px;
+  border: 1px solid var(--con-line);
+  border-radius: 10px;
+  background: var(--con-bar);
+}
+
+.con-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.con-toolbar h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.con-toolbar-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.con-toolbar .camera-search {
+  margin: 0;
+}
+
+.con-toolbar .search-box {
+  width: 200px;
+}
+
+.con-toolbar .search-box input,
+.con-toolbar .filter-button {
+  min-height: 34px;
+  border-radius: 8px;
+}
+
+.dot-replay {
+  background: var(--accent-2) !important;
+  box-shadow: 0 0 8px var(--accent-2);
+}
+
+.con-seg {
+  display: inline-flex;
+  border: 1px solid var(--con-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.con-seg button {
+  padding: 0 10px;
+  min-height: 34px;
+  border: none;
+  border-right: 1px solid var(--con-line);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.con-seg button:last-child {
+  border-right: none;
+}
+
+.con-seg button.is-on {
+  background: rgba(77, 141, 255, 0.18);
+  color: var(--text);
+}
+
+.con-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--con-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+kbd {
+  padding: 0 5px;
+  border: 1px solid var(--con-line);
+  border-radius: 4px;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+}
+
+.con-start {
+  min-height: 34px;
+  box-shadow: 0 0 0 0 rgba(77, 141, 255, 0.6);
+  animation: con-pulse 2s ease-out infinite;
+}
+
+@keyframes con-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(77, 141, 255, 0.55); }
+  100% { box-shadow: 0 0 0 12px rgba(77, 141, 255, 0); }
+}
+
+/* Notices (content note on Demo, the review rule on Alerts): console panels with a thin
+   accent line, not bright boxes. */
+.con-warning,
+.console .review-notice {
+  margin: 0;
+  padding: 9px 14px;
+  border: 1px solid var(--con-line);
+  border-left: 3px solid rgba(199, 208, 220, 0.55);
+  border-radius: 8px;
+  background: var(--con-bar);
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.con-warning b,
+.console .review-notice strong {
+  margin-right: 0.35rem;
+  color: var(--text);
+}
+
+.con-warning b {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* the review rule is the one Yoest asked to be clearly visible: a brighter accent line */
+.console .review-notice {
+  border-left-color: var(--accent);
+}
+
+.con-about {
+  border: 1px solid var(--con-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.con-about summary {
+  padding: 8px 12px;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.con-about p {
+  margin: 0;
+  padding: 0 12px 10px;
+}
+
+/* Wall layout: 2x2 / 3x3 / 4x4, or one camera open large */
+@media (min-width: 761px) {
+  .camera-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .camera-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .camera-grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.camera-grid.is-single {
+  grid-template-columns: minmax(0, 1fr) !important;
+  max-width: 1100px;
+}
+
+.camera-grid:not(.is-single) .cctv-screen {
+  cursor: zoom-in;
+}
+
+.camera-grid.is-single .cctv-overlay {
+  font-size: 0.85rem;
+}
+
+@media (max-width: 760px) {
+  .con-toolbar .search-box {
+    width: 100%;
+  }
+
+  .con-toolbar-tools {
+    width: 100%;
+  }
+
+  /* one camera per row on phones, so the 2x2 / 3x3 / 4x4 buttons aren't needed */
+  .con-seg-layout {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .con-start {
+    animation: none;
+  }
+}
+
+.con-note {
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.con-note {
+  margin: 0;
+  padding: 10px 12px;
+}
