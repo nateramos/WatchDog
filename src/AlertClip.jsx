@@ -24,6 +24,10 @@ export default function AlertClip({ recording }) {
   pausedRef.current = paused
   const pendingSeek = useRef(null) // where the slider was dragged while a seek was still loading
   const { src, start, end, timeline, step } = recording
+  // Until the reviewer first plays or drags the clip, a Play label sits over it. After that
+  // the picture stays clear, so pausing to study a frame isn't blocked.
+  const [touched, setTouched] = useState(false)
+  useEffect(() => setTouched(false), [src, start])
 
   useEffect(() => {
     const video = videoRef.current
@@ -83,6 +87,7 @@ export default function AlertClip({ recording }) {
   }, [src, start, end, timeline, step])
 
   function toggle() {
+    setTouched(true)
     const video = videoRef.current
     if (paused) {
       if (video.currentTime >= end || video.currentTime < start) video.currentTime = start
@@ -94,6 +99,7 @@ export default function AlertClip({ recording }) {
   }
 
   function scrub(event) {
+    setTouched(true)
     const video = videoRef.current
     if (!paused) {
       video.pause()
@@ -110,6 +116,13 @@ export default function AlertClip({ recording }) {
       <div className="player">
         <video ref={videoRef} src={src} crossOrigin="anonymous" muted playsInline preload="auto" />
         <canvas ref={canvasRef} aria-hidden="true" />
+        {/* A Play label in the middle of the picture before the first play: the button under
+            the clip was easy to miss. */}
+        {paused && !touched && (
+          <button type="button" className="clip-big-play" onClick={toggle} aria-label="Play the clip">
+            <span aria-hidden="true">▶ Play clip</span>
+          </button>
+        )}
       </div>
       <input
         ref={barRef}
@@ -123,8 +136,8 @@ export default function AlertClip({ recording }) {
         aria-label="Move through the clip"
       />
       <figcaption className="clip-caption muted small">
-        <button className="button clip-toggle" onClick={toggle} aria-pressed={paused}>
-          {paused ? '▶ Play' : '❚❚ Pause'}
+        <button className={`con-btn clip-toggle ${paused ? 'is-ready' : ''}`} onClick={toggle} aria-pressed={paused}>
+          {paused ? '▶ Play clip' : '❚❚ Pause'}
         </button>
         Clip {formatTime(start)}–{formatTime(end)} of the feed
       </figcaption>

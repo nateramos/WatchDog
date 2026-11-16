@@ -519,6 +519,43 @@ h3 {
   font-size: 0.85rem;
 }
 
+/* the Play over a paused alert clip, styled like the CCTV labels on the camera tiles */
+.clip-big-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  border: 0;
+  background: rgba(7, 9, 15, 0.3);
+  cursor: pointer;
+}
+
+.clip-big-play span {
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 3px;
+  background: rgba(7, 11, 18, 0.78);
+  color: #fff;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.clip-big-play:hover span,
+.clip-big-play:focus-visible span {
+  border-color: var(--accent);
+  background: rgba(7, 11, 18, 0.92);
+}
+
+/* the console Play button under the clip: a thin blue edge while there is something to play */
+.clip-toggle.is-ready {
+  border-color: rgba(77, 141, 255, 0.6);
+  color: #fff;
+}
+
 .clip-scrub {
   --pct: 0%;
   display: block;
