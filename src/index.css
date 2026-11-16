@@ -351,6 +351,55 @@ input:focus-visible {
   color: var(--text);
 }
 
+.signout {
+  display: inline-flex;
+  align-items: center;
+}
+
+.signout:hover {
+  color: var(--text);
+}
+
+.signout-icon {
+  display: none;
+}
+
+/* Phones: logo without the word, tighter links and a door icon for Sign out, so the whole
+   nav stays on one row and the Alerts count is always visible. */
+@media (max-width: 640px) {
+  .topbar {
+    gap: 0.75rem;
+  }
+
+  .brand-name {
+    display: none;
+  }
+
+  .nav {
+    flex-wrap: nowrap;
+    gap: 0 0.9rem;
+  }
+
+  .nav a {
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+
+  .signout-icon {
+    display: block;
+  }
+
+  /* still read out by screen readers */
+  .signout-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
 .content {
   flex: 1;
   width: 100%;
@@ -1453,4 +1502,12 @@ td.decision-dismissed::first-letter,
 td.decision-pending::first-letter,
 td.detected::first-letter {
   text-transform: uppercase;
+}
+
+/* Smallest phones (iPhone SE, 320px): smaller gaps so a two-digit Alerts count still
+   fits on one row. */
+@media (max-width: 374px) {
+  .nav {
+    gap: 0 0.6rem;
+  }
 }

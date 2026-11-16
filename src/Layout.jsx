@@ -17,10 +17,21 @@ export function PrototypeNotice() {
   )
 }
 
+// On phones the label hides and only the door icon shows, so the nav fits on one row.
 export function SignOutButton() {
   return (
-    <button className="link-button" onClick={() => signOut()}>
-      Sign out
+    <button className="link-button signout" onClick={() => signOut()} title="Sign out">
+      <svg className="signout-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path
+          d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M16 16l4-4-4-4M20 12H10"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+      <span className="signout-label">Sign out</span>
     </button>
   )
 }
@@ -34,7 +45,7 @@ export function Shell({ children }) {
       <header className="topbar">
         <a className="brand" href="#/">
           <LogoMark size={30} />
-          <span>WatchDog</span>
+          <span className="brand-name">WatchDog</span>
         </a>
         <nav className="nav">
           <a href="#/cameras">Cameras</a>
