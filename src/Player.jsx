@@ -1,11 +1,13 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import { boxesAt } from './boxes.js'
 
-// Red boxes around each detection, each with a "POSSIBLE GUN 84%" tag sitting on top of
-// the box (or under it when the box touches the top edge), drawn in a canvas `scale` times
-// the video size. The tags stay next to their box so they never cover the timestamp that
-// CCTV cameras burn into a corner of the picture.
-export function drawBoxes(ctx, boxes, scale) {
+// Red boxes around each detection, drawn in a canvas `scale` times the video size. With
+// `tag` (the default) each box also gets a "POSSIBLE GUN 84%" tag sitting on top of it (or
+// under it when the box touches the top edge), next to the box so it never covers the
+// timestamp CCTV cameras burn into a corner. The camera walls draw boxes only: the tile's
+// red border and "Possible gun · Review" badge already say what it is, and the score is
+// shown on the Alerts page where the reviewer decides.
+export function drawBoxes(ctx, boxes, scale, { tag = true } = {}) {
   const { width, height } = ctx.canvas
   const line = Math.max(2, width / 240)
   const textHeight = Math.round(Math.max(11, width / 70))
@@ -21,6 +23,7 @@ export function drawBoxes(ctx, boxes, scale) {
     ctx.strokeStyle = '#f43f5e'
     ctx.lineWidth = line
     ctx.strokeRect(x, y, w, h)
+    if (!tag) continue
 
     const label = `POSSIBLE ${box.label.toUpperCase()} ${Math.round(box.confidence * 100)}%`
     const tagWidth = ctx.measureText(label).width + pad * 2
@@ -89,7 +92,7 @@ const Player = forwardRef(function Player({ src, timeline, step, ready, progress
         const ctx = canvas.getContext('2d')
         ctx.clearRect(0, 0, w, h)
         const { timeline, step } = data.current
-        drawBoxes(ctx, boxesAt(timeline, video.currentTime, step), scale)
+        drawBoxes(ctx, boxesAt(timeline, video.currentTime, step), scale, { tag: false })
       }
       frame = requestAnimationFrame(draw)
     }
