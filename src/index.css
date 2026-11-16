@@ -1504,9 +1504,14 @@ td.detected::first-letter {
   text-transform: uppercase;
 }
 
-/* Smallest phones (iPhone SE, 320px): smaller gaps so a two-digit Alerts count still
-   fits on one row. */
+/* Smallest phones (iPhone SE, 320px): a slightly smaller logo and gaps so a two-digit
+   Alerts count still fits on one row. */
 @media (max-width: 374px) {
+  .brand svg {
+    width: 32px;
+    height: 32px;
+  }
+
   .nav {
     gap: 0 0.6rem;
   }

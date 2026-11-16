@@ -44,7 +44,7 @@ export function Shell({ children }) {
       <PrototypeNotice />
       <header className="topbar">
         <a className="brand" href="#/">
-          <LogoMark size={30} />
+          <LogoMark size={38} />
           <span className="brand-name">WatchDog</span>
         </a>
         <nav className="nav">
