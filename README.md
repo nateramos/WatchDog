@@ -137,6 +137,51 @@ In the web demo the model runs on the viewer's own computer, so speed depends on
 
 No detector is perfect, which is why a person reviews every flag.
 
+## Business model
+
+**Who it's for:** every kind of school: K-12 districts, private schools, and colleges and their campus police. The people using it are the school's own security staff.
+
+**Plans** (prototype pricing):
+
+| | Price |
+| --- | --- |
+| Base fee, per school | $200 a month |
+| School Day (class hours on school days) | $20 per camera a month |
+| Extended (adds evenings, games and events) | $25 per camera a month |
+| Always On (around the clock, for colleges and districts) | $30 per camera a month |
+| On-site computer | $2,500 each, about one per 20 cameras, set up for free |
+| Founding schools | The first five schools pay 50% for their first year, in return for honest feedback |
+
+**What the fees pay for:** the computer is the hardware (a desktop with a gaming-class NVIDIA graphics card costs about $850–1,000 ([PC Gamer](https://pcgamer.com/hardware/gaming-pcs/for-just-under-dollar860-you-can-have-this-little-rtx-4060-gaming-pc-to-get-into-one-of-the-best-hobbies-in-the-world))) plus shipping, setup and staff training. The base fee covers support, health checks on the computer, the dashboard, phone alerts and model updates. The per-camera fee scales with how much the school watches.
+
+| Example (School Day) | Setup | Every year | Founding first year |
+| --- | --- | --- | --- |
+| 10 cameras (small private school) | $2,500 | $4,800 | $2,400 |
+| 40 cameras | $5,000 | $12,000 | $6,000 |
+
+**How it's installed:** we ship the computer ready to go, the school's IT staff plug it into the camera network, and we finish setup remotely. For harder sites we work with the company that installed the school's cameras.
+
+**Billing:** once a year at the start of the school year, or quarterly, paid in advance. We help schools apply for state and federal school-safety grants, which often pay for systems like this.
+
+**Every month** each school gets a short report: alerts raised, how fast staff reviewed them, false alarms dismissed, and whether the computer stayed online.
+
+**Why not the cloud:** a cloud GPU (one T4) costs about $0.53 an hour, about $384 a month, which at about 20 cameras per GPU is about $19 per camera a month in computing alone, almost the whole School Day price. It would also send school video off-site. An on-site computer is a one-time cost and keeps video in the building.
+
+**Growth:** start with schools near Washington, D.C., then partner with the companies that already sell cameras to schools, so WatchDog can come built into the systems schools buy.
+
+**Licensing note:** some training datasets allow research or non-commercial use only (see [Training data](#training-data)); a commercial version would retrain without them.
+
+### How WatchDog compares
+
+| | WatchDog | ZeroEyes | Omnilert |
+| --- | --- | --- | --- |
+| Price | $20–30 per camera a month, plus $200 a month per school | "Typically costs less than $60 per camera each month" ([KCRG, 2025](https://www.kcrg.com/2025/10/29/cedar-rapids-school-implements-ai-gun-detection-software/)); public contracts about $14–49 ([StateScoop records via NewsBreak](https://www.newsbreak.com/lehigh-daily-349556326/4947359870785-allentown-charter-school-adds-zeroeyes-ai-gun-detection-to-campus-cameras)) | "$500 per camera stream per year" ([EdWeek, 2025](https://www.edweek.org/technology/ai-in-school-security-a-new-tool-with-big-questions/2025/08)) |
+| Example contract | 40 cameras: $12,000 a year + $5,000 setup | A two-school Iowa district: $22,500 a year for up to 38 cameras + $5,000 setup | Baltimore County schools: about $2.66 million for about 7,000 cameras, including monitoring ([Center Maryland](https://centermaryland.org/2023/baltimore-county-schools-adds-2-66m-technology-purporting-to-detect-guns-using-ai-to-7000-cameras)) |
+| Who reviews alerts | The school's own staff | ZeroEyes' 24/7 operations center, analysts "many with law enforcement and military backgrounds" ([ZeroEyes](https://zeroeyes.com/operations-center)) | Software, with a paid monitoring service available |
+| Where the model runs | A computer inside the school | Not compared | Not compared |
+
+ZeroEyes and Omnilert are established products with years of real deployments and far more training data; WatchDog is a student prototype. Its case is price, privacy (video stays in the building) and keeping the school's own people in charge. Prices come from news reports and public contracts, since neither company publishes a price list.
+
 ## Rubric alignment
 
 Fall 2026 judging rubric (100 points, plus up to 5 bonus):
@@ -144,11 +189,11 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 | Category | Weight | How WatchDog addresses it |
 | --- | --- | --- |
 | Functionality & technical execution | 25% | Live on AWS Amplify behind a working Cognito sign-in with a one-click judge account. A camera wall with search and filters, a Demo page replaying real CCTV, an Alerts inbox with a snapshot, a scrubbable clip and signed confirm/dismiss, and an exportable review log. Model Dublin runs in the browser with ONNX Runtime Web. |
-| Problem identification & relevance | 20% | Campus safety: point a person at the moment a camera may show a gun. Tested on security footage from three real school shootings (an alert on all five clips, all on the real gun) and on 42 staged clips with dim light and everyday look-alike objects. |
+| Problem identification & relevance | 20% | Campus safety: most active shooter incidents end within five minutes (FBI) and 93% of public schools already have cameras (NCES), but no one can watch every feed. WatchDog points a person at the moment a camera may show a gun ([Why WatchDog was built](#why-watchdog-was-built)). Tested on security footage from three real school shootings (an alert on all five clips, all on the real gun) and on 42 staged clips with dim light and everyday look-alike objects. |
 | AI integration & innovation | 20% | Model Dublin (YOLO11m) trained for 50 epochs on about 146,000 weapon images and 49,000 look-alike photos; a second check on a rotated frame for upright guns; a two-in-a-row rule; a CCTV size limit; alerts raised at the first sighting and upgraded as clearer frames arrive; detection boxes interpolated between checked frames. |
 | Code quality & GitHub transparency | 15% | Small single-purpose modules, 33 unit tests, CI on every push, and a step-by-step public commit history. Training data sources, licenses, the training chart and test results are in the repo; real footage is kept out of it. |
 | UX & design | 10% | A security-console layout: camera wall with search and a Filters menu, a red alert banner and an Alerts badge, alert clips with pause and frame-by-frame scrubbing, a reviewer-name prompt, and a layout that uses wide screens and works on phones. |
-| Business impact & presentation | 10% | No server or per-camera cloud cost: detection runs on the viewer's device. |
+| Business impact & presentation | 10% | A priced plan for every kind of school ($200 a month per school plus $20–30 per camera, $2,500 per on-site computer), a cost calculator on the home page, about half what a public contract for a similar system costs, and a sourced comparison with ZeroEyes and Omnilert ([Business model](#business-model)). |
 | Bonus: ethical AI | up to 5 | A person confirms every alert and signs each decision, everything is logged, "possible gun" wording and "Demo replay" tags, no facial recognition, video never sent to a server, attack footage only from public police and news releases and everyday footage only from public research datasets, all credited and kept out of the repo. |
 
 ## Roadmap
