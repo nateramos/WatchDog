@@ -131,9 +131,11 @@ In early testing, dark doorways in dim light caused most false alarms. The CCTV 
 
 ## Speed
 
-On a cloud GPU (NVIDIA T4), Model Dublin checks a frame in about 0.3 seconds. In the web demo it runs on the viewer's own computer, so speed depends on that device.
+In the web demo the model runs on the viewer's own computer, so speed depends on that device (about 1.9 seconds per frame on a 2020 MacBook Air).
 
-This is why a person reviews every flag: no detector is perfect, and WatchDog leaves the decision to a human.
+**One computer handles about 20 cameras.** On a cloud GPU (NVIDIA T4), Model Dublin takes 24.6 ms per check, about 41 checks a second (measured 15 November 2026 with ONNX Runtime, no extra optimization). A deployed WatchDog checks each camera twice a second, which still sees a gun within half a second of it appearing, so one GPU covers about 20 cameras. The demo checks more often (four times a second, plus a turned view for upright guns), which costs about four times as much computing. NVIDIA's TensorRT and checking only when something moves would raise the camera count further; we haven't measured that yet.
+
+No detector is perfect, which is why a person reviews every flag.
 
 ## Rubric alignment
 
