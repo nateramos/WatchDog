@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
-import { MotionConfig, motion, useScroll, useTransform } from 'framer-motion'
+import {
+  MotionConfig,
+  animate,
+  motion,
+  useInView,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+} from 'framer-motion'
 import './landing.css'
 import { LogoMark } from './LogoMark.jsx'
 
@@ -22,6 +30,173 @@ const rise = {
 }
 const delayed = (i) => ({ ...rise, transition: { ...rise.transition, delay: 0.08 * i } })
 
+// A section heading that brightens from grey to white as it scrolls up into view.
+function FadeHeading({ className, children, ...motionProps }) {
+  const ref = useRef(null)
+  const reduce = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 95%', 'start 55%'] })
+  const color = useTransform(scrollYProgress, [0, 1], ['#56606f', '#f5f7fa'])
+  return (
+    <motion.h2 ref={ref} className={className} style={reduce ? undefined : { color }} {...motionProps}>
+      {children}
+    </motion.h2>
+  )
+}
+
+// A huge, faint outlined word behind a section that drifts sideways as the page scrolls.
+function BigWord({ children }) {
+  const ref = useRef(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const x = useTransform(scrollYProgress, [0, 1], ['6%', '-6%'])
+  return (
+    <div className="lp-bigword" ref={ref} aria-hidden="true">
+      <motion.span style={{ x }}>{children}</motion.span>
+    </div>
+  )
+}
+
+// Counts a stat up from zero the first time it scrolls into view ("99.8%", "8 of 8", "0.874").
+function CountUp({ value }) {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, margin: '-60px' })
+  const reduce = useReducedMotion()
+  const commas = /^\d{1,3}(,\d{3})+/.test(value)
+  const [, digits, rest] = value.replace(/,/g, '').match(/^([\d.]+)(.*)$/) || [null, '0', value]
+  const target = parseFloat(digits)
+  const decimals = (digits.split('.')[1] || '').length
+  const show = (n) => (commas ? Math.round(n).toLocaleString('en-US') : n.toFixed(decimals))
+  const [shown, setShown] = useState(0)
+  useEffect(() => {
+    if (!inView || reduce) return
+    const run = animate(0, target, { duration: 1.6, ease: [0.22, 1, 0.36, 1], onUpdate: setShown })
+    return () => run.stop()
+  }, [inView, reduce, target])
+  const text = show(reduce ? target : shown)
+  return (
+    <span className="lp-stat-value" ref={ref}>
+      <span className="lp-sr">{value}</span>
+      <span aria-hidden="true">
+        {text}
+        {rest}
+      </span>
+    </span>
+  )
+}
+
+// How WatchDog moves footage: every frame goes from the cameras to WatchDog, and only a possible
+// gun travels on to a person, who confirms or dismisses it. Pure CSS animation (landing.css).
+function Pipeline() {
+  return (
+    <motion.figure className="lp-pipe" {...delayed(2)} aria-label="Camera frames go to WatchDog; only a possible gun goes on to a reviewer, who confirms or dismisses it.">
+      <div className="lp-pipe-node">
+        <span className="lp-pipe-icon">
+          <StepIcon kind="cam" />
+        </span>
+        <h3>School cameras</h3>
+        <p>Existing feeds</p>
+      </div>
+      <div className="lp-pipe-link" aria-hidden="true">
+        <span className="lp-pipe-tag">Every frame</span>
+        <i className="lp-packet" />
+        <i className="lp-packet" />
+        <i className="lp-packet" />
+      </div>
+      <div className="lp-pipe-node lp-pipe-core">
+        <span className="lp-pipe-icon lp-pipe-logo">
+          <LogoMark size={44} />
+        </span>
+        <h3>WatchDog</h3>
+        <p>Checks four frames a second</p>
+      </div>
+      <div className="lp-pipe-link lp-pipe-link-alert" aria-hidden="true">
+        <span className="lp-pipe-tag">Possible gun only</span>
+        <i className="lp-packet lp-packet-alert" />
+      </div>
+      <div className="lp-pipe-node lp-pipe-person">
+        <span className="lp-pipe-icon">
+          <StepIcon kind="eye" />
+        </span>
+        <h3>Reviewer</h3>
+        <p>Confirms or dismisses</p>
+        <div className="lp-pipe-decision" aria-hidden="true">
+          <span className="lp-pipe-chip">Possible gun · Review</span>
+          <span className="lp-pipe-buttons">
+            <b>Confirm</b>
+            <b>Dismiss</b>
+          </span>
+        </div>
+      </div>
+    </motion.figure>
+  )
+}
+
+// A wall of ordinary campus cameras being checked: a scan beam sweeps across, each camera is
+// marked clear as it passes, and the frame counter climbs while "possible guns" stays at zero.
+// The footage is the same ordinary CCTV as the one-hour false-alarm test.
+const WALL_COLS = 3
+const WALL_ROWS = 4
+const SWEEP_MS = 3200
+const HOLD_MS = 1400
+
+function ScanWall() {
+  const ref = useRef(null)
+  const inView = useInView(ref, { margin: '-40px' })
+  const reduce = useReducedMotion()
+  const [beam, setBeam] = useState(reduce ? 1.2 : 0)
+  const [frames, setFrames] = useState(0)
+  useEffect(() => {
+    if (!inView || reduce) return
+    const start = performance.now()
+    let raf
+    const tick = (now) => {
+      const t = (now - start) % (SWEEP_MS + HOLD_MS)
+      setBeam(t < SWEEP_MS ? t / SWEEP_MS : 1.2)
+      // 12 cameras checked about four times a second each
+      setFrames(Math.floor(((now - start) / 1000) * WALL_COLS * WALL_ROWS * 4))
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [inView, reduce])
+  const cells = []
+  for (let r = 0; r < WALL_ROWS; r += 1) {
+    for (let c = 0; c < WALL_COLS; c += 1) {
+      const clear = beam > (c + 0.5) / WALL_COLS
+      cells.push(<span key={`${r}-${c}`} className={`lp-scan-cell ${clear ? 'is-clear' : ''}`}>{clear && '✓ Clear'}</span>)
+    }
+  }
+  return (
+    <motion.figure className="lp-scan" ref={ref} {...delayed(2)}>
+      <div className="lp-window">
+        <div className="lp-window-bar lp-scan-bar">
+          <i />
+          <i />
+          <i />
+          <span>WatchDog · checking 12 ordinary cameras</span>
+          <span className="lp-scan-stats">
+            <span>
+              frames checked <b>{reduce ? '–' : frames.toLocaleString('en-US')}</b>
+            </span>
+            <span>
+              possible guns <b className="lp-scan-zero">0</b>
+            </span>
+          </span>
+        </div>
+        <div className="lp-scan-view">
+          <img src="/landing/footage-wall-tall.jpg" alt="Twelve ordinary campus security cameras: hallways, walkways, a cafeteria and a gym, with students walking through." />
+          <div className="lp-scan-grid" aria-hidden="true">
+            {cells}
+          </div>
+          {!reduce && beam <= 1 && <span className="lp-scan-beam" style={{ left: `${beam * 100}%` }} aria-hidden="true" />}
+        </div>
+      </div>
+      <figcaption>
+        Zero false alarms in an hour of real campus CCTV.
+      </figcaption>
+    </motion.figure>
+  )
+}
+
 function useScrolled(offset = 24) {
   const [scrolled, setScrolled] = useState(false)
   useEffect(() => {
@@ -42,8 +217,7 @@ function scrollToId(id) {
 const LINKS = [
   ['how', 'How it works'],
   ['results', 'Results'],
-  ['trust', 'Responsible AI'],
-  ['about', 'About'],
+  ['plans', 'Plans'],
 ]
 
 function Nav({ signedIn }) {
@@ -57,7 +231,7 @@ function Nav({ signedIn }) {
     <header className={`lp-nav ${scrolled || open ? 'lp-nav-solid' : ''}`}>
       <div className="lp-nav-inner">
         <a className="lp-brand" href="#/" onClick={(e) => (e.preventDefault(), window.scrollTo({ top: 0, behavior: 'smooth' }))}>
-          <LogoMark size={30} />
+          <LogoMark size={38} />
           <span>WatchDog</span>
         </a>
         <nav className="lp-links" aria-label="Sections">
@@ -72,7 +246,7 @@ function Nav({ signedIn }) {
             {signedIn ? 'Open app' : 'Sign in'}
           </a>
           <a className="lp-btn lp-btn-primary lp-btn-sm" href={DEMO}>
-            <span className="lp-long">Experience the demo</span>
+            <span className="lp-long">Try the demo</span>
             <span className="lp-short">Try demo</span>
           </a>
           <button
@@ -107,52 +281,88 @@ function Nav({ signedIn }) {
 }
 
 function Hero() {
-  const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '12%'])
   return (
-    <section className="lp-hero" ref={ref}>
-      <motion.div className="lp-hero-bg" style={{ y: bgY }} aria-hidden="true" />
-      <div className="lp-hero-shade" aria-hidden="true" />
-      <div className="lp-wrap">
+    <section className="lp-hero lp-hero-product">
+      <div className="lp-hero-bg" aria-hidden="true" />
+      <div className="lp-wrap lp-hero-grid">
         <div className="lp-hero-copy">
           <motion.p className="lp-eyebrow" {...delayed(0)}>
-            Intelligent campus security
+            Gun detection for school cameras
           </motion.p>
           <motion.h1 {...delayed(1)}>
-            Your cameras see everything.
+            Dozens of screens.
             <br />
-            Now they can help you see <span className="lp-accent">what matters.</span>
+            One gun.
+            <br />
+            <span className="lp-accent">Seen in seconds.</span>
           </motion.h1>
           <motion.p className="lp-lead" {...delayed(2)}>
-            WatchDog adds an intelligent layer to the security cameras a school already has. It
-            looks for a possible gun and brings that footage to the people who can respond, who
-            decide what happens next.
+            WatchDog watches the cameras your school already has. The moment it sees what looks like
+            a gun, it puts that camera in front of a person, and they decide what happens next.
           </motion.p>
           <motion.div className="lp-actions" {...delayed(3)}>
             <a className="lp-btn lp-btn-primary" href={DEMO}>
-              Experience WatchDog
+              Try the demo
             </a>
-            <button className="lp-btn lp-btn-ghost" onClick={() => scrollToId('meet')}>
-              Explore the technology
+            <button className="lp-btn lp-btn-ghost" onClick={() => scrollToId('how')}>
+              How it works
             </button>
           </motion.div>
-          <motion.p className="lp-trust" {...delayed(4)}>
-            Built to support school safety teams. Designed around human judgment.
-          </motion.p>
-          <motion.p className="lp-disclosure" {...delayed(5)}>
+          <motion.p className="lp-disclosure" {...delayed(4)}>
             Student-built prototype · Busch School of Business Vibe Coding Contest · Fall 2026
           </motion.p>
         </div>
+        <HeroWall />
       </div>
     </section>
   )
 }
 
-const PROBLEMS = [
-  ['01', 'Too much footage', 'Hours of video make it hard for security staff to find the moments that matter.'],
-  ['02', 'Limited attention', 'No one can watch every camera, every hallway and every common area at once.'],
-  ['03', 'Delayed awareness', 'When a possible threat goes unnoticed, the time to respond can shrink.'],
+// The real camera wall from the prototype, with Camera 1 pulsing and its alert sliding in.
+// Camera 1 is blurred in the screenshot because this page has no content warning in front of it.
+function HeroWall() {
+  return (
+    <motion.figure
+      className="lp-herowall"
+      initial={{ opacity: 0, y: 30, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.9, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="lp-window">
+        <div className="lp-window-bar">
+          <i />
+          <i />
+          <i />
+          <span>WatchDog · 8 cameras</span>
+          <span className="lp-live">Demo replay</span>
+        </div>
+        <div className="lp-herowall-view">
+          <img src="/landing/wall-alert.jpg" alt="The WatchDog camera wall: Camera 1, West hallway, is outlined in red and marked Possible gun, Review, while the other cameras show ordinary school activity." />
+          <span className="lp-herowall-ring" aria-hidden="true" />
+          <span className="lp-scan-beam lp-herowall-beam" aria-hidden="true" />
+        </div>
+      </div>
+      <motion.div
+        className="lp-toast"
+        aria-hidden="true"
+        initial={{ opacity: 0, x: 24 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span className="lp-toast-dot" />
+        <div>
+          <b>Possible gun · 84%</b>
+          <span>Camera 1 · West hallway</span>
+        </div>
+        <em>Review</em>
+      </motion.div>
+    </motion.figure>
+  )
+}
+
+const ODDS = [
+  ['69%', 'ended in five minutes or less'],
+  ['60%', 'were over before police arrived'],
 ]
 
 function Problem() {
@@ -161,128 +371,37 @@ function Problem() {
       <div className="lp-wrap lp-split">
         <motion.figure className="lp-office" {...rise}>
           <img src="/landing/security-office.jpg" alt="A school security officer at a desk facing a wall of camera monitors." />
-          <figcaption>One person, a dozen screens.</figcaption>
+          <figcaption>One person. A dozen screens.</figcaption>
         </motion.figure>
         <div>
-          <motion.h2 {...rise}>Security cameras shouldn't just record what happened.</motion.h2>
-          <motion.p className="lp-body" {...delayed(1)}>
-            Schools already have cameras across their campuses. But watching many feeds at once is
-            hard, and the moment that matters can hide in a sea of ordinary footage.
+          <motion.p className="lp-eyebrow" {...rise}>
+            Why it matters
           </motion.p>
-          <ol className="lp-problems">
-            {PROBLEMS.map(([n, title, text], i) => (
-              <motion.li key={n} {...delayed(i + 2)}>
-                <span className="lp-num">{n}</span>
-                <div>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </div>
-              </motion.li>
+          <FadeHeading {...delayed(1)}>Most attacks are over in five minutes.</FadeHeading>
+          <motion.p className="lp-body" {...delayed(2)}>
+            Schools already have the cameras. What they don&rsquo;t have is someone watching every
+            one of them, every second. That gap is where the minutes go.
+          </motion.p>
+          <div className="lp-odds">
+            {ODDS.map(([value, label], k) => (
+              <motion.div key={label} className="lp-odd" {...delayed(k + 3)}>
+                <CountUp value={value} />
+                <p>{label}</p>
+              </motion.div>
             ))}
-          </ol>
-        </div>
-      </div>
-      <motion.p className="lp-transition" {...rise}>
-        What if your existing cameras could do more?
-      </motion.p>
-      <motion.figure className="lp-wrap lp-strip" {...delayed(1)}>
-        <div className="lp-window">
-          <picture>
-            <source media="(max-width: 720px)" srcSet="/landing/footage-wall-tall.jpg" />
-            <img src="/landing/footage-wall.jpg" alt="Twelve security camera feeds of ordinary school life: a hallway, a cafeteria, a gym and outdoor walkways." />
-          </picture>
-        </div>
-        <figcaption>Twelve real feeds from WatchDog&rsquo;s test footage. Which one needs attention?</figcaption>
-      </motion.figure>
-    </section>
-  )
-}
-
-const FLOW = [
-  ['Possible detection', 'WatchDog flags a possible gun, with a confidence score, a snapshot and a clip.'],
-  ['Human review', 'A named reviewer looks at the footage. Nothing is treated as a threat yet.'],
-  ['Confirmed or dismissed', 'The reviewer decides. Every decision is signed and written to a log.'],
-]
-
-const BENEFITS = [
-  ['Intelligent monitoring', 'An AI model checks camera footage about four times a second for a possible gun.'],
-  ['Centralized alerts', 'Every possible detection lands in one inbox, with a snapshot and a short clip.'],
-  ['Human review', 'A person looks at every alert and confirms or dismisses it. WatchDog never decides on its own.'],
-]
-
-function Meet() {
-  return (
-    <section className="lp-section lp-meet" id="meet">
-      <div className="lp-wrap">
-        <motion.p className="lp-eyebrow" {...rise}>
-          The product
-        </motion.p>
-        <motion.h2 className="lp-h2-xl" {...delayed(1)}>
-          Meet WatchDog.
-        </motion.h2>
-        <motion.p className="lp-sub" {...delayed(2)}>
-          An intelligent layer between your cameras and your security team.
-        </motion.p>
-        <motion.p className="lp-body lp-narrow" {...delayed(3)}>
-          WatchDog checks security camera footage for a possible gun and brings anything it finds
-          into one review workflow. Instead of relying on someone watching every screen, it points a
-          person at the footage that may need attention.
-        </motion.p>
-        <motion.figure className="lp-showpiece" {...delayed(2)}>
-          <div className="lp-window">
-            <div className="lp-window-bar" aria-hidden="true">
-              <i />
-              <i />
-              <i />
-              <span>WatchDog · Possible gun on Camera 1</span>
-            </div>
-            <img src="/landing/wall-alert.jpg" alt="The WatchDog camera wall with Camera 1 outlined in red and marked Possible gun, Review. The other cameras show ordinary activity." />
           </div>
-          <figcaption>
-            A real alert in the prototype: Camera 1 turns red and asks for review, while every other
-            camera stays quiet. Camera 1 is blurred on this page.
-          </figcaption>
-        </motion.figure>
-        <div className="lp-benefits">
-          {BENEFITS.map(([title, text], i) => (
-            <motion.div key={title} className={`lp-benefit ${i === 2 ? 'lp-benefit-key' : ''}`} {...delayed(i)}>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </motion.div>
-          ))}
-        </div>
-        <div className="lp-split lp-review">
-          <motion.figure className="lp-alert-figure" {...rise}>
-            <div className="lp-window">
-              <img src="/landing/alert-card.jpg" alt="A WatchDog alert card: Possible Gun, 75% confidence, Demo replay, Camera 1 West hallway, with Confirm threat and Dismiss buttons." />
-            </div>
-            <figcaption>A real alert card from the prototype (snapshot blurred).</figcaption>
-          </motion.figure>
-          <div>
-            <motion.h3 className="lp-h3-lg" {...rise}>
-              A possible gun is never treated as a confirmed threat.
-            </motion.h3>
-            <ol className="lp-flow">
-              {FLOW.map(([title, text], i) => (
-                <motion.li key={title} className={i === 0 ? 'lp-flow-alert' : ''} {...delayed(i + 1)}>
-                  <h3>{title}</h3>
-                  <p>{text}</p>
-                </motion.li>
-              ))}
-            </ol>
-          </div>
+          <motion.p className="lp-source" {...delayed(5)}>
+            Of 160 active shooter incidents in the U.S., 2000 to 2013. Source: FBI,{' '}
+            <a href="https://www.fbi.gov/file-repository/reports-and-publications/as-study-quick-reference-guide-updated1.pdf">
+              A Study of Active Shooter Incidents
+            </a>{' '}
+            (2014).
+          </motion.p>
         </div>
       </div>
     </section>
   )
 }
-
-const STEPS = [
-  ['01', 'Connect', 'WatchDog is designed to sit alongside a school’s existing cameras. The prototype plays recorded clips.', 'cam'],
-  ['02', 'Analyze', 'An AI model checks the video for a possible gun, and only counts one seen in two checks in a row.', 'scan'],
-  ['03', 'Review', 'A trained person sees a snapshot and a short clip, then confirms or dismisses the alert.', 'eye'],
-  ['04', 'Respond', 'When a threat is confirmed, school staff follow their own emergency procedures. WatchDog does not call anyone.', 'shield'],
-]
 
 function StepIcon({ kind }) {
   const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' }
@@ -298,66 +417,307 @@ function StepIcon({ kind }) {
 
 function HowItWorks() {
   return (
-    <section className="lp-section" id="how">
+    <section className="lp-section lp-how" id="how">
+      <BigWord>WATCH</BigWord>
       <div className="lp-wrap">
         <motion.p className="lp-eyebrow" {...rise}>
           How it works
         </motion.p>
-        <motion.h2 {...delayed(1)}>From camera footage to informed action.</motion.h2>
-        <ol className="lp-steps">
-          {STEPS.map(([n, title, text, icon], i) => (
-            <motion.li key={n} {...delayed(i + 1)}>
-              <div className="lp-step-top">
-                <span className="lp-step-num">{n}</span>
-                <span className="lp-step-icon">
-                  <StepIcon kind={icon} />
-                </span>
-              </div>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </motion.li>
-          ))}
-        </ol>
+        <FadeHeading {...delayed(1)}>It watches. A person decides.</FadeHeading>
+        <Pipeline />
       </div>
     </section>
   )
 }
 
 const RESULTS = [
-  ['0.874', 'Gun detection score (mAP50)', 'Measured on 11,694 images the model never saw during training.'],
-  ['99.8%', 'Look-alikes correctly ignored', '5,484 of 5,495 photos of phones, umbrellas, remotes and other gun-shaped objects, not flagged.'],
-  ['8 of 8', 'Alerts on the real gun', 'Every clip of real school-shooting CCTV raised an alert, and every alert was on the real weapon.'],
-  ['0', 'False alarms in an hour of campus CCTV', '12,670 frames of students with backpacks, bags and phones, and not one false alert.'],
+  ['195,000', 'Training images, including 49,000 look-alikes'],
+  ['11,694', 'Test images it never saw in training'],
+  ['0.874', 'Detection score (mAP50) on those test images'],
+  ['99.8%', 'Of look-alikes ignored: phones, umbrellas, remotes'],
 ]
 
 function Results() {
   return (
     <section className="lp-section lp-results" id="results">
+      <BigWord>PROVEN</BigWord>
       <div className="lp-wrap">
         <motion.p className="lp-eyebrow" {...rise}>
-          Trained and tested
+          Tested on real footage
         </motion.p>
-        <motion.h2 {...delayed(1)}>Built on 195,000 images. Proven on footage it had never seen.</motion.h2>
-        <motion.p className="lp-body lp-narrow" {...delayed(2)}>
-          WatchDog&rsquo;s model, Model Dublin, learned from about 146,000 weapon images and 49,000
-          look-alike photos over 50 rounds of training on a rented GPU. Every test below used images
-          and footage it never trained on, with the same settings as the app.
-        </motion.p>
+        <FadeHeading {...delayed(1)}>Built on real data. Tested on footage it had never seen.</FadeHeading>
+        <ScanWall />
         <div className="lp-stats">
-          {RESULTS.map(([value, label, text], i) => (
+          {RESULTS.map(([value, label], i) => (
             <motion.div key={label} className="lp-stat" {...delayed(i + 1)}>
-              <span className="lp-stat-value">{value}</span>
+              <CountUp value={value} />
               <h3>{label}</h3>
-              <p>{text}</p>
             </motion.div>
           ))}
         </div>
         <motion.p className="lp-footnote" {...rise}>
-          mAP50 is a score from 0 to 1 for finding the guns in an image and boxing them in the right
-          spot without boxing anything else. Zero false alarms in one hour does not mean never, which
-          is why a person reviews every alert. Full results and test sources are in the{' '}
-          <a href={GITHUB}>GitHub README</a>.
+          Every test used footage the model never trained on. Full results are on{' '}
+          <a href={GITHUB}>GitHub</a>.
         </motion.p>
+      </div>
+    </section>
+  )
+}
+
+const STORIES = [
+  [
+    'Uvalde, Texas · 2022',
+    '77',
+    'minutes',
+    'passed between the gunman walking into Robb Elementary and police stopping him.',
+  ],
+  [
+    'Parkland, Florida · 2018',
+    '20+',
+    'minutes behind',
+    'The cameras saw everything. Officers were working from footage they thought was live.',
+  ],
+  [
+    'Washington, D.C. · January 2026',
+    '2',
+    'hours',
+    'Shots were fired a block from The Catholic University of America. For nearly two hours the campus sheltered in place, and no one could say if the shooter was on campus.',
+  ],
+]
+
+function WhyBuilt() {
+  return (
+    <section className="lp-section lp-why" id="why">
+      <div className="lp-wrap">
+        <motion.p className="lp-eyebrow" {...rise}>
+          Why WatchDog was built
+        </motion.p>
+        <FadeHeading {...delayed(1)}>The cameras were there every time.</FadeHeading>
+        <div className="lp-stories">
+          {STORIES.map(([place, figure, unit, text], k) => (
+            <motion.figure key={place} className="lp-story" {...delayed(k + 2)}>
+              <figcaption>{place}</figcaption>
+              <div className="lp-story-figure">
+                <CountUp value={figure} />
+                <span>{unit}</span>
+              </div>
+              <p>{text}</p>
+            </motion.figure>
+          ))}
+        </div>
+        <motion.p className="lp-why-close" {...delayed(5)}>
+          Nobody was watching them fast enough. <b>That&rsquo;s the gap WatchDog closes.</b>
+        </motion.p>
+        <motion.p className="lp-source" {...delayed(6)}>
+          Sources: U.S. Department of Justice, Uvalde Critical Incident Review (2024); Marjory Stoneman
+          Douglas Public Safety Commission (2018); WTOP and WJLA (January 15, 2026).
+        </motion.p>
+      </div>
+    </section>
+  )
+}
+
+// Prices per camera per month for each plan; the base fee and computer are per school.
+const PLANS = [
+  ['day', 'School Day', 20, 'Class hours on school days'],
+  ['extended', 'Extended', 25, 'Adds evenings, games and events'],
+  ['always', 'Always On', 30, 'Around the clock, for colleges and districts'],
+]
+const BASE_FEE = 200
+const COMPUTER_FEE = 2500
+const CAMERAS_PER_COMPUTER = 20
+// Similar systems: a two-school district's public contract, $22,500 a year for 38 cameras.
+const SIMILAR_PER_CAMERA_MONTH = 22500 / 38 / 12
+
+const money = (n) => '$' + Math.round(n).toLocaleString('en-US')
+
+function Plans() {
+  const [plan, setPlan] = useState('day')
+  const [cameras, setCameras] = useState(40)
+  const [founding, setFounding] = useState(false)
+  const rate = PLANS.find(([id]) => id === plan)[2]
+  const yearly = BASE_FEE * 12 + cameras * rate * 12
+  const computers = Math.max(1, Math.ceil(cameras / CAMERAS_PER_COMPUTER))
+  const setup = computers * COMPUTER_FEE
+  const firstYear = founding ? yearly / 2 : yearly
+  const similar = cameras * SIMILAR_PER_CAMERA_MONTH * 12
+  const saving = 1 - yearly / similar
+  return (
+    <section className="lp-section lp-plans" id="plans">
+      <div className="lp-wrap">
+        <motion.p className="lp-eyebrow" {...rise}>
+          Plans
+        </motion.p>
+        <FadeHeading {...delayed(1)}>Safety shouldn&rsquo;t depend on a school&rsquo;s budget.</FadeHeading>
+        <motion.p className="lp-body lp-narrow" {...delayed(2)}>
+          Pay per camera for the hours you need. Every school adds {money(BASE_FEE)} a month, and an
+          on-site computer that we set up for free.
+        </motion.p>
+        <div className="lp-plan-grid">
+          {PLANS.map(([id, name, price, note], k) => (
+            <motion.button
+              key={id}
+              type="button"
+              className={`lp-plan ${plan === id ? 'is-on' : ''}`}
+              onClick={() => setPlan(id)}
+              aria-pressed={plan === id}
+              {...delayed(k + 2)}
+            >
+              <span className="lp-plan-name">{name}</span>
+              <span className="lp-plan-price">
+                ${price}
+                <small>/camera/month</small>
+              </span>
+              <span className="lp-plan-note">{note}</span>
+            </motion.button>
+          ))}
+        </div>
+        <motion.div className="lp-calc" {...delayed(3)}>
+          <div className="lp-calc-inputs">
+            <label className="lp-calc-label" htmlFor="lp-cams">
+              What would WatchDog cost your school?
+              <span>
+                <b>{cameras}</b> cameras
+              </span>
+            </label>
+            <input
+              id="lp-cams"
+              type="range"
+              min="5"
+              max="200"
+              step="5"
+              value={cameras}
+              onChange={(e) => setCameras(Number(e.target.value))}
+            />
+            <label className="lp-check">
+              <input type="checkbox" checked={founding} onChange={(e) => setFounding(e.target.checked)} />
+              Founding school: 50% off your first year
+            </label>
+            <p className="lp-founding-note">
+              Our first five schools pay half for their first year. In return, they help shape WatchDog
+              with honest feedback while it&rsquo;s new. After that year, regular pricing applies.
+            </p>
+          </div>
+          <dl className="lp-calc-out">
+            <div>
+              <dt>Every year</dt>
+              <dd>{money(yearly)}</dd>
+            </div>
+            {founding && (
+              <div>
+                <dt>First year (founding)</dt>
+                <dd>{money(firstYear)}</dd>
+              </div>
+            )}
+            <div>
+              <dt>
+                Setup, one time ({computers} computer{computers > 1 ? 's' : ''})
+              </dt>
+              <dd>{money(setup)}</dd>
+            </div>
+            <div>
+              <dt>Works out to</dt>
+              <dd>{money(yearly / 12 / cameras)} per camera a month</dd>
+            </div>
+          </dl>
+        </motion.div>
+        <motion.div className="lp-compare" {...delayed(3)}>
+          <h3>Compared with similar systems</h3>
+          <p className="lp-compare-sub">Same {cameras} cameras, every year</p>
+          <div className="lp-bar">
+            <span className="lp-bar-label">WatchDog</span>
+            <span className="lp-bar-track">
+              <motion.span
+                className="lp-bar-fill lp-bar-ours"
+                animate={{ width: `${Math.min(100, (yearly / Math.max(yearly, similar)) * 100)}%` }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </span>
+            <span className="lp-bar-value">{money(yearly)}</span>
+          </div>
+          <div className="lp-bar">
+            <span className="lp-bar-label">Similar systems</span>
+            <span className="lp-bar-track">
+              <motion.span
+                className="lp-bar-fill lp-bar-theirs"
+                animate={{ width: `${Math.min(100, (similar / Math.max(yearly, similar)) * 100)}%` }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </span>
+            <span className="lp-bar-value">{money(similar)}</span>
+          </div>
+          <p className={`lp-calc-verdict ${saving > 0 ? '' : 'is-more'}`}>
+            {saving > 0
+              ? `WatchDog costs about ${Math.round(saving * 100)}% less.`
+              : `About ${Math.round(-saving * 100)}% more at this size.`}
+          </p>
+        </motion.div>
+        <motion.p className="lp-source" {...delayed(4)}>
+          Similar systems: a public school-district contract, $22,500 a year for 38 cameras (StateScoop
+          public records, 2024). Setup assumes one computer per {CAMERAS_PER_COMPUTER} cameras. Prices
+          are a prototype plan, not a quote.
+        </motion.p>
+      </div>
+    </section>
+  )
+}
+
+const PROMISES = [
+  ['face', 'No face recognition, ever.', 'It looks for guns, not people.'],
+  ['building', 'Video never leaves the building.', 'Everything runs on a computer inside the school.'],
+  ['person', 'A person decides, every time.', 'WatchDog flags. Your staff make the call.'],
+]
+
+// Simple line icons that draw themselves in when they scroll into view.
+function PromiseIcon({ kind }) {
+  const draw = {
+    initial: { pathLength: 0 },
+    whileInView: { pathLength: 1 },
+    viewport: { once: true },
+    transition: { duration: 1.2, ease: 'easeInOut' },
+  }
+  const p = { fill: 'none', stroke: 'currentColor', strokeWidth: 1.7, strokeLinecap: 'round', strokeLinejoin: 'round' }
+  return (
+    <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">
+      {kind === 'face' && (
+        <g {...p}>
+          <motion.path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" {...draw} />
+          <motion.path d="M9 10h.01M15 10h.01M9.5 15c1.4 1 3.6 1 5 0" {...draw} />
+          <motion.path d="M3 21 21 3" {...draw} />
+        </g>
+      )}
+      {kind === 'building' && (
+        <g {...p}>
+          <motion.path d="M4 21V9l8-5 8 5v12M4 21h16" {...draw} />
+          <motion.path d="M9.5 21v-5a2.5 2.5 0 0 1 5 0v5" {...draw} />
+          <motion.path d="M10 11h4" {...draw} />
+        </g>
+      )}
+      {kind === 'person' && (
+        <g {...p}>
+          <motion.path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM3 20c.6-3.4 3-5.5 6-5.5s5.4 2.1 6 5.5" {...draw} />
+          <motion.path d="m15.5 11.5 2 2 4-4.5" {...draw} />
+        </g>
+      )}
+    </svg>
+  )
+}
+
+function PromiseStrip() {
+  return (
+    <section className="lp-section lp-promise" id="promise">
+      <div className="lp-wrap lp-promise-grid">
+        {PROMISES.map(([kind, title, text], k) => (
+          <motion.div key={title} className="lp-promise-item" {...delayed(k)}>
+            <span className="lp-promise-icon">
+              <PromiseIcon kind={kind} />
+            </span>
+            <div>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          </motion.div>
+        ))}
       </div>
     </section>
   )
@@ -366,132 +726,31 @@ function Results() {
 function Showcase() {
   return (
     <section className="lp-section lp-showcase" id="demo">
-      <div className="lp-wrap lp-center">
-        <motion.p className="lp-eyebrow" {...rise}>
-          Interactive demo
-        </motion.p>
-        <motion.h2 {...delayed(1)}>See the system in action.</motion.h2>
-        <motion.p className="lp-body lp-narrow" {...delayed(2)}>
-          Explore the WatchDog prototype: a wall of eight school cameras, a possible gun on one of
-          them, and the review that follows.
-        </motion.p>
-        <motion.div className="lp-actions lp-actions-center" {...delayed(3)}>
-          <a className="lp-btn lp-btn-primary lp-btn-lg" href={DEMO}>
-            Launch interactive demo
-          </a>
-        </motion.div>
-        <motion.p className="lp-note" {...delayed(4)}>
-          Uses recorded footage and saved detection results, and starts only when you press Start.
-          Sign in with <strong>Try the demo</strong>: one click, no password.
-        </motion.p>
-        <motion.p className="lp-warning" {...delayed(5)}>
-          Content note: Camera 1 shows real security footage of an armed attacker inside a school,
-          released by police after the 2023 Covenant School shooting in Nashville.
-        </motion.p>
-      </div>
-    </section>
-  )
-}
-
-
-const PRINCIPLES = [
-  ['Human oversight', 'AI detections are indicators for review, not final decisions.'],
-  ['Responsible monitoring', 'Security technology should run under clear school policies and access controls.'],
-  ['Transparency', 'Possible detections are labeled as possible, reviewable, and kept separate from confirmed incidents.'],
-  ['Privacy by design', 'No facial recognition, and video is checked on the device. A real deployment must also cover data protection, access, retention and student privacy law.'],
-]
-
-function Trust() {
-  return (
-    <section className="lp-section lp-trust-section" id="trust">
-      <div className="lp-wrap">
-        <div className="lp-trust-head">
-          <motion.div className="lp-trust-mark" {...rise}>
-            <LogoMark size={88} />
-          </motion.div>
-          <div>
-            <motion.p className="lp-eyebrow" {...rise}>
-              Responsible AI
-            </motion.p>
-            <motion.h2 {...delayed(1)}>Technology should support people. Not replace their judgment.</motion.h2>
-          </div>
-        </div>
-        <div className="lp-principles">
-          {PRINCIPLES.map(([title, text], i) => (
-            <motion.div key={title} className="lp-principle" {...delayed(i)}>
-              <h3>{title}</h3>
-              <p>{text}</p>
-            </motion.div>
-          ))}
-        </div>
-        <motion.p className="lp-911" {...rise}>
-          WatchDog is designed to supplement a school&rsquo;s existing safety procedures. It does not
-          replace emergency services, trained security staff, or calling 911.
-        </motion.p>
-      </div>
-    </section>
-  )
-}
-
-function About() {
-  return (
-    <section className="lp-section" id="about">
-      <div className="lp-wrap lp-about">
-        <motion.h2 {...rise}>Built around a simple idea.</motion.h2>
-        <div>
-          <motion.p className="lp-body" {...delayed(1)}>
-            WatchDog is a student-built project exploring how AI can make the security cameras a
-            school already has more useful, while keeping a person in charge of every decision.
-          </motion.p>
-          <motion.p className="lp-body" {...delayed(2)}>
-            It was built for the Busch School of Business AI Vibe Coding Contest at The Catholic
-            University of America, Fall 2026, to show how computer vision and a human-centered review
-            workflow could work together to support campus safety.
-          </motion.p>
-          <motion.dl className="lp-facts" {...delayed(3)}>
-            <div>
-              <dt>Built by</dt>
-              <dd>Nate Ramos</dd>
-            </div>
-            <div>
-              <dt>Contest</dt>
-              <dd>Busch School of Business, Fall 2026</dd>
-            </div>
-            <div>
-              <dt>Code</dt>
-              <dd>
-                <a href={GITHUB}>github.com/nateramos/WatchDog</a>
-              </dd>
-            </div>
-          </motion.dl>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function FinalCta() {
-  return (
-    <section className="lp-final">
       <div className="lp-final-glow" aria-hidden="true" />
       <div className="lp-wrap lp-center">
         <motion.div {...rise}>
-          <LogoMark size={96} />
+          <LogoMark size={88} />
         </motion.div>
-        <motion.h2 className="lp-h2-xl" {...delayed(1)}>
-          See what your cameras could become.
-        </motion.h2>
+        <FadeHeading className="lp-h2-xl" {...delayed(1)}>
+          Watch it catch one.
+        </FadeHeading>
         <motion.p className="lp-body lp-narrow" {...delayed(2)}>
-          Try the WatchDog prototype and explore a new approach to campus security.
+          Eight school cameras. One of them is real footage from a school shooting. See the alert
+          land, then make the call yourself.
         </motion.p>
         <motion.div className="lp-actions lp-actions-center" {...delayed(3)}>
           <a className="lp-btn lp-btn-primary lp-btn-lg" href={DEMO}>
-            Experience the demo
+            Try the demo
           </a>
-          <button className="lp-btn lp-btn-ghost lp-btn-lg" onClick={() => scrollToId('meet')}>
-            Explore WatchDog
-          </button>
         </motion.div>
+        <motion.p className="lp-note" {...delayed(4)}>
+          One click, no password. It replays recorded footage and saved results, and starts when you
+          press Start.
+        </motion.p>
+        <motion.p className="lp-warning" {...delayed(5)}>
+          Content note: Camera 1 is police-released footage of the armed attacker inside the 2023
+          Covenant School shooting in Nashville.
+        </motion.p>
       </div>
     </section>
   )
@@ -503,15 +762,14 @@ function Footer({ signedIn }) {
       <div className="lp-wrap lp-footer-grid">
         <div>
           <div className="lp-brand">
-            <LogoMark size={28} />
+            <LogoMark size={32} />
             <span>WatchDog</span>
           </div>
-          <p>AI-assisted campus safety that points a person at the camera that may need attention.</p>
+          <p>Spots a possible gun on school cameras and gets a person looking at it, fast.</p>
         </div>
         <nav aria-label="Footer">
           <a href={DEMO}>Demo</a>
           <a href={APP}>{signedIn ? 'Open app' : 'Sign in'}</a>
-          <a href="#/about">About</a>
           <a href={GITHUB}>GitHub</a>
         </nav>
       </div>
@@ -530,17 +788,17 @@ export default function Landing({ signedIn = false }) {
   return (
     <MotionConfig reducedMotion="user">
       <div className="lp">
+        <div className="lp-drift" aria-hidden="true" />
         <Nav signedIn={signedIn} />
         <main>
           <Hero />
           <Problem />
-          <Meet />
+          <WhyBuilt />
           <HowItWorks />
           <Results />
+          <Plans />
+          <PromiseStrip />
           <Showcase />
-          <Trust />
-          <About />
-          <FinalCta />
         </main>
         <Footer signedIn={signedIn} />
       </div>
