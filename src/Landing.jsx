@@ -191,7 +191,8 @@ function ScanWall() {
         </div>
       </div>
       <figcaption>
-        Zero false alarms in an hour of real campus CCTV.
+        In testing: zero false alarms in one hour of footage from 13 campus cameras (one public
+        dataset, ShanghaiTech Campus).
       </figcaption>
     </motion.figure>
   )
