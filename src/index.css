@@ -205,7 +205,6 @@ h1 {
 }
 
 .button:focus-visible,
-.nav a:focus-visible,
 input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -297,127 +296,6 @@ input:focus-visible {
   line-height: 1.5;
 }
 
-.topbar {
-  width: 100%;
-  max-width: var(--page-width);
-  margin: 0 auto;
-  padding: 1rem var(--gutter);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  color: var(--text);
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-}
-
-.logo-small {
-  width: 36px;
-  height: 36px;
-  margin: 0;
-  border-radius: 10px;
-  animation: none;
-}
-
-.logo-small svg {
-  width: 22px;
-  height: 22px;
-}
-
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 0.5rem 1.25rem;
-}
-
-.nav a {
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.nav a:hover {
-  color: var(--text);
-}
-
-.signout {
-  display: inline-flex;
-  align-items: center;
-}
-
-.signout:hover {
-  color: var(--text);
-}
-
-.signout-icon {
-  display: none;
-}
-
-/* Phones: logo without the word, tighter links and a door icon for Sign out, so the whole
-   nav stays on one row and the Alerts count is always visible. */
-@media (max-width: 640px) {
-  .topbar {
-    gap: 0.75rem;
-  }
-
-  .brand-name {
-    display: none;
-  }
-
-  .nav {
-    flex-wrap: nowrap;
-    gap: 0 0.9rem;
-  }
-
-  .nav a {
-    font-size: 0.95rem;
-    white-space: nowrap;
-  }
-
-  .signout-icon {
-    display: block;
-  }
-
-  /* still read out by screen readers */
-  .signout-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-}
-
-.content {
-  flex: 1;
-  width: 100%;
-  max-width: var(--page-width);
-  margin: 0 auto;
-  padding: 0.5rem var(--gutter) 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.footer {
-  padding: 1.5rem 16px;
-  text-align: center;
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
 a {
   color: var(--accent);
 }
@@ -483,14 +361,6 @@ h3 {
 .panel > p {
   max-width: 75ch;
   line-height: 1.6;
-}
-
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 1rem;
-  margin-top: 1rem;
 }
 
 .field {
@@ -1054,7 +924,7 @@ td.decision-pending {
 
 @keyframes camera-alert-glow {
   0%,
-  100% {
+100% {
     box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.15);
   }
   50% {
@@ -1062,35 +932,8 @@ td.decision-pending {
   }
 }
 
-.pill.pill-threat {
-  background: #e11d48;
-  color: #fff;
-  text-decoration: none;
-}
-
 .camera .player {
   margin-bottom: 0;
-}
-
-.camera-head,
-.camera-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  min-width: 0;
-}
-
-.camera-name {
-  font-weight: 700;
-  overflow-wrap: anywhere;
-}
-
-.camera-foot .small {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .camera-alerts {
@@ -1104,56 +947,6 @@ td.decision-pending {
   text-align: center;
 }
 
-.pill {
-  flex-shrink: 0;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--muted);
-}
-
-.pill-scanning {
-  background: rgba(79, 140, 255, 0.18);
-  color: #bfd3ff;
-}
-
-.pill-done {
-  background: rgba(52, 211, 153, 0.15);
-  color: #a7f3d0;
-}
-
-.pill-error {
-  background: rgba(244, 63, 94, 0.18);
-  color: #fda4af;
-}
-
-.tabs {
-  display: flex;
-  gap: 0.25rem;
-  padding: 0.25rem;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-}
-
-.tab {
-  min-height: 36px;
-  padding: 0 0.9rem;
-  border: 0;
-  border-radius: 9px;
-  background: none;
-  color: var(--muted);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.tab-on {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--text);
-}
-
 .tag {
   font-size: 0.8rem;
   font-weight: 600;
@@ -1162,14 +955,6 @@ td.decision-pending {
   border-radius: 999px;
   background: rgba(79, 140, 255, 0.18);
   color: #bfd3ff;
-}
-
-.back-link {
-  display: inline-block;
-  margin-bottom: 0.25rem;
-  color: var(--accent);
-  font-weight: 600;
-  text-decoration: none;
 }
 
 .flag-camera {
@@ -1182,7 +967,7 @@ td.decision-pending {
   }
 
   .field,
-  .field input {
+.field input {
     width: 100%;
     min-width: 0;
   }
@@ -1502,17 +1287,4 @@ td.decision-dismissed::first-letter,
 td.decision-pending::first-letter,
 td.detected::first-letter {
   text-transform: uppercase;
-}
-
-/* Smallest phones (iPhone SE, 320px): a slightly smaller logo and gaps so a two-digit
-   Alerts count still fits on one row. */
-@media (max-width: 374px) {
-  .brand svg {
-    width: 32px;
-    height: 32px;
-  }
-
-  .nav {
-    gap: 0 0.6rem;
-  }
 }
