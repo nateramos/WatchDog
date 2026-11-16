@@ -18,7 +18,7 @@ import { LogoMark } from './LogoMark.jsx'
 // The school and security-office photos are AI-generated.
 
 const DEMO = '#/demo'
-const APP = '#/cameras'
+const APP = '#/demo'
 const GITHUB = 'https://github.com/nateramos/WatchDog'
 
 // Fade and rise into place once, the first time a block scrolls into view.

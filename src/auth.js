@@ -43,7 +43,13 @@ export function useAuthStatus() {
         .catch(() => alive && setStatus('signedOut'))
     configure().then((ok) => (ok ? check() : alive && setStatus('unconfigured')))
     const stop = Hub.listen('auth', ({ payload }) => {
-      if (payload.event === 'signedIn') crossfade(() => setStatus('signedIn'))
+      // A fresh sign-in (password or Try the demo) always lands on the Demo wall, whose feeds
+      // are moving; reloading a page while signed in stays on that page.
+      if (payload.event === 'signedIn') {
+        window.history.replaceState(null, '', '#/demo')
+        window.dispatchEvent(new HashChangeEvent('hashchange'))
+        crossfade(() => setStatus('signedIn'))
+      }
       if (payload.event === 'signedOut') crossfade(() => setStatus('signedOut'))
     })
     return () => {

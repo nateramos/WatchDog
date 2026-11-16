@@ -44,15 +44,22 @@ export default function App() {
       </div>
     )
   }
+  // Signing in lands on the Demo wall, whose feeds are moving, instead of the Cameras wall,
+  // where no live camera is connected in this prototype. Any address that isn't an app page
+  // (#/login, an old #/about link) goes there too.
+  const page = APP_PAGES.includes(route) ? route : '#/demo'
+  if (page !== route) window.history.replaceState(null, '', page)
   // Signing in fades the app in instead of cutting straight from the login screen.
   return (
     <StoreProvider>
       <div className="page-enter">
-        <Page route={route} />
+        <Page route={page} />
       </div>
     </StoreProvider>
   )
 }
+
+const APP_PAGES = ['#/cameras', '#/alerts', '#/demo']
 
 // Cameras and alerts live in StoreProvider, above the pages, so they survive moving
 // between pages. Once opened, the Demo page stays mounted (just hidden) on other pages, so
@@ -77,7 +84,6 @@ function Page({ route }) {
 }
 
 function OtherPage({ route }) {
-  if (route === '#/cameras') return <Cameras />
   if (route === '#/alerts') return <Alerts />
   return <Cameras />
 }
