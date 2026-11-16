@@ -16,8 +16,23 @@ Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 2. Open **Demo** and press **Start demo**. The wall plays for about 10 seconds before Camera 1 starts.
 3. When the red alert banner appears, open **Alerts**, type a reviewer name, and confirm or dismiss the alert.
 
+## Why WatchDog was built
+
+**Most attacks are over in minutes.** In the FBI's study of 160 active shooter incidents in the U.S. from 2000 to 2013, 69% of the incidents whose length could be measured ended in five minutes or less, and 60% ended before police arrived ([FBI, 2014](https://www.fbi.gov/file-repository/active-shooter-study-2000-2013-1.pdf)). The study covers all locations; 39 of the 160 were at schools and colleges.
+
+**Schools already have the cameras.** 93% of U.S. public schools used security cameras in 2021–22, up from 61% in 2009–10 ([NCES](https://nces.ed.gov/programs/coe/indicator/a19/school-crime-and-safety/)). What they don't have is someone watching every feed, every second.
+
+Three moments shaped WatchDog:
+
+- **Uvalde, 2022.** 77 minutes passed between the gunman entering Robb Elementary and police stopping him ([U.S. Department of Justice review, 2024](https://abc17news.com/news/national-world/cnn-national/2024/01/18/uvalde-school-massacre-could-have-been-stopped-sooner-doj-report-finds/)).
+- **Parkland, 2018.** The school's cameras recorded the shooter, but officers were relying on footage they believed was live while it was being replayed more than 20 minutes behind. The state commission found the confusion "misled officers and deputies" ([WGBH/NPR](https://www.wgbh.org/news/national/2018-11-23/parkland-school-shooting-commission-calls-for-code-red-alarms-and-bleeding-control-kits)).
+- **Catholic University, January 2026.** Shots were fired a block from campus during a dispute, and police thought the suspect might have run toward campus. The university sheltered in place for nearly two hours while police searched; no suspect was found on campus ([WTOP](https://wtop.com/dc/2026/01/shelter-in-place-at-catholic-u-in-dc-after-reports-of-shots-fired-near-campus/), [WJLA](https://wjla.com/news/local/catholic-university-assault-brookland-cua-metro-stay-in-place-metropolitan-police-public-safety-officers-northeast-monroe)).
+
+The cameras were there every time. WatchDog watches them so the right person knows within seconds, and that person decides what happens next.
+
 ## What's in the app
 
+- **Home page:** a public front page with the problem, how WatchDog works, test results, plans and a cost calculator, and a way into the demo. Everything else is behind sign-in.
 - **Cameras:** the camera wall for a building, with a search box and a **Filters** menu (live or offline, area, floor, wing). This prototype has no live camera connected, so its slots show "Camera offline".
 - **Demo:** the same wall, eight cameras, replaying a saved WatchDog run. Only Camera 1 shows the attacker, in security footage that police released after the 2023 Covenant School shooting in Nashville; it waits about 10 seconds on an empty hallway, then plays once. Cameras 2 to 6 loop ordinary footage from two public datasets, an indoor school building (MEVA) and outdoor campus walkways (ShanghaiTech Campus), and WatchDog stays quiet on all of them, including a person carrying a broom. Cameras 7 and 8 are offline. The boxes and alerts are WatchDog's real results, saved ahead of time so the demo plays instantly; each alert fires at the moment the video reaches it, and the cameras keep running while you are on other pages. Camera names and locations are a sample building layout, not the real places'.
 - **Alerts:** one inbox for every alert. Each shows the camera, the time and the confidence score, with a snapshot right away and, a few seconds later, a clip from one second before the gun was first seen to four seconds after, which the reviewer can pause and scrub through frame by frame. A reviewer must sign each **Confirm threat** or **Dismiss**. Every alert and decision goes into the review log ("possible gun", "threat confirmed", "false alarm"), which can be exported as CSV.
