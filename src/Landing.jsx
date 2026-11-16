@@ -551,8 +551,9 @@ function Plans() {
         </motion.p>
         <FadeHeading {...delayed(1)}>Safety shouldn&rsquo;t depend on a school&rsquo;s budget.</FadeHeading>
         <motion.p className="lp-body lp-narrow" {...delayed(2)}>
-          Pay per camera for the hours you need. Every school adds {money(BASE_FEE)} a month, and an
-          on-site computer that we set up for free.
+          Pay per camera for the hours you need. Every school adds {money(BASE_FEE)} a month. The
+          on-site computer is not included in the monthly price: it costs {money(COMPUTER_FEE)} once
+          (about one per {CAMERAS_PER_COMPUTER} cameras), and we set it up for free.
         </motion.p>
         <div className="lp-plan-grid">
           {PLANS.map(([id, name, price, note], k) => (
@@ -617,7 +618,7 @@ function Plans() {
               <dd>{money(setup)}</dd>
             </div>
             <div>
-              <dt>Works out to</dt>
+              <dt>All-in, with the {money(BASE_FEE)} school fee</dt>
               <dd>{money(yearly / 12 / cameras)} per camera a month</dd>
             </div>
           </dl>
