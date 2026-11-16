@@ -93,45 +93,97 @@ function DemoTile({ feed, run, started, hidden = false, onOpen }) {
     return () => clearTimeout(timer)
   }, [run, feed.delay])
 
-  // Raise each alert the moment the gun is first seen, as the live check does, then swap in
-  // the clearest frame once the clip reaches it (the saved alert's most confident frame).
+  // Raise an alert the moment the gun is first seen, as the live check does. A camera has one
+  // open alert at a time, like an incident on a security console: while it waits for review,
+  // each later sighting folds into it (its own clip, time and score, listed under the alert)
+  // instead of becoming another alert. Once the reviewer has decided it, a new sighting raises
+  // a new alert, so a dismissal never hides the gun coming back. An alert's score is its best
+  // sighting's; a decided alert is never changed.
+  const open = useRef(null) // id of this run's alert that new sightings fold into
+  const target = useRef({}) // sighting number -> the alert it was folded into
+  useEffect(() => {
+    open.current = null
+    target.current = {}
+  }, [run])
+
   function onTimeUpdate(video) {
     if (!results) return
     const now = video.currentTime
     sightings(results.timeline).forEach((seen, i) => {
-      const id = `${feed.id}-${run}-${i}`
+      const key = `${run}-${i}`
       const best = results.alerts[i]
-      if (now >= seen.start && !raised.current.has(id)) {
-        raised.current.add(id)
+      if (now >= seen.start && !raised.current.has(key)) {
+        raised.current.add(key)
         const clipEnd = Math.min(seen.start + CLIP_AFTER, video.duration)
-        raiseAlert({
-          id,
-          cameraId: feed.id,
-          camera: feed.name,
-          clip: feed.video.split('/').pop(),
-          label: seen.box.label,
-          confidence: seen.box.confidence,
+        const sighting = {
+          n: i,
           time: seen.start,
-          image: snapshot(video, seen.box),
-          demo: true,
-          recording: {
-            src: feed.video,
-            start: Math.max(0, seen.start - CLIP_BEFORE),
-            end: clipEnd,
-            timeline: results.timeline,
-            step: results.step,
-            ready: false,
-          },
-        })
-        // The recording is ready once the feed has played past its end. A timer (not this
-        // tile) finishes it, so it still arrives while the reviewer is on the Alerts page.
+          confidence: seen.box.confidence,
+          start: Math.max(0, seen.start - CLIP_BEFORE),
+          end: clipEnd,
+          ready: false,
+        }
+        const current = alerts.find((a) => a.id === open.current)
+        let id
+        if (current && current.decision === 'pending') {
+          id = current.id
+          const image = snapshot(video, seen.box)
+          updateAlert(id, (a) =>
+            a.decision !== 'pending'
+              ? {}
+              : {
+                  seen: [...a.seen, sighting],
+                  ...(seen.box.confidence > a.confidence ? { confidence: seen.box.confidence, image } : {}),
+                },
+          )
+        } else {
+          id = `${feed.id}-${run}-${i}`
+          open.current = id
+          raiseAlert({
+            id,
+            cameraId: feed.id,
+            camera: feed.name,
+            clip: feed.video.split('/').pop(),
+            label: seen.box.label,
+            confidence: seen.box.confidence,
+            time: seen.start,
+            image: snapshot(video, seen.box),
+            seen: [sighting],
+            demo: true,
+            recording: {
+              src: feed.video,
+              start: sighting.start,
+              end: clipEnd,
+              timeline: results.timeline,
+              step: results.step,
+              ready: false,
+            },
+          })
+        }
+        target.current[i] = id
+        // The sighting's clip is ready once the feed has played past its end. A timer (not
+        // this tile) finishes it, so it still arrives while the reviewer is on the Alerts page.
         const wait = Math.max(0, clipEnd - now) * 1000
-        setTimeout(() => updateAlert(id, (a) => ({ recording: { ...a.recording, ready: true } })), wait)
+        setTimeout(
+          () =>
+            updateAlert(id, (a) => ({
+              seen: a.seen.map((x) => (x.n === i ? { ...x, ready: true } : x)),
+              ...(a.seen[0].n === i ? { recording: { ...a.recording, ready: true } } : {}),
+            })),
+          wait,
+        )
       }
-      const better = `${id}-best`
-      if (best && now >= best.time && best.confidence > seen.box.confidence && !raised.current.has(better)) {
+      // Swap in the sighting's clearest frame (the saved alert's most confident frame) once
+      // the clip reaches it, while the alert still waits for review.
+      const better = `${key}-best`
+      if (best && now >= best.time && target.current[i] && !raised.current.has(better)) {
         raised.current.add(better)
-        updateAlert(id, { confidence: best.confidence, image: snapshot(video, best.box) })
+        const image = snapshot(video, best.box)
+        updateAlert(target.current[i], (a) => {
+          if (a.decision !== 'pending') return {}
+          const seen = a.seen.map((x) => (x.n === i ? { ...x, confidence: Math.max(x.confidence, best.confidence) } : x))
+          return best.confidence > a.confidence ? { seen, confidence: best.confidence, image } : { seen }
+        })
       }
     })
   }
@@ -236,8 +288,8 @@ export default function Demo() {
           A school&rsquo;s camera wall replaying a saved WatchDog run. The boxes and alerts are
           WatchDog&rsquo;s real results from the same model and rules as a live check, saved ahead
           of time so the demo plays instantly on any laptop. Press Start demo: about 10 seconds in,
-          Camera 1 plays and raises its alerts. Open <a href="#/alerts">Alerts</a> to confirm or
-          dismiss them.
+          Camera 1 plays and raises an alert. Open <a href="#/alerts">Alerts</a> to confirm or
+          dismiss it.
         </p>
         <p>
           Camera names and locations are a sample building layout, not the real school&rsquo;s. Only

@@ -159,6 +159,7 @@ export default function Alerts() {
                         </span>
                         <span className="incident-meta">
                           Possible {a.label} · {Math.round(a.confidence * 100)}% ·{' '}
+                          {a.seen?.length > 1 ? `seen ${a.seen.length}× · ` : ''}
                           {new Date(a.raisedAt).toLocaleTimeString()}
                         </span>
                         <span className={`incident-status st-${a.decision}`}>

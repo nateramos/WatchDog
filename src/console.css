@@ -1162,3 +1162,75 @@ kbd {
   font-size: 0.72rem;
   font-weight: 700;
 }
+
+/* ---------- Alert card: the camera's sightings (FlagCard.jsx) ---------- */
+.sightings {
+  margin: 12px 0 4px;
+  border: 1px solid var(--con-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  font-size: 0.85rem;
+}
+
+.sightings summary {
+  padding: 8px 12px;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sightings summary b {
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+}
+
+.sightings ol {
+  margin: 0;
+  padding: 0 8px 8px;
+  list-style: none;
+}
+
+.sightings li {
+  display: grid;
+  grid-template-columns: 24px 56px 44px 1fr;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.sightings li.is-shown {
+  background: rgba(77, 141, 255, 0.1);
+  color: var(--text);
+}
+
+.sightings-n {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--con-line);
+  border-radius: 50%;
+  font-size: 0.68rem;
+}
+
+.sightings li .con-btn {
+  justify-self: start;
+  min-height: 30px;
+  font-family: inherit;
+  font-size: 0.75rem;
+}
+
+.sightings-state {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
