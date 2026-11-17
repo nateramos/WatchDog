@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/nateramos/WatchDog/actions/workflows/ci.yml/badge.svg)](https://github.com/nateramos/WatchDog/actions/workflows/ci.yml)
 
-**Live:** https://main.dbzst24ccqq7g.amplifyapp.com (click **Try the demo** to sign in, no password)
+**Live:** https://main.dbzst24ccqq7g.amplifyapp.com (click **Try the demo** to sign in, no password). Works on phones and computers.
 
 WatchDog is a campus safety tool that informs human responders and does not make decisions for them. It watches a building's security cameras for a possible gun, and when it finds one it sends an alert with a snapshot and a short clip to a reviewer, who confirms the threat or dismisses it as a false alarm. Every decision is signed and logged. It uses no facial recognition. It has been tested on security camera footage from three real school shootings, and it raised no false alarm in an hour of ordinary campus security footage (see [Results](#results)).
 
@@ -27,7 +27,7 @@ Three moments shaped WatchDog:
 
 - **Uvalde, 2022.** 77 minutes passed between the gunman entering Robb Elementary and police stopping him ([U.S. Department of Justice review, 2024](https://abc17news.com/news/national-world/cnn-national/2024/01/18/uvalde-school-massacre-could-have-been-stopped-sooner-doj-report-finds/)).
 - **Parkland, 2018.** The school's cameras recorded the shooter, but officers were relying on footage they believed was live while it was being replayed more than 20 minutes behind. The state commission found the confusion "misled officers and deputies" ([WGBH/NPR](https://www.wgbh.org/news/national/2018-11-23/parkland-school-shooting-commission-calls-for-code-red-alarms-and-bleeding-control-kits)).
-- **Catholic University, January 2026.** Shots were fired a block from campus during a dispute, and police thought the suspect might have run toward campus. The university sheltered in place for nearly two hours while police searched; no suspect was found on campus ([WTOP](https://wtop.com/dc/2026/01/shelter-in-place-at-catholic-u-in-dc-after-reports-of-shots-fired-near-campus/), [WJLA](https://wjla.com/news/local/catholic-university-assault-brookland-cua-metro-stay-in-place-metropolitan-police-public-safety-officers-northeast-monroe)).
+- **Catholic University, January 2026.** Shots were fired a block from campus during a dispute, and police thought the suspect might have run toward campus. The university sheltered in place for nearly two hours while police searched; no suspect was found on campus ([WTOP](https://wtop.com/dc/2026/01/shelter-in-place-at-catholic-u-in-dc-after-reports-of-shots-fired-near-campus/), [WJLA](https://wjla.com/news/local/catholic-university-assault-brookland-cua-metro-stay-in-place-metropolitan-police-public-safety-officers-northeast-monroe)). The campus has security cameras throughout, which "record campus activity and are monitored by the University's department of public safety" ([Catholic University](https://catholic.edu/campus-safety/index.html)).
 
 The cameras were there every time. WatchDog watches them so the right person knows within seconds, and that person decides what happens next.
 
@@ -37,7 +37,7 @@ The cameras were there every time. WatchDog watches them so the right person kno
 - **The console:** after sign-in the app looks like a security control room. A status bar shows the site, whether Model Dublin has loaded, how many alerts are waiting, the reviewer on duty and a live clock; a side rail (a tab bar on phones) links the pages.
 - **Demo** (where sign-in lands): a wall of eight cameras replaying a saved WatchDog run. Each tile shows its camera ID and a REPLAY, LIVE or OFFLINE tag like a CCTV feed; offline cameras show NO SIGNAL. The wall can be laid out 2x2, 3x3 or 4x4, and clicking a camera opens it large (Esc goes back). Press **Start demo**: only Camera 1 shows the attacker, in security footage that police released after the 2023 Covenant School shooting in Nashville; it waits about 10 seconds on an empty hallway, then plays once, and a camera with an alert flashes red with a "POSSIBLE GUN · REVIEW" bar. Cameras 2 to 6 show ordinary footage from two public datasets, an indoor school building (MEVA) and outdoor campus walkways (ShanghaiTech Campus), and WatchDog stays quiet on all of them, including a person carrying a broom. Cameras 7 and 8 are offline. The boxes and alerts are WatchDog's real results, saved ahead of time so the demo plays instantly; an alert fires at the moment the video first shows the gun, and the cameras keep running while you are on other pages. Like an incident on a security console, a camera has one open alert at a time: while it waits for review, later sightings fold into it instead of becoming separate alerts. The alert shows its best score, and a **Sightings** dropdown lists each sighting with its time, score and own clip; once it has been decided, a new sighting raises a new alert. Camera names and locations are a sample building layout, not the real places'. A guide above the wall takes first-time visitors through the demo step by step (start it, watch Camera 1, open the alert, confirm or dismiss, check the Review log) and moves on by itself as they go; it can be hidden and shown again. It was added after user testing, where a first-time visitor thought the demo was already running and missed Start demo.
 - **Cameras:** the same wall for live cameras, with search and a **Filters** menu (live or offline, area, floor, wing). No live camera is connected in this prototype, so every slot shows NO SIGNAL.
-- **Alerts:** an incident queue. Alerts are listed newest first with a colour for their status (needs review, threat confirmed, false alarm); the selected one opens large with its snapshot and, a few seconds later, a clip from one second before the gun was first seen to four seconds after, which the reviewer plays with **Play clip** and can pause and scrub frame by frame. The reviewer types their name in **On duty**, and every **Confirm threat** or **Dismiss** is signed with it. Keyboard shortcuts: C to confirm, D to dismiss, the arrow keys to move through the queue. The **Review log** tab records every alert and decision ("possible gun", "threat confirmed", "false alarm") and exports them as CSV.
+- **Alerts:** an incident queue. Alerts are listed newest first with a colour for their status (needs review, threat confirmed, false alarm); the selected one opens large with its snapshot and, a few seconds later, a clip from one second before the gun was first seen to four seconds after, which the reviewer plays with **Play clip** and can pause and scrub frame by frame. The reviewer types their name in **On duty**, and every **Confirm threat** or **Dismiss** is signed with it. Keyboard shortcuts: C to confirm, D to dismiss, the arrow keys to move through the queue. The **Review log** tab records every alert and decision ("possible gun", "threat confirmed", "false alarm") and exports them as CSV (a spreadsheet file that opens in Excel or Google Sheets).
 
 How WatchDog decides what to flag:
 
@@ -112,7 +112,7 @@ A school will ask how often WatchDog raises a false alarm on an ordinary day. We
 | Frames flagged | **0** |
 | False alarms (alerts) | **0 in one hour** |
 
-To make sure the detector was really working in that run, we ran two of the Nashville clips through the same setup: it caught the gun with the same results as the table above (84% and 76%). Zero false alarms in one hour does not mean WatchDog never makes one, which is why a person reviews every alert. This footage is outdoors; an indoor hallway test is on the [roadmap](#roadmap). The footage is not in this repo.
+To make sure the detector was really working in that run, we ran two of the Nashville clips through the same setup: it caught the gun with the same results as the table above (84% and 76%). Zero false alarms in one hour does not mean WatchDog never makes one, which is why a person reviews every alert. The footage is not in this repo.
 
 ### Staged home clips
 
@@ -191,9 +191,9 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 | Category | Weight | How WatchDog addresses it |
 | --- | --- | --- |
 | Functionality & technical execution | 25% | Live on AWS Amplify behind a working Cognito sign-in with a one-click judge account. A camera wall with search and filters, a Demo page replaying real CCTV, an Alerts inbox with a snapshot, a scrubbable clip and signed confirm/dismiss, and an exportable review log. Model Dublin runs in the browser with ONNX Runtime Web. |
-| Problem identification & relevance | 20% | Campus safety: most active shooter incidents end within five minutes (FBI) and 93% of public schools already have cameras (NCES), but no one can watch every feed. WatchDog points a person at the moment a camera may show a gun ([Why WatchDog was built](#why-watchdog-was-built)). Tested on security footage from three real school shootings (an alert on all five clips, all on the real gun) and on 42 staged clips with dim light and everyday look-alike objects. |
-| AI integration & innovation | 20% | Model Dublin (YOLO11m) trained for 50 epochs on about 146,000 weapon images and 49,000 look-alike photos; a second check on a rotated frame for upright guns; a two-in-a-row rule; a CCTV size limit; alerts raised at the first sighting and upgraded as clearer frames arrive; detection boxes interpolated between checked frames. |
-| Code quality & GitHub transparency | 15% | Small single-purpose modules, 40 unit tests, CI on every push, and a step-by-step public commit history. Training data sources, licenses, the training chart and test results are in the repo; real footage is kept out of it. |
+| Problem identification & relevance | 20% | Campus safety: most active shooter incidents end within five minutes (FBI) and 93% of public schools already have cameras (NCES), but no one can watch every feed. WatchDog points a person at the moment a camera may show a gun ([Why WatchDog was built](#why-watchdog-was-built)). Tested five ways: 11,694 held-out images it never trained on (0.874 mAP50), 5,495 look-alike photos (99.8% correctly ignored), security footage from three real school shootings (an alert on all five clips, all on the real gun), one hour of footage from 13 campus cameras (zero false alarms), and 42 staged clips with dim light and everyday look-alike objects ([Results](#results)). |
+| AI integration & innovation | 20% | Model Dublin (YOLO11m) trained for 50 epochs on about 146,000 weapon images and 49,000 look-alike photos, and it rarely saw the same picture twice: on every pass each image was randomly stitched into a four-photo mosaic, zoomed, tilted, mirrored, darkened or brightened, partly covered, and blurred or noised like cheap CCTV, so it learned from far more variations than the 195,000 originals; a second check on a rotated frame for upright guns; a two-in-a-row rule; a CCTV size limit; alerts raised at the first sighting and upgraded as clearer frames arrive; detection boxes interpolated between checked frames. |
+| Code quality & GitHub transparency | 15% | Small single-purpose modules, 40 unit tests, CI on every push, and a step-by-step commit history. Training data sources, licenses, the training chart and test results are in the repo; real footage is kept out of it. |
 | UX & design | 10% | A security-console layout: a status bar with the site, model status, alerts waiting, the reviewer on duty and a live clock; CCTV-style camera tiles with camera IDs, REPLAY/LIVE/OFFLINE tags, NO SIGNAL screens and a flashing red alert bar; 2x2, 3x3 and 4x4 walls and a single-camera view; an incident queue with keyboard shortcuts and signed decisions; a step-by-step demo guide added after watching first-time visitors use the app; a public home page; and layouts checked at phone width (a bottom tab bar on phones). |
 | Business impact & presentation | 10% | A priced plan for every kind of school ($200 a month per school plus $20–30 per camera, $2,500 per on-site computer), a cost calculator on the home page, about half what a public contract for a similar system costs, and a sourced comparison with ZeroEyes and Omnilert ([Business model](#business-model)). |
 | Bonus: ethical AI | up to 5 | A person confirms every alert and signs each decision, everything is logged, "possible gun" wording and "Demo replay" tags, no facial recognition, video never sent to a server, attack footage only from public police and news releases and everyday footage only from public research datasets, all credited and kept out of the repo. |
@@ -203,13 +203,15 @@ Fall 2026 judging rubric (100 points, plus up to 5 bonus):
 Not built yet:
 
 - Connecting live cameras (the camera wall and the frame-by-frame check are ready; the prototype plays recorded clips)
-- Running the model off the page's main thread, so checking a live feed never freezes the page
 - A campus map that shows which camera raised an alert
 - Following a person or gun across cameras, and predicting where they are heading, for responders
 - A one-click incident report (snapshots, clips and decisions) for police and administrators
-- A longer false-alarm test on indoor school footage (hallways, cafeteria, gym)
 
-## Run it locally
+## Run it
+
+The easiest way: open the [live site](https://main.dbzst24ccqq7g.amplifyapp.com) and click **Try the demo**.
+
+To run it on a computer:
 
 ```
 npm install
@@ -262,3 +264,6 @@ None of this footage was used to train the model, and none of it is in this repo
 
 `tracking/track.py` is the desktop prototype: it tracks people (pose) and the objects they hold on a webcam or video file. The web demo is where weapon detection runs.
 
+---
+
+© 2026 Nate Ramos. All rights reserved. This code is shared for the contest judges to review; it may not be copied, reused or distributed without permission. To see the code, ask Nate Ramos for access.
