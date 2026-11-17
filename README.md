@@ -19,7 +19,7 @@ Nate Ramos, CUA Busch School AI Vibe Coding Contest, Fall 2026
 
 ## Why WatchDog was built
 
-**Most attacks are over in minutes.** In the FBI's study of 160 active shooter incidents in the U.S. from 2000 to 2013, 69% of the incidents whose length could be measured ended in five minutes or less, and 60% ended before police arrived ([FBI, 2014](https://www.fbi.gov/file-repository/active-shooter-study-2000-2013-1.pdf)). The study covers all locations; 39 of the 160 were at schools and colleges.
+**Most attacks are over in minutes.** In the FBI's study of 160 active shooter incidents in the U.S. from 2000 to 2013, 69% of the incidents whose length could be measured ended in five minutes or less, and 60% ended before police arrived ([FBI, 2014](https://www.fbi.gov/file-repository/active-shooter-study-2000-2013-1.pdf)). Here "ended" means the shooting stopped: most often the shooter stopped, fled or died by suicide (56%); otherwise bystanders (13%) or police (28%) stopped them. The study covers all locations; 39 of the 160 were at schools and colleges.
 
 **Schools already have the cameras.** 93% of U.S. public schools used security cameras in 2021–22, up from 61% in 2009–10 ([NCES](https://nces.ed.gov/programs/coe/indicator/a19/school-crime-and-safety/)). What they don't have is someone watching every feed, every second.
 
